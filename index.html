@@ -24,6 +24,7 @@
     --accent: #000000;
     --accent-soft: #EDEDED;
     --accent-ink: #FFFFFF;
+    --danger: #C0392B;
     --shadow: 0 10px 30px rgba(0,0,0,0.10);
   }
   html[data-theme="dark"]{
@@ -39,6 +40,7 @@
     --accent: #FFFFFF;
     --accent-soft: rgba(255,255,255,0.16);
     --accent-ink: #0A0A0A;
+    --danger: #FF6B6B;
     --shadow: 0 10px 30px rgba(0,0,0,0.5);
   }
 
@@ -178,11 +180,11 @@
   .day-pill .num{ font-family:'Montserrat', sans-serif; font-size:16px; font-weight:700; }
   .day-pill .lbl{ font-size:9px; font-weight:700; letter-spacing:0.5px; color: var(--ink-soft); text-transform:uppercase; }
   .day-pill.selected{ background: var(--accent); border-color: var(--accent); }
-  .day-pill.selected .num{ color: #FFFFFF; }
-  .day-pill.selected .lbl{ color: rgba(255,255,255,0.75); }
+  .day-pill.selected .num{ color: var(--accent-ink); }
+  .day-pill.selected .lbl{ color: var(--accent-ink); opacity:0.75; }
   .day-pill .dot{ width:4px; height:4px; border-radius:50%; background: var(--accent); margin-top:1px; opacity:0; }
   .day-pill.hastraining .dot{ opacity:1; }
-  .day-pill.selected .dot{ background: #FFFFFF; }
+  .day-pill.selected .dot{ background: var(--accent-ink); }
 
   /* ===================== STATS ROW ===================== */
   .stats-row{ display:flex; gap:10px; margin-bottom:26px; }
@@ -232,7 +234,8 @@
   .nav-fab .fab-check{ display:none; }
   .nav-fab.saved .fab-save{ display:none; }
   .nav-fab.saved .fab-check{ display:block; }
-  .nav-fab.saved{ background: #1A1A1A; }
+  .nav-fab.saved{ background: var(--ink); }
+  .nav-fab.saved svg{ stroke: var(--bg-1); }
   .nav-home-indicator{
     position:absolute; bottom:6px; left:50%; transform: translateX(-50%);
     width:120px; height:3px; border-radius:2px; background: var(--line);
@@ -293,7 +296,7 @@
     padding: 8px 15px; border-radius:20px; border:1px solid var(--line); background: var(--card);
     font-size:12px; font-weight:700; color: var(--ink-soft); cursor:pointer;
   }
-  .filter-chip.active{ background: var(--accent); border-color: var(--accent); color:#FFFFFF; }
+  .filter-chip.active{ background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
   .day-row-card{
     display:flex; align-items:stretch; gap:0; background: var(--card); border:1px solid var(--line);
@@ -375,13 +378,14 @@
     background: var(--accent-soft); color: var(--accent); border:none; cursor:pointer;
     display:flex; align-items:center; justify-content:center; z-index:2;
   }
-  .edit-pencil-btn.editing{ background: var(--accent); color:#FFFFFF; }
+  .edit-pencil-btn.editing{ background: var(--accent); color: var(--accent-ink); }
   .profile-avatar{ position:relative; cursor:pointer; overflow:hidden; background-size:cover; background-position:center; }
   .avatar-edit-badge{
     position:absolute; bottom:-2px; right:-2px; width:20px; height:20px; border-radius:50%;
     background: var(--accent); border:2px solid var(--card);
     display:flex; align-items:center; justify-content:center;
   }
+  .avatar-edit-badge svg{ stroke: var(--accent-ink); }
   .profile-avatar.has-photo #profileAvatarInitials{ display:none; }
   .edit-input{
     width:100%; border:1px solid var(--line); background: var(--card-soft); border-radius:10px;
@@ -543,7 +547,7 @@
             <div class="profile-avatar" id="profileAvatar" onclick="triggerAvatarUpload()">
               <span id="profileAvatarInitials">LH</span>
               <div class="avatar-edit-badge">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               </div>
             </div>
             <div style="flex:1;">
@@ -1076,7 +1080,7 @@ function renderDetail(){
         <div class="edit-row3">
           <input class="edit-input small" type="number" value="${e.sets}" onchange="editExField(${gi},${ei},'sets',this.value)" placeholder="Séries">
           <input class="edit-input small" value="${e.reps}" onchange="editExField(${gi},${ei},'reps',this.value)" placeholder="Reps">
-          <div class="edit-input small" style="text-align:center; cursor:pointer; color:#1A1A1A;" onclick="removeExercise(${gi},${ei})">Remover</div>
+          <div class="edit-input small" style="text-align:center; cursor:pointer; color: var(--danger);" onclick="removeExercise(${gi},${ei})">Remover</div>
         </div>
       </div>`;
     }).join('')}
