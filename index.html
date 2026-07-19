@@ -715,24 +715,28 @@
     <div class="gate-screen active" id="gateSelect">
       <div class="gate-title disp">Quem é você?</div>
       <div class="gate-sub">Selecione seu perfil para continuar</div>
-      <div class="profile-list">
-        <div class="profile-row" onclick="openPinScreen('luis')">
-          <div class="p-avatar">LH</div>
-          <div class="p-info">
-            <div class="p-name">Luís</div>
-            <div class="p-hint">Toque para entrar</div>
-          </div>
-          <div class="p-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9.3 5.3a1.4 1.4 0 010 2l-4.8 4.7 4.8 4.7a1.4 1.4 0 01-2 2L1.5 12.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor" transform="rotate(180 12 12)"/></svg></div>
+      <div class="profile-list" id="profileList"></div>
+    </div>
+
+    <!-- Tela de cadastro de novo perfil -->
+    <div class="gate-screen" id="gateSignup">
+      <div class="gate-title disp" style="font-size:20px;">Criar perfil</div>
+      <div class="gate-sub">Preencha seus dados para começar</div>
+      <div style="width:100%; display:flex; flex-direction:column; gap:2px;">
+        <input class="edit-input" id="suName" placeholder="Nome completo" style="text-align:left;">
+        <input class="edit-input" id="suEmail" placeholder="E-mail" style="text-align:left; margin-top:12px;" type="email">
+        <div class="edit-row3" style="margin-top:12px;">
+          <input class="edit-input small" id="suHeight" placeholder="Altura (m)" inputmode="decimal" oninput="this.value=this.value.replace(/[^0-9,]/g,'')">
+          <input class="edit-input small" id="suAge" placeholder="Idade" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+          <input class="edit-input small" id="suWeight" placeholder="Peso (kg)" inputmode="decimal" oninput="this.value=this.value.replace(/[^0-9,]/g,'')">
         </div>
-        <div class="profile-row new-user" onclick="showNewUserToast()">
-          <div class="p-avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="10.6" y="4" width="2.8" height="16" rx="1.4" fill="currentColor"/><rect x="4" y="10.6" width="16" height="2.8" rx="1.4" fill="currentColor"/></svg></div>
-          <div class="p-info">
-            <div class="p-name">Sou novo</div>
-            <div class="p-hint">Criar um perfil</div>
-          </div>
-          <div class="p-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9.3 5.3a1.4 1.4 0 010 2l-4.8 4.7 4.8 4.7a1.4 1.4 0 01-2 2L1.5 12.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor" transform="rotate(180 12 12)"/></svg></div>
+        <div class="edit-row3" style="margin-top:12px;">
+          <input class="edit-input" id="suPin" placeholder="PIN (4 dígitos)" inputmode="numeric" type="password" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
+          <input class="edit-input" id="suPinConfirm" placeholder="Confirmar PIN" inputmode="numeric" type="password" maxlength="4" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
         </div>
       </div>
+      <button class="detail-start-btn" style="margin-top:22px;" onclick="submitSignup()">Criar perfil</button>
+      <div class="pin-back" onclick="backToProfileSelect()">Já tenho um perfil</div>
     </div>
 
     <!-- Tela de PIN -->
@@ -979,6 +983,10 @@
           <div class="sm-grid" id="smGrid"></div>
           <div class="sm-month" id="smMonth">—</div>
         </div>
+
+        <div class="settings-row" style="margin-top:18px; justify-content:center;" onclick="logoutProfile()">
+          <div class="t" style="color: var(--danger);">Trocar de perfil</div>
+        </div>
       </div>
     </div>
 
@@ -1113,7 +1121,7 @@ const EXERCISE_DB = {
   'Abdutores': ['Cadeira abdutora','Abdução no cabo','Caminhada lateral com elástico','Coice lateral'],
 };
 
-const WEEK_DATA = [
+const DEFAULT_WEEK_DATA = [
   { id:'seg', dow:1, short:'SEG', name:'Segunda', type:'forca', badge:'A',
     focus:'Peito, Ombro e Tríceps', sub:'Força e volume no superior',
     groups:[
@@ -1204,6 +1212,7 @@ const WEEK_DATA = [
   { id:'dom', dow:0, short:'DOM', name:'Domingo', type:'descanso', badge:'rest',
     focus:'Descanso', sub:'Ou atividade leve: caminhada, alongamento', groups:[] },
 ];
+let WEEK_DATA = [];
 
 function flatExercises(day){
   const out = [];
@@ -1226,8 +1235,9 @@ let dailyKm = {}; // { 'YYYY-MM-DD': km feitos naquele dia }
 const KM_WEEKLY_GOAL = 20;
 
 async function loadState(){
+  weekState = {}; streak = 0; record = 0; totalSessions = 0; totalKm = 0; totalMinutes = 0; dailyKm = {};
   try{
-    const r = await window.storage.get('meu-treino-state', false);
+    const r = await window.storage.get('meu-treino-state:' + currentProfileId, false);
     if(r && r.value){
       const d = JSON.parse(r.value);
       weekState = d.weekState || {};
@@ -1241,13 +1251,13 @@ async function loadState(){
   }catch(e){ /* sem dados salvos ainda */ }
   await loadPlanEdits();
   await loadCustomWorkouts();
+  loadProfileData();
   renderAll();
   await loadAvatar();
-  await loadProfileData();
 }
 async function saveState(){
   try{
-    await window.storage.set('meu-treino-state', JSON.stringify({weekState, streak, record, totalSessions, totalKm, totalMinutes, dailyKm}), false);
+    await window.storage.set('meu-treino-state:' + currentProfileId, JSON.stringify({weekState, streak, record, totalSessions, totalKm, totalMinutes, dailyKm}), false);
   }catch(e){}
 }
 
@@ -1329,18 +1339,68 @@ function playClick(){
    PROFILE GATE (seleção de perfil + PIN)
 ===================================================================== */
 const USERS = {
-  luis: { name: 'Luís', initials: 'LH', pin: '7489' }
+  luis: { name: 'Luís', initials: 'LH', pin: '7489', email: 'raposoluish@gmail.com', height: '1,80', age: '26', weight: '71', seedDefault: true }
 };
+let profiles = [];
 let pendingUser = null;
 let pinBuffer = '';
+let currentProfileId = null;
+
+function initials(name){
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if(parts.length === 0) return '?';
+  if(parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+  return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+}
+
+async function loadProfiles(){
+  try{
+    const r = await window.storage.get('meu-treino-profiles', false);
+    if(r && r.value) profiles = JSON.parse(r.value);
+  }catch(e){}
+  if(profiles.length === 0){
+    profiles = [Object.assign({id:'luis'}, USERS.luis)];
+    await saveProfiles();
+  }
+  renderProfileList();
+}
+async function saveProfiles(){
+  try{ await window.storage.set('meu-treino-profiles', JSON.stringify(profiles), false); }catch(e){}
+}
+
+function renderProfileList(){
+  const wrap = document.getElementById('profileList');
+  const arrowSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9.3 5.3a1.4 1.4 0 010 2l-4.8 4.7 4.8 4.7a1.4 1.4 0 01-2 2L1.5 12.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor" transform="rotate(180 12 12)"/></svg>';
+  wrap.innerHTML = profiles.map(p => `
+    <div class="profile-row" onclick="openPinScreen('${p.id}')">
+      <div class="p-avatar">${p.initials}</div>
+      <div class="p-info">
+        <div class="p-name">${p.name.split(' ')[0]}</div>
+        <div class="p-hint">Toque para entrar</div>
+      </div>
+      <div class="p-arrow">${arrowSvg}</div>
+    </div>
+  `).join('') + `
+    <div class="profile-row new-user" onclick="openSignupScreen()">
+      <div class="p-avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="10.6" y="4" width="2.8" height="16" rx="1.4" fill="currentColor"/><rect x="4" y="10.6" width="16" height="2.8" rx="1.4" fill="currentColor"/></svg></div>
+      <div class="p-info">
+        <div class="p-name">Sou novo</div>
+        <div class="p-hint">Criar um perfil</div>
+      </div>
+      <div class="p-arrow">${arrowSvg}</div>
+    </div>
+  `;
+}
 
 function openPinScreen(userId){
-  pendingUser = USERS[userId];
+  pendingUser = profiles.find(p => p.id === userId);
+  if(!pendingUser) return;
   pinBuffer = '';
   document.getElementById('pinAvatarInitials').textContent = pendingUser.initials;
-  document.getElementById('pinUserName').textContent = pendingUser.name;
+  document.getElementById('pinUserName').textContent = pendingUser.name.split(' ')[0];
   renderPinDots();
   document.getElementById('gateSelect').classList.remove('active');
+  document.getElementById('gateSignup').classList.remove('active');
   document.getElementById('gatePin').classList.add('active');
 }
 
@@ -1348,7 +1408,46 @@ function backToProfileSelect(){
   pendingUser = null;
   pinBuffer = '';
   document.getElementById('gatePin').classList.remove('active');
+  document.getElementById('gateSignup').classList.remove('active');
   document.getElementById('gateSelect').classList.add('active');
+}
+
+function openSignupScreen(){
+  ['suName','suEmail','suHeight','suAge','suWeight','suPin','suPinConfirm'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('gateSelect').classList.remove('active');
+  document.getElementById('gateSignup').classList.add('active');
+}
+
+async function submitSignup(){
+  const name = document.getElementById('suName').value.trim();
+  const email = document.getElementById('suEmail').value.trim();
+  const height = document.getElementById('suHeight').value.trim();
+  const age = document.getElementById('suAge').value.trim();
+  const weight = document.getElementById('suWeight').value.trim();
+  const pin = document.getElementById('suPin').value;
+  const pinConfirm = document.getElementById('suPinConfirm').value;
+
+  if(!name){ showToast('Digite seu nome'); return; }
+  if(!email || !email.includes('@')){ showToast('Digite um e-mail válido'); return; }
+  if(!height){ showToast('Digite sua altura'); return; }
+  if(!age){ showToast('Digite sua idade'); return; }
+  if(!weight){ showToast('Digite seu peso'); return; }
+  if(pin.length !== 4){ showToast('O PIN deve ter 4 dígitos'); return; }
+  if(pin !== pinConfirm){ showToast('Os PINs não coincidem'); return; }
+
+  const profile = {
+    id: 'u' + Date.now(),
+    name, email, height, age, weight, pin,
+    initials: initials(name),
+    seedDefault: false,
+  };
+  profiles.push(profile);
+  await saveProfiles();
+  renderProfileList();
+  showToast('Perfil criado!');
+  playClick();
+  pendingUser = profile;
+  enterApp();
 }
 
 function renderPinDots(){
@@ -1386,16 +1485,34 @@ function checkPin(){
 }
 
 function enterApp(){
+  currentProfileId = pendingUser.id;
   const gate = document.getElementById('profileGate');
   gate.classList.add('hide');
   setTimeout(() => {
     gate.classList.remove('show', 'hide');
     document.getElementById('app').classList.add('show');
   }, 400);
+  loadState();
 }
 
-function showNewUserToast(){
-  showToast('Cadastro de novo perfil ainda em construção');
+function logoutProfile(){
+  clearInterval(restInterval);
+  clearInterval(cardioInterval);
+  document.getElementById('app').classList.remove('show');
+  currentProfileId = null;
+  pendingUser = null;
+  weekState = {}; streak = 0; record = 0; totalSessions = 0; totalKm = 0; totalMinutes = 0; dailyKm = {};
+  customWorkouts = [];
+  WEEK_DATA = [];
+  document.getElementById('profileAvatar').style.backgroundImage = '';
+  document.getElementById('profileAvatar').classList.remove('has-photo');
+  document.getElementById('avatarBtn').style.backgroundImage = '';
+  document.getElementById('avatarBtn').classList.remove('has-photo');
+  goTo('home');
+  const gate = document.getElementById('profileGate');
+  gate.classList.remove('hide');
+  gate.classList.add('show');
+  backToProfileSelect();
 }
 
 function showToast(msg){
@@ -1425,6 +1542,20 @@ function renderToday(){
   const day = getDayByDow(selectedDow);
   const isToday = selectedDow === new Date().getDay();
   const card = document.getElementById('todayCard');
+
+  if(!day){
+    card.innerHTML = `
+      <div class="today-eyebrow">SEU PLANO</div>
+      <div class="today-badge-row">
+        <div class="today-title">Você ainda não tem treinos</div>
+        <div class="today-badge">${badgeContent('bolt')}</div>
+      </div>
+      <div class="today-sub">Monte seu primeiro treino pra começar a acompanhar seu progresso.</div>
+      <button class="today-cta" onclick="openNewWorkoutScreen()">Criar treino</button>
+    `;
+    return;
+  }
+
   const eyebrow = isToday ? 'TREINO DE HOJE' : ('TREINO DE ' + day.name.toUpperCase());
 
   if(day.type === 'descanso'){
@@ -1469,10 +1600,16 @@ function renderWeekCal(){
   const monday = mondayOfWeek(new Date());
   const todayDow = new Date().getDay();
   wrap.innerHTML = '';
+  if(WEEK_DATA.length === 0){
+    wrap.style.display = 'none';
+    return;
+  }
+  wrap.style.display = '';
   for(let i=0;i<7;i++){
     const d = new Date(monday); d.setDate(monday.getDate()+i);
     const dow = d.getDay();
     const dayInfo = getDayByDow(dow);
+    if(!dayInfo) continue;
     const isRest = dayInfo.type === 'descanso';
     const isSelected = dow === selectedDow;
     const cell = document.createElement('div');
@@ -1516,7 +1653,9 @@ function renderGreeting(){
   const now = new Date();
   const h = now.getHours();
   const period = h < 12 ? 'Bom dia' : (h < 18 ? 'Boa tarde' : 'Boa noite');
-  document.getElementById('greetTitle').textContent = `${period}, Luís`;
+  const p = profiles.find(x => x.id === currentProfileId);
+  const firstName = p ? p.name.split(' ')[0] : '';
+  document.getElementById('greetTitle').textContent = `${period}, ${firstName}`;
   const phrase = MOTIVATIONAL_PHRASES[dayOfYear(now) % MOTIVATIONAL_PHRASES.length];
   document.getElementById('greetDate').textContent = phrase;
 }
@@ -1525,19 +1664,21 @@ function renderStreakCard(){
   document.getElementById('streakNum').textContent = streak + (streak === 1 ? ' dia' : ' dias');
   const monday = mondayOfWeek(new Date());
   const todayKey = dateKey(new Date());
+  const DOW_SHORT = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
   let doneCount = 0;
   const daysHtml = [];
   for(let i=0;i<7;i++){
     const d = new Date(monday); d.setDate(monday.getDate()+i);
     const key = dateKey(d);
     const dayInfo = getDayByDow(d.getDay());
+    const shortLbl = dayInfo ? dayInfo.short : DOW_SHORT[d.getDay()];
     const isDone = weekState[key] === 'done';
     const isToday = key === todayKey;
     if(isDone) doneCount++;
     daysHtml.push(`
       <div class="streak-day ${isDone ? 'done' : ''} ${isToday ? 'today' : ''}">
         <div class="sd-dot">${isDone ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}</div>
-        <div class="sd-lbl">${dayInfo.short.slice(0,3)}</div>
+        <div class="sd-lbl">${shortLbl.slice(0,3)}</div>
       </div>
     `);
   }
@@ -1757,20 +1898,21 @@ function deleteCustomWorkout(){
 }
 async function savePlanEdits(){
   try{
-    await window.storage.set('meu-treino-plan', JSON.stringify(WEEK_DATA), false);
+    await window.storage.set('meu-treino-plan:' + currentProfileId, JSON.stringify(WEEK_DATA), false);
   }catch(e){}
   renderTreinos();
   renderToday();
 }
 async function saveCustomWorkouts(){
   try{
-    await window.storage.set('meu-treino-custom', JSON.stringify(customWorkouts), false);
+    await window.storage.set('meu-treino-custom:' + currentProfileId, JSON.stringify(customWorkouts), false);
   }catch(e){}
   renderTreinos();
 }
 async function loadCustomWorkouts(){
+  customWorkouts = [];
   try{
-    const r = await window.storage.get('meu-treino-custom', false);
+    const r = await window.storage.get('meu-treino-custom:' + currentProfileId, false);
     if(r && r.value) customWorkouts = JSON.parse(r.value);
   }catch(e){}
 }
@@ -1873,8 +2015,10 @@ async function saveNewWorkout(){
 }
 
 async function loadPlanEdits(){
+  const profile = profiles.find(p => p.id === currentProfileId);
+  WEEK_DATA = (profile && profile.seedDefault) ? JSON.parse(JSON.stringify(DEFAULT_WEEK_DATA)) : [];
   try{
-    const r = await window.storage.get('meu-treino-plan', false);
+    const r = await window.storage.get('meu-treino-plan:' + currentProfileId, false);
     if(r && r.value){
       const saved = JSON.parse(r.value);
       saved.forEach(sd => {
@@ -1941,13 +2085,13 @@ function handleAvatarUpload(evt){
     document.getElementById('profileAvatar').classList.add('has-photo');
     document.getElementById('avatarBtn').style.backgroundImage = `url('${url}')`;
     document.getElementById('avatarBtn').classList.add('has-photo');
-    try{ window.storage.set('meu-treino-avatar', url, false); }catch(err){}
+    try{ window.storage.set('meu-treino-avatar:' + currentProfileId, url, false); }catch(err){}
   };
   reader.readAsDataURL(file);
 }
 async function loadAvatar(){
   try{
-    const r = await window.storage.get('meu-treino-avatar', false);
+    const r = await window.storage.get('meu-treino-avatar:' + currentProfileId, false);
     if(r && r.value){
       document.getElementById('profileAvatar').style.backgroundImage = `url('${r.value}')`;
       document.getElementById('profileAvatar').classList.add('has-photo');
@@ -1974,11 +2118,12 @@ function toggleProfileEdit(){
     document.getElementById('editAge').value = document.getElementById('statAge').textContent.trim();
     document.getElementById('editWeight').value = document.getElementById('statWeight').textContent.replace(' kg','').trim();
   } else {
-    const name = document.getElementById('editName').value || 'Luís Henrique';
-    const email = document.getElementById('editEmail').value || 'raposoluish@gmail.com';
-    const height = document.getElementById('editHeight').value || '1,80';
-    const age = document.getElementById('editAge').value || '26';
-    const weight = document.getElementById('editWeight').value || '71';
+    const p = profiles.find(x => x.id === currentProfileId) || {};
+    const name = document.getElementById('editName').value || p.name || 'Usuário';
+    const email = document.getElementById('editEmail').value || p.email || '';
+    const height = document.getElementById('editHeight').value || p.height || '';
+    const age = document.getElementById('editAge').value || p.age || '';
+    const weight = document.getElementById('editWeight').value || p.weight || '';
     document.getElementById('profileNameView').textContent = name;
     document.getElementById('profileEmailView').textContent = email;
     document.getElementById('statHeight').textContent = height + ' m';
@@ -1989,28 +2134,27 @@ function toggleProfileEdit(){
   }
 }
 async function saveProfileData(){
-  try{
-    await window.storage.set('meu-treino-profile', JSON.stringify({
-      name: document.getElementById('profileNameView').textContent,
-      email: document.getElementById('profileEmailView').textContent,
-      height: document.getElementById('statHeight').textContent,
-      age: document.getElementById('statAge').textContent,
-      weight: document.getElementById('statWeight').textContent,
-    }), false);
-  }catch(e){}
+  const p = profiles.find(x => x.id === currentProfileId);
+  if(!p) return;
+  p.name = document.getElementById('profileNameView').textContent;
+  p.email = document.getElementById('profileEmailView').textContent;
+  p.height = document.getElementById('statHeight').textContent.replace(' m','').trim();
+  p.age = document.getElementById('statAge').textContent.trim();
+  p.weight = document.getElementById('statWeight').textContent.replace(' kg','').trim();
+  p.initials = initials(p.name);
+  document.getElementById('avatarBtnInitials').textContent = p.initials;
+  await saveProfiles();
+  renderGreeting();
 }
-async function loadProfileData(){
-  try{
-    const r = await window.storage.get('meu-treino-profile', false);
-    if(r && r.value){
-      const d = JSON.parse(r.value);
-      document.getElementById('profileNameView').textContent = d.name;
-      document.getElementById('profileEmailView').textContent = d.email;
-      document.getElementById('statHeight').textContent = d.height;
-      document.getElementById('statAge').textContent = d.age;
-      document.getElementById('statWeight').textContent = d.weight;
-    }
-  }catch(e){}
+function loadProfileData(){
+  const p = profiles.find(x => x.id === currentProfileId);
+  if(!p) return;
+  document.getElementById('profileNameView').textContent = p.name;
+  document.getElementById('profileEmailView').textContent = p.email;
+  document.getElementById('statHeight').textContent = p.height + ' m';
+  document.getElementById('statAge').textContent = p.age;
+  document.getElementById('statWeight').textContent = p.weight + ' kg';
+  document.getElementById('avatarBtnInitials').textContent = p.initials;
 }
 
 /* =====================================================================
@@ -2262,7 +2406,7 @@ function renderAll(){
   renderTreinos();
   renderPerfil();
 }
-loadState();
+loadProfiles();
 </script>
 </body>
 </html>
