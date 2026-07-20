@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Meu Treino</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M22.29,26 Q50,10 56.93,14 L77.71,26 Q84.64,30 84.64,38 L84.64,62 Q84.64,70 77.71,74 L56.93,86 Q50,90 43.07,86 L22.29,74 Q15.36,70 15.36,62 L15.36,38 Q15.36,30 22.29,26 Z' fill='%23141414'/%3E%3Cellipse cx='38' cy='50' rx='10' ry='12' fill='%23fff'/%3E%3Cellipse cx='62' cy='50' rx='10' ry='12' fill='%23fff'/%3E%3Ccircle cx='35' cy='52' r='5' fill='%23141414'/%3E%3Ccircle cx='59' cy='52' r='5' fill='%23141414'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -23,6 +24,7 @@
     --line: rgba(14,36,27,0.10);
     --accent: #17C79A;
     --accent-2: #63F2C8;
+    --accent-rgb: 23,199,154;
     --accent-soft: rgba(23,199,154,0.14);
     --accent-ink: #06231A;
     --danger: #FF5D6C;
@@ -41,6 +43,7 @@
     --line: rgba(255,255,255,0.08);
     --accent: #2FE6B0;
     --accent-2: #17C9DE;
+    --accent-rgb: 47,230,176;
     --accent-soft: rgba(47,230,176,0.16);
     --accent-ink: #062017;
     --danger: #FF6B7A;
@@ -80,6 +83,21 @@
   .gate-screen{ display:none; width:100%; max-width:360px; }
   .gate-screen.active{ display:flex; flex-direction:column; align-items:center; }
   .gate-title{ font-size:26px; font-weight:700; color: var(--ink); margin-bottom:6px; }
+  .app-logo-lockup{ display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:22px; }
+  .app-logo-lockup-big{ margin-bottom:18px; }
+  .gate-theme-switch{ position:absolute; top:20px; right:20px; }
+  .theme-switch.small{ width:42px; height:24px; }
+  .theme-switch.small .ts-knob{ width:18px; height:18px; }
+  .theme-switch.small .ts-knob svg{ width:11px; height:11px; }
+  html[data-theme="dark"] .theme-switch.small .ts-knob{ transform: translateX(18px); }
+  .app-logo-mark path{ fill: var(--ink); }
+  .app-logo-mark .app-logo-pupil{ fill: var(--ink); }
+  .app-logo-word{ font-family:'Montserrat', sans-serif; font-weight:800; font-size:20px; color: var(--ink); letter-spacing:-0.3px; }
+  .app-footer-brand{
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    padding: 18px 0 8px; opacity:0.4;
+  }
+  .app-footer-brand span{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:11.5px; color: var(--ink-soft); }
   .gate-sub{ font-size:14px; color: var(--ink-soft); margin-bottom:32px; }
   .profile-list{ width:100%; display:flex; flex-direction:column; gap:12px; }
   .profile-row{
@@ -91,14 +109,15 @@
   .profile-row:active{ transform: scale(0.98); }
   .profile-row:hover{ border-color: var(--ink-soft); }
   .profile-row .p-avatar{
-    width:46px; height:46px; border-radius:50%;
-    background: var(--today-card); color: var(--today-text);
+    width:46px; height:46px; border-radius: 46% 46% 50% 50% / 52% 52% 44% 44%;
+    background: var(--accent); border: 2px solid #141414;
     display:flex; align-items:center; justify-content:center;
     font-family:'Montserrat', sans-serif; font-weight:700; font-size:16px;
-    flex-shrink:0;
+    flex-shrink:0; overflow:hidden;
   }
+  .profile-row .p-avatar svg{ width:62%; height:auto; }
   .profile-row.new-user .p-avatar{
-    background: var(--accent-soft); color: var(--accent);
+    background: var(--accent-soft); color: var(--accent); border-color: var(--line);
   }
   .profile-row .p-info{ text-align:left; flex:1; }
   .profile-row .p-name{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:15px; color: var(--ink); }
@@ -106,12 +125,12 @@
   .profile-row .p-arrow{ color: var(--ink-soft); display:flex; }
 
   .pin-avatar{
-    width:64px; height:64px; border-radius:50%;
-    background: var(--today-card); color: var(--today-text);
+    width:64px; height:64px; border-radius: 46% 46% 50% 50% / 52% 52% 44% 44%;
+    background: var(--accent); border: 2px solid #141414;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Montserrat', sans-serif; font-weight:700; font-size:22px;
-    margin-bottom:16px;
+    margin-bottom:16px; overflow:hidden;
   }
+  .pin-avatar svg{ width:62%; height:auto; }
   .pin-dots{ display:flex; gap:14px; margin: 22px 0 28px; }
   .pin-dot{
     width:14px; height:14px; border-radius:50%;
@@ -226,6 +245,16 @@
   .accent-option .ao-check{ color: var(--accent); flex-shrink:0; display:none; }
   .accent-option.selected .ao-check{ display:flex; }
 
+  /* Trocar de tema clicando na carinha (aba Perfil e tela de criar perfil) */
+  .su-avatar-wrap{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .pin-avatar.su-clickable, .profile-avatar.su-clickable{ cursor:pointer; transition: transform 0.15s ease; }
+  .pin-avatar.su-clickable:active, .profile-avatar.su-clickable:active{ transform: scale(0.92); }
+  .su-theme-hint{
+    display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600;
+    color: var(--ink-soft); text-align:center;
+  }
+  .su-theme-hint svg{ flex-shrink:0; color: var(--accent); }
+
   /* ===================== TODAY CARD ===================== */
   .today-card{
     background: var(--today-card);
@@ -259,7 +288,7 @@
     cursor:pointer;
     background: linear-gradient(120deg, var(--accent), var(--accent-2));
     color: var(--accent-ink);
-    box-shadow: 0 10px 24px rgba(23,199,154,0.35);
+    box-shadow: 0 10px 24px rgba(var(--accent-rgb), 0.35);
     transition: transform 0.15s ease;
   }
   .today-cta:active{ transform: scale(0.97); }
@@ -391,7 +420,7 @@
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
     border: 5px solid var(--bg-1);
     display:flex; align-items:center; justify-content:center;
-    cursor:pointer; box-shadow: 0 10px 26px rgba(23,199,154,0.45);
+    cursor:pointer; box-shadow: 0 10px 26px rgba(var(--accent-rgb), 0.45);
     transition: transform 0.15s ease;
   }
   .nav-fab:active{ transform: translateX(-50%) scale(0.93); }
@@ -555,13 +584,13 @@
 
   .profile-avatar-wrap{ display:flex; justify-content:center; margin-top:-40px; position:relative; z-index:2; }
   .profile-avatar{
-    width:80px; height:80px; border-radius:50%; border:4px solid var(--card);
-    background: var(--card-soft); color: var(--ink-soft);
+    width:80px; height:80px; border-radius: 46% 46% 50% 50% / 52% 52% 44% 44%;
+    border:4px solid var(--card);
+    background: var(--accent);
     display:flex; align-items:center; justify-content:center;
-    position:relative; cursor:pointer; overflow:hidden; background-size:cover; background-position:center; flex-shrink:0;
+    position:relative; overflow:hidden; flex-shrink:0;
   }
-  .profile-avatar .cam-icon{ pointer-events:none; }
-  .profile-avatar.has-photo .cam-icon{ display:none; }
+  .profile-avatar svg{ width:60%; height:auto; }
 
   .profile-info{ padding: 14px 20px 0; text-align:center; }
   .profile-name-line{ display:flex; align-items:center; justify-content:center; gap:8px; }
@@ -646,108 +675,108 @@
   .sm-cell.today{ box-shadow: inset 0 0 0 2px var(--accent); font-weight:700; }
   .sm-month{ text-align:center; font-size:12px; font-weight:700; color: var(--ink-soft); margin-top:14px; text-transform:capitalize; }
 
-  /* ===================== SESSÃO GUIADA (modo escuro fixo) ===================== */
+  /* ===================== SESSÃO GUIADA (segue o tema do app) ===================== */
   #session{
-    --s-bg:#0A0A0A; --s-panel:#1A1A1A; --s-panel2:#222222; --s-line:rgba(255,255,255,0.12);
-    --s-text:#FFFFFF; --s-text-soft:rgba(255,255,255,0.55);
-    position:fixed; inset:0; z-index:100; background: var(--s-bg); color: var(--s-text);
+    position:fixed; inset:0; z-index:100;
+    background: var(--glow), linear-gradient(160deg, var(--bg-2) 0%, var(--bg-1) 55%, var(--bg-1) 100%);
+    color: var(--ink);
     display:none; flex-direction:column;
   }
   #session.open{ display:flex; }
   .session-head{ display:flex; align-items:center; justify-content:space-between; padding: 22px 20px 10px; }
   .session-close{
-    width:36px; height:36px; border-radius:50%; background: var(--s-panel); border:1px solid var(--s-line); color: var(--s-text);
+    width:36px; height:36px; border-radius:50%; background: var(--card); border:1px solid var(--line); color: var(--ink);
     display:flex; align-items:center; justify-content:center; cursor:pointer;
   }
   .session-progress{ display:flex; gap:5px; }
-  .prog-dot{ width:20px; height:5px; border-radius:3px; background: var(--s-panel); border:1px solid var(--s-line); }
-  .prog-dot.done{ background: #FFFFFF; border-color: #FFFFFF; }
-  .prog-dot.current{ border-color: #FFFFFF; }
+  .prog-dot{ width:20px; height:5px; border-radius:3px; background: var(--card); border:1px solid var(--line); }
+  .prog-dot.done{ background: var(--accent); border-color: var(--accent); }
+  .prog-dot.current{ border-color: var(--accent); }
   .session-body{ flex:1; overflow-y:auto; padding: 10px 20px 20px; display:flex; flex-direction:column; }
-  .session-day{ font-size:11px; color: var(--s-text-soft); font-weight:700; text-transform:uppercase; letter-spacing:0.6px; text-align:center; margin-bottom:14px; }
+  .session-day{ font-size:11px; color: var(--ink-soft); font-weight:700; text-transform:uppercase; letter-spacing:0.6px; text-align:center; margin-bottom:14px; }
   .session-ex-name{
     font-family:'Montserrat', sans-serif; font-size:26px; font-weight:800; line-height:1.2;
     text-transform:uppercase; letter-spacing:0.3px; text-align:center;
   }
-  .session-ex-sub{ font-size:13.5px; color: var(--s-text-soft); text-align:center; margin-top:4px; margin-bottom:6px; }
+  .session-ex-sub{ font-size:13.5px; color: var(--ink-soft); text-align:center; margin-top:4px; margin-bottom:6px; }
 
   .session-visual{
     flex:1; min-height:150px; display:flex; align-items:center; justify-content:center;
     position:relative; margin: 10px 0 14px;
   }
   .sv-ring{ width:min(56vw, 220px); height:min(56vw, 220px); transform: rotate(-90deg); }
-  .sv-track{ fill:none; stroke: var(--s-panel); stroke-width:8; }
+  .sv-track{ fill:none; stroke: var(--card-soft); stroke-width:8; }
   .sv-progress{
-    fill:none; stroke:#FFFFFF; stroke-width:8; stroke-linecap:round;
+    fill:none; stroke: var(--accent); stroke-width:8; stroke-linecap:round;
     stroke-dasharray: 326.7; stroke-dashoffset:326.7;
     transition: stroke-dashoffset 0.4s ease;
   }
   .sv-center{ position:absolute; display:flex; flex-direction:column; align-items:center; gap:2px; }
-  .sv-icon{ color:#FFFFFF; margin-bottom:6px; }
-  .sv-count{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:30px; color: var(--s-text); }
-  .sv-lbl{ font-size:11px; font-weight:700; color: var(--s-text-soft); text-transform:uppercase; letter-spacing:0.5px; }
+  .sv-icon{ color: var(--accent); margin-bottom:6px; }
+  .sv-count{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:30px; color: var(--ink); }
+  .sv-lbl{ font-size:11px; font-weight:700; color: var(--ink-soft); text-transform:uppercase; letter-spacing:0.5px; }
 
-  .sets-lbl{ font-size:14px; font-weight:600; color: var(--s-text-soft); text-align:center; margin-bottom:12px; }
+  .sets-lbl{ font-size:14px; font-weight:600; color: var(--ink-soft); text-align:center; margin-bottom:12px; }
   .sets-grid{ display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-bottom: 16px; }
   .set-box{
-    width:60px; height:60px; border-radius:15px; border:1.5px solid var(--s-line); background: var(--s-panel); color: var(--s-text);
+    width:60px; height:60px; border-radius:15px; border:1.5px solid var(--line); background: var(--card); color: var(--ink);
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer;
   }
-  .set-box .sn{ font-size:10px; font-weight:700; color: var(--s-text-soft); }
+  .set-box .sn{ font-size:10px; font-weight:700; color: var(--ink-soft); }
   .set-box .sc{ font-size:17px; }
-  .set-box.checked{ border-color:#FFFFFF; background: rgba(255,255,255,0.14); }
+  .set-box.checked{ border-color: var(--accent); background: var(--accent-soft); }
   .session-tip{
-    background: var(--s-panel); border:1px solid var(--s-line); border-radius:16px; padding:14px 16px;
-    font-size:12.5px; line-height:1.55; color: var(--s-text-soft); margin-bottom:16px;
+    background: var(--card); border:1px solid var(--line); border-radius:16px; padding:14px 16px;
+    font-size:12.5px; line-height:1.55; color: var(--ink-soft); margin-bottom:16px;
   }
-  .session-tip b{ color: var(--s-text); }
+  .session-tip b{ color: var(--ink); }
   .cardio-early{
-    display:none; text-align:center; font-size:12px; font-weight:600; color: var(--s-text-soft);
+    display:none; text-align:center; font-size:12px; font-weight:600; color: var(--ink-soft);
     text-decoration:underline; cursor:pointer; margin-bottom:16px;
   }
   .cardio-early.show{ display:block; }
-  .km-input-wrap{ display:none; background: var(--s-panel); border:1px solid var(--s-line); border-radius:16px; padding:16px; margin-bottom:16px; }
+  .km-input-wrap{ display:none; background: var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:16px; }
   .km-input-wrap.show{ display:block; }
-  .km-input-lbl{ font-size:12.5px; font-weight:700; color: var(--s-text-soft); text-align:center; margin-bottom:10px; }
+  .km-input-lbl{ font-size:12.5px; font-weight:700; color: var(--ink-soft); text-align:center; margin-bottom:10px; }
   .km-input-row{ display:flex; align-items:baseline; justify-content:center; gap:8px; }
   .km-input-row input{
-    width:110px; background:none; border:none; border-bottom:2px solid var(--s-line); outline:none;
-    font-family:'Montserrat', sans-serif; font-weight:700; font-size:30px; color: var(--s-text); text-align:center; padding-bottom:4px;
+    width:110px; background:none; border:none; border-bottom:2px solid var(--line); outline:none;
+    font-family:'Montserrat', sans-serif; font-weight:700; font-size:30px; color: var(--ink); text-align:center; padding-bottom:4px;
   }
-  .km-input-row input:focus{ border-color:#FFFFFF; }
-  .km-unit{ font-size:14px; font-weight:700; color: var(--s-text-soft); }
+  .km-input-row input:focus{ border-color: var(--accent); }
+  .km-unit{ font-size:14px; font-weight:700; color: var(--ink-soft); }
   .rest-timer{
     display:none; align-items:center; justify-content:space-between;
-    background: var(--s-panel2); border-radius:16px; padding:16px 18px; margin-bottom:16px;
+    background: var(--card-soft); border-radius:16px; padding:16px 18px; margin-bottom:16px;
   }
   .rest-timer.show{ display:flex; }
-  .rest-timer .rt-lbl{ font-size:11px; color: var(--s-text-soft); font-weight:700; text-transform:uppercase; }
-  .rest-timer .rt-num{ font-family:'Montserrat', sans-serif; font-size:24px; font-weight:700; color: var(--s-text); }
-  .rest-skip{ font-size:11.5px; font-weight:700; color: var(--s-text); opacity:0.8; cursor:pointer; text-decoration:underline; }
+  .rest-timer .rt-lbl{ font-size:11px; color: var(--ink-soft); font-weight:700; text-transform:uppercase; }
+  .rest-timer .rt-num{ font-family:'Montserrat', sans-serif; font-size:24px; font-weight:700; color: var(--ink); }
+  .rest-skip{ font-size:11.5px; font-weight:700; color: var(--ink); opacity:0.8; cursor:pointer; text-decoration:underline; }
 
   .session-nav{ margin-top:auto; padding-top:14px; display:flex; align-items:center; gap:12px; }
   .sess-back-btn{
-    width:52px; height:52px; flex-shrink:0; border-radius:26px; background: var(--s-panel); border:1px solid var(--s-line); color: var(--s-text);
+    width:52px; height:52px; flex-shrink:0; border-radius:26px; background: var(--card); border:1px solid var(--line); color: var(--ink);
     display:flex; align-items:center; justify-content:center; cursor:pointer;
   }
   .sess-back-btn:active{ transform: scale(0.94); }
   .sess-btn-main{
     flex:1; height:54px; border-radius:27px; border:none; cursor:pointer;
     font-family:'Montserrat', sans-serif; font-weight:700; font-size:14.5px; letter-spacing:0.3px; text-transform:uppercase;
-    background: var(--s-panel); color: var(--s-text-soft);
+    background: var(--card); color: var(--ink-soft);
     transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
   }
   .sess-btn-main:active{ transform: scale(0.97); }
-  .sess-btn-main.ready{ background:#FFFFFF; color:#0A0A0A; box-shadow: 0 10px 24px rgba(255,255,255,0.15); }
+  .sess-btn-main.ready{ background: var(--accent); color: var(--accent-ink); box-shadow: var(--shadow); }
 
   .session-done-screen{ display:none; flex:1; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; }
   .session-done-screen.show{ display:flex; }
   .session-done-screen .big-check{ display:flex; align-items:center; justify-content:center; }
-  .session-done-screen h3{ font-family:'Montserrat', sans-serif; font-size:22px; font-weight:700; color: var(--s-text); }
-  .session-done-screen p{ font-size:13px; color: var(--s-text-soft); max-width:260px; }
+  .session-done-screen h3{ font-family:'Montserrat', sans-serif; font-size:22px; font-weight:700; color: var(--ink); }
+  .session-done-screen p{ font-size:13px; color: var(--ink-soft); max-width:260px; }
   .session-done-btn{
     margin-top:14px; padding:14px 30px; border-radius:27px; border:none; font-family:'Montserrat', sans-serif; font-weight:700;
-    background:#FFFFFF; color:#0A0A0A; cursor:pointer;
+    background: var(--accent); color: var(--accent-ink); cursor:pointer;
   }
 </style>
 </head>
@@ -756,8 +785,14 @@
   <!-- ===================== SPLASH ===================== -->
   <!-- ===================== PROFILE GATE ===================== -->
   <div id="profileGate" class="show">
+    <button class="theme-switch small gate-theme-switch" id="gateThemeSwitch" onclick="toggleTheme()">
+      <span class="ts-knob" id="themeKnobGate"></span>
+    </button>
     <!-- Seleção de perfil -->
     <div class="gate-screen active" id="gateSelect">
+      <div class="app-logo-lockup app-logo-lockup-big">
+        <svg width="76" height="76" viewBox="0 0 100 100" fill="none" class="app-logo-mark"><path d="M22.29,26 Q50,10 56.93,14 L77.71,26 Q84.64,30 84.64,38 L84.64,62 Q84.64,70 77.71,74 L56.93,86 Q50,90 43.07,86 L22.29,74 Q15.36,70 15.36,62 L15.36,38 Q15.36,30 22.29,26 Z"/><ellipse cx="38" cy="50" rx="10" ry="12" fill="var(--bg-1)"/><ellipse cx="62" cy="50" rx="10" ry="12" fill="var(--bg-1)"/><circle cx="35" cy="52" r="5" class="app-logo-pupil"/><circle cx="59" cy="52" r="5" class="app-logo-pupil"/></svg>
+      </div>
       <div class="gate-title disp">Quem é você?</div>
       <div class="gate-sub">Selecione seu perfil para continuar</div>
       <div class="profile-list" id="profileList"></div>
@@ -765,6 +800,10 @@
 
     <!-- Tela de cadastro de novo perfil -->
     <div class="gate-screen" id="gateSignup">
+      <div class="su-avatar-wrap">
+        <div class="pin-avatar su-clickable" id="suAvatarPreview" onclick="cycleSuAccent()" role="button" aria-label="Trocar de tema"><svg viewBox="0 0 100 100" fill="none"><path d="M22.29,26 Q50,10 56.93,14 L77.71,26 Q84.64,30 84.64,38 L84.64,62 Q84.64,70 77.71,74 L56.93,86 Q50,90 43.07,86 L22.29,74 Q15.36,70 15.36,62 L15.36,38 Q15.36,30 22.29,26 Z" fill="#141414"/><ellipse cx="38" cy="50" rx="10" ry="12" fill="#fff"/><ellipse cx="62" cy="50" rx="10" ry="12" fill="#fff"/><circle cx="35" cy="52" r="5" fill="#141414"/><circle cx="59" cy="52" r="5" fill="#141414"/><circle cx="33.5" cy="50" r="1.5" fill="#fff"/><circle cx="57.5" cy="50" r="1.5" fill="#fff"/></svg></div>
+        <div class="su-theme-hint"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 100 18 1.8 1.8 0 001.3-3.1 1.6 1.6 0 011.1-2.7h1.4A3.2 3.2 0 0021 12a9 9 0 00-9-9z" fill="currentColor" opacity="0.35"/><circle cx="7.5" cy="11" r="1.3" fill="currentColor"/><circle cx="10.5" cy="7.3" r="1.3" fill="currentColor"/><circle cx="15" cy="8.2" r="1.3" fill="currentColor"/></svg>Toque na carinha para trocar de tema</div>
+      </div>
       <div class="gate-title disp" style="font-size:20px;">Criar perfil</div>
       <div class="gate-sub">Preencha seus dados para começar</div>
       <div style="width:100%; display:flex; flex-direction:column; gap:2px;">
@@ -786,7 +825,7 @@
 
     <!-- Tela de PIN -->
     <div class="gate-screen" id="gatePin">
-      <div class="pin-avatar" id="pinAvatarInitials">LH</div>
+      <div class="pin-avatar" id="pinAvatarFace"><svg viewBox="0 0 100 100" fill="none"><path d="M22.29,26 Q50,10 56.93,14 L77.71,26 Q84.64,30 84.64,38 L84.64,62 Q84.64,70 77.71,74 L56.93,86 Q50,90 43.07,86 L22.29,74 Q15.36,70 15.36,62 L15.36,38 Q15.36,30 22.29,26 Z" fill="#141414"/><ellipse cx="38" cy="50" rx="10" ry="12" fill="#fff"/><ellipse cx="62" cy="50" rx="10" ry="12" fill="#fff"/><circle cx="35" cy="52" r="5" fill="#141414"/><circle cx="59" cy="52" r="5" fill="#141414"/><circle cx="33.5" cy="50" r="1.5" fill="#fff"/><circle cx="57.5" cy="50" r="1.5" fill="#fff"/></svg></div>
       <div class="gate-title disp" style="font-size:20px;">Digite seu PIN</div>
       <div class="gate-sub" id="pinUserName" style="margin-bottom:0;">Luís</div>
       <div class="pin-dots" id="pinDots">
@@ -832,7 +871,6 @@
             </div>
           </div>
           <div class="head-right">
-            <button class="avatar-btn" id="avatarBtn" onclick="goTo('perfil')"><span id="avatarBtnInitials">LH</span></button>
             <button class="theme-switch" id="themeSwitch" onclick="toggleTheme()">
               <span class="ts-knob" id="themeKnob"></span>
             </button>
@@ -892,6 +930,11 @@
               <div><b id="kmStatKcal">0</b><span>kcal</span></div>
             </div>
           </div>
+        </div>
+
+        <div class="app-footer-brand">
+          <svg width="16" height="16" viewBox="0 0 100 100" fill="none" class="app-logo-mark"><path d="M22.29,26 Q50,10 56.93,14 L77.71,26 Q84.64,30 84.64,38 L84.64,62 Q84.64,70 77.71,74 L56.93,86 Q50,90 43.07,86 L22.29,74 Q15.36,70 15.36,62 L15.36,38 Q15.36,30 22.29,26 Z"/><ellipse cx="38" cy="50" rx="10" ry="12" fill="var(--bg-1)"/><ellipse cx="62" cy="50" rx="10" ry="12" fill="var(--bg-1)"/><circle cx="35" cy="52" r="5" class="app-logo-pupil"/><circle cx="59" cy="52" r="5" class="app-logo-pupil"/></svg>
+          <span>meu treino</span>
         </div>
       </div>
     </div>
@@ -972,25 +1015,14 @@
       <div class="wrap">
         <div class="top-bar" style="display:flex; align-items:center; justify-content:space-between;">
           <h2 class="disp" style="margin-bottom:0;">Perfil</h2>
-          <button class="accent-trigger" id="accentTrigger" onclick="toggleAccentDrawer()">
-            <span class="at-dot" id="accentTriggerDot"></span>
-            <span id="accentTriggerLabel">Menta Fresca</span>
-            <svg id="accentChevron" width="13" height="13" viewBox="0 0 24 24" fill="none" style="transition: transform 0.25s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
         </div>
-        <div class="accent-drawer" id="accentDrawer"></div>
 
         <div class="profile-card" id="profileCard">
           <div class="profile-cover"></div>
           <div class="profile-avatar-wrap">
-            <div class="profile-avatar" id="profileAvatar" onclick="triggerAvatarUpload()">
-              <svg class="cam-icon" id="profileCamIcon" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M4 8a2 2 0 012-2h1.2l.8-1.4A2 2 0 019.7 3.6h4.6a2 2 0 011.7 1l.8 1.4H18a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V8z" fill="currentColor" opacity="0.4"/>
-                <circle cx="12" cy="13" r="3.6" fill="currentColor"/>
-              </svg>
-            </div>
+            <div class="profile-avatar su-clickable" id="profileAvatar" onclick="cycleProfileAccent()" role="button" aria-label="Trocar de tema"><svg viewBox="0 0 100 100" fill="none"><path d="M22.29,26 Q50,10 56.93,14 L77.71,26 Q84.64,30 84.64,38 L84.64,62 Q84.64,70 77.71,74 L56.93,86 Q50,90 43.07,86 L22.29,74 Q15.36,70 15.36,62 L15.36,38 Q15.36,30 22.29,26 Z" fill="#141414"/><ellipse cx="38" cy="50" rx="10" ry="12" fill="#fff"/><ellipse cx="62" cy="50" rx="10" ry="12" fill="#fff"/><circle cx="35" cy="52" r="5" fill="#141414"/><circle cx="59" cy="52" r="5" fill="#141414"/><circle cx="33.5" cy="50" r="1.5" fill="#fff"/><circle cx="57.5" cy="50" r="1.5" fill="#fff"/></svg></div>
           </div>
-          <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)">
+          <div class="su-theme-hint" style="justify-content:center; margin-top:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 100 18 1.8 1.8 0 001.3-3.1 1.6 1.6 0 011.1-2.7h1.4A3.2 3.2 0 0021 12a9 9 0 00-9-9z" fill="currentColor" opacity="0.35"/><circle cx="7.5" cy="11" r="1.3" fill="currentColor"/><circle cx="10.5" cy="7.3" r="1.3" fill="currentColor"/><circle cx="15" cy="8.2" r="1.3" fill="currentColor"/></svg>Toque na carinha para trocar de tema</div>
 
           <div class="profile-info">
             <div id="profileViewBlock">
@@ -1042,6 +1074,11 @@
           </div>
           <div class="sm-grid" id="smGrid"></div>
           <div class="sm-month" id="smMonth">—</div>
+        </div>
+
+        <div class="app-footer-brand">
+          <svg width="16" height="16" viewBox="0 0 100 100" fill="none" class="app-logo-mark"><path d="M22.29,26 Q50,10 56.93,14 L77.71,26 Q84.64,30 84.64,38 L84.64,62 Q84.64,70 77.71,74 L56.93,86 Q50,90 43.07,86 L22.29,74 Q15.36,70 15.36,62 L15.36,38 Q15.36,30 22.29,26 Z"/><ellipse cx="38" cy="50" rx="10" ry="12" fill="var(--bg-1)"/><ellipse cx="62" cy="50" rx="10" ry="12" fill="var(--bg-1)"/><circle cx="35" cy="52" r="5" class="app-logo-pupil"/><circle cx="59" cy="52" r="5" class="app-logo-pupil"/></svg>
+          <span>meu treino</span>
         </div>
       </div>
     </div>
@@ -1140,7 +1177,7 @@
         </div>
       </div>
       <div class="session-done-screen" id="sessionDoneScreen">
-        <div class="big-check"><svg width="52" height="52" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="26" fill="#FFFFFF"/><path d="M8 12.3l2.7 2.7L16.3 9" stroke="#0A0A0A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <div class="big-check"><svg width="52" height="52" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="26" fill="var(--accent)"/><path d="M8 12.3l2.7 2.7L16.3 9" stroke="var(--accent-ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
         <h3 class="disp">Treino concluído!</h3>
         <p>Mandou bem. O dia de hoje já foi marcado como treinado no seu histórico.</p>
         <button class="session-done-btn" onclick="closeSession()">Voltar</button>
@@ -1312,7 +1349,6 @@ async function loadState(){
   loadProfileData();
   await loadAccentTheme();
   renderAll();
-  await loadAvatar();
 }
 async function saveState(){
   try{
@@ -1400,8 +1436,17 @@ function toggleTheme(){
   const nowDark = !isDark;
   html.setAttribute('data-theme', nowDark ? 'dark' : 'light');
   document.getElementById('themeKnob').innerHTML = nowDark ? iconMoon() : iconSun();
+  const knobGate = document.getElementById('themeKnobGate');
+  if(knobGate) knobGate.innerHTML = nowDark ? iconMoon() : iconSun();
+  const t = ACCENT_THEMES[currentAccentTheme];
+  if(t) applyAccentBackground(t);
+  const pAv = document.getElementById('profileAvatar');
+  if(pAv) pAv.innerHTML = faceSvg(currentAccentTheme);
+  const sAv = document.getElementById('suAvatarPreview');
+  if(sAv) sAv.innerHTML = faceSvg(currentAccentTheme);
 }
 document.getElementById('themeKnob').innerHTML = iconMoon();
+document.getElementById('themeKnobGate').innerHTML = iconMoon();
 
 /* =====================================================================
    TEMA DE COR (5 opções, gaveta)
@@ -1417,10 +1462,26 @@ const ACCENT_DESC = {
 };
 const ACCENT_THEMES = {
   mint: null, // usa o padrão do CSS, que já se adapta ao claro/escuro
-  blue:   { accent:'#4C6FFF', accent2:'#7B93FF', soft:'rgba(76,111,255,0.15)',  ink:'#FFFFFF' },
-  coral:  { accent:'#FF6B6B', accent2:'#FF9776', soft:'rgba(255,107,107,0.15)', ink:'#FFFFFF' },
-  purple: { accent:'#A855F7', accent2:'#D08CFF', soft:'rgba(168,85,247,0.15)', ink:'#FFFFFF' },
-  amber:  { accent:'#F5A623', accent2:'#FFD27A', soft:'rgba(245,166,35,0.16)', ink:'#241900' },
+  blue: {
+    accent:'#4C6FFF', accent2:'#7B93FF', rgb:'76,111,255', soft:'rgba(76,111,255,0.15)', ink:'#FFFFFF', today:'#0B1233',
+    bgLight:{ bg1:'#F2F4FF', bg2:'#E3E8FF', card:'#FFFFFF', cardSoft:'#EAEFFF', line:'rgba(20,26,64,0.08)', glow:'rgba(76,111,255,0.18)' },
+    bgDark:{ bg1:'#05060F', bg2:'#0B0F22', card:'#111731', cardSoft:'#161D3C', line:'rgba(255,255,255,0.08)', glow:'rgba(76,111,255,0.24)' }
+  },
+  coral: {
+    accent:'#FF6B6B', accent2:'#FF9776', rgb:'255,107,107', soft:'rgba(255,107,107,0.15)', ink:'#FFFFFF', today:'#2B0F0C',
+    bgLight:{ bg1:'#FFF5F3', bg2:'#FFE4DE', card:'#FFFFFF', cardSoft:'#FFEDE8', line:'rgba(64,20,16,0.08)', glow:'rgba(255,107,107,0.16)' },
+    bgDark:{ bg1:'#100604', bg2:'#210B07', card:'#2A0F0A', cardSoft:'#33140D', line:'rgba(255,255,255,0.08)', glow:'rgba(255,107,107,0.22)' }
+  },
+  purple: {
+    accent:'#A855F7', accent2:'#D08CFF', rgb:'168,85,247', soft:'rgba(168,85,247,0.15)', ink:'#FFFFFF', today:'#1C0F30',
+    bgLight:{ bg1:'#F8F3FF', bg2:'#EEDFFF', card:'#FFFFFF', cardSoft:'#F3E7FF', line:'rgba(36,16,64,0.08)', glow:'rgba(168,85,247,0.16)' },
+    bgDark:{ bg1:'#0A0512', bg2:'#170A28', card:'#1E1034', cardSoft:'#26143F', line:'rgba(255,255,255,0.08)', glow:'rgba(168,85,247,0.24)' }
+  },
+  amber: {
+    accent:'#F5A623', accent2:'#FFD27A', rgb:'245,166,35', soft:'rgba(245,166,35,0.16)', ink:'#241900', today:'#2A1D06',
+    bgLight:{ bg1:'#FFF9EE', bg2:'#FFEDCB', card:'#FFFFFF', cardSoft:'#FFF2DA', line:'rgba(60,40,4,0.08)', glow:'rgba(245,166,35,0.18)' },
+    bgDark:{ bg1:'#130D02', bg2:'#241A06', card:'#2E2108', cardSoft:'#38290C', line:'rgba(255,255,255,0.08)', glow:'rgba(245,166,35,0.24)' }
+  },
 };
 const ACCENT_SWATCH_BG = {
   mint:'linear-gradient(135deg, #2FE6B0, #17C9DE)',
@@ -1430,59 +1491,58 @@ const ACCENT_SWATCH_BG = {
   amber:'linear-gradient(135deg, #F5A623, #FFD27A)',
 };
 let currentAccentTheme = 'mint';
-let accentDrawerOpen = false;
+
+/* Ícone oficial "meu treino" (hexágono + olhos) — variante escura pra fundos claros, clara pra fundos escuros */
+const LOGO_HEX_PATH = 'M22.29,26 Q50,10 56.93,14 L77.71,26 Q84.64,30 84.64,38 L84.64,62 Q84.64,70 77.71,74 L56.93,86 Q50,90 43.07,86 L22.29,74 Q15.36,70 15.36,62 L15.36,38 Q15.36,30 22.29,26 Z';
+const LOGO_MARK_DARK = `<path d="${LOGO_HEX_PATH}" fill="#141414"/><ellipse cx="38" cy="50" rx="10" ry="12" fill="#fff"/><ellipse cx="62" cy="50" rx="10" ry="12" fill="#fff"/><circle cx="35" cy="52" r="5" fill="#141414"/><circle cx="59" cy="52" r="5" fill="#141414"/><circle cx="33.5" cy="50" r="1.5" fill="#fff"/><circle cx="57.5" cy="50" r="1.5" fill="#fff"/>`;
+const LOGO_MARK_LIGHT = `<path d="${LOGO_HEX_PATH}" fill="#F7F3EC"/><ellipse cx="38" cy="50" rx="7" ry="9" fill="#141414"/><ellipse cx="62" cy="50" rx="7" ry="9" fill="#141414"/><circle cx="40" cy="47" r="1.6" fill="#fff"/><circle cx="64" cy="47" r="1.6" fill="#fff"/>`;
+function faceSvg(key){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return `<svg viewBox="0 0 100 100" fill="none">${isDark ? LOGO_MARK_LIGHT : LOGO_MARK_DARK}</svg>`;
+}
+
+function applyAccentBackground(t){
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  const bg = isDark ? t.bgDark : t.bgLight;
+  html.style.setProperty('--bg-1', bg.bg1);
+  html.style.setProperty('--bg-2', bg.bg2);
+  html.style.setProperty('--card', bg.card);
+  html.style.setProperty('--card-soft', bg.cardSoft);
+  html.style.setProperty('--line', bg.line);
+  html.style.setProperty('--glow', `radial-gradient(60% ${isDark ? 45 : 50}% at 50% -10%, ${bg.glow}, transparent 70%)`);
+}
 
 function applyAccentTheme(key){
   const html = document.documentElement;
   const t = ACCENT_THEMES[key];
   if(!t){
-    html.style.removeProperty('--accent');
-    html.style.removeProperty('--accent-2');
-    html.style.removeProperty('--accent-soft');
-    html.style.removeProperty('--accent-ink');
+    ['--accent','--accent-2','--accent-rgb','--accent-soft','--accent-ink','--bg-1','--bg-2','--card','--card-soft','--line','--glow','--today-card'].forEach(p => html.style.removeProperty(p));
   } else {
     html.style.setProperty('--accent', t.accent);
     html.style.setProperty('--accent-2', t.accent2);
+    html.style.setProperty('--accent-rgb', t.rgb);
     html.style.setProperty('--accent-soft', t.soft);
     html.style.setProperty('--accent-ink', t.ink);
+    html.style.setProperty('--today-card', t.today);
+    applyAccentBackground(t);
   }
   currentAccentTheme = key;
-  const trigDot = document.getElementById('accentTriggerDot');
-  const trigLbl = document.getElementById('accentTriggerLabel');
-  if(trigDot) trigDot.style.background = ACCENT_SWATCH_BG[key];
-  if(trigLbl) trigLbl.textContent = ACCENT_LABELS[key];
+  const pAv = document.getElementById('profileAvatar');
+  if(pAv) pAv.innerHTML = faceSvg(key);
+  const sAv = document.getElementById('suAvatarPreview');
+  if(sAv) sAv.innerHTML = faceSvg(key);
 }
 
-function renderAccentSwitch(){
-  const drawer = document.getElementById('accentDrawer');
-  if(!drawer) return;
-  const trigDot = document.getElementById('accentTriggerDot');
-  const trigLbl = document.getElementById('accentTriggerLabel');
-  if(trigDot) trigDot.style.background = ACCENT_SWATCH_BG[currentAccentTheme];
-  if(trigLbl) trigLbl.textContent = ACCENT_LABELS[currentAccentTheme];
-  drawer.innerHTML = `<div class="accent-drawer-inner">${ACCENT_ORDER.map(key => {
-    const isSel = currentAccentTheme === key;
-    return `<div class="accent-option ${isSel ? 'selected' : ''}" onclick="selectAccentTheme('${key}')">
-      <span class="ao-dot" style="background:${ACCENT_SWATCH_BG[key]}"></span>
-      <span class="ao-info">
-        <span class="ao-name">${ACCENT_LABELS[key]}</span>
-        <span class="ao-desc">${ACCENT_DESC[key]}</span>
-      </span>
-      <span class="ao-check"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-    </div>`;
-  }).join('')}</div>`;
-}
-
-function toggleAccentDrawer(){
-  accentDrawerOpen = !accentDrawerOpen;
-  document.getElementById('accentDrawer').classList.toggle('open', accentDrawerOpen);
-  document.getElementById('accentTrigger').classList.toggle('open', accentDrawerOpen);
+/* Trocar tema clicando na carinha do avatar (aba Perfil) */
+function cycleProfileAccent(){
+  const idx = ACCENT_ORDER.indexOf(currentAccentTheme);
+  const next = ACCENT_ORDER[(idx + 1) % ACCENT_ORDER.length];
+  selectAccentTheme(next);
 }
 
 async function selectAccentTheme(key){
   applyAccentTheme(key);
-  renderAccentSwitch();
-  toggleAccentDrawer();
   try{ await window.storage.set('meu-treino-accent:' + currentProfileId, key, false); }catch(e){}
 }
 
@@ -1546,12 +1606,20 @@ async function saveProfiles(){
   try{ await window.storage.set('meu-treino-profiles', JSON.stringify(profiles), false); }catch(e){}
 }
 
-function renderProfileList(){
+async function renderProfileList(){
   const wrap = document.getElementById('profileList');
   const arrowSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9.3 5.3a1.4 1.4 0 010 2l-4.8 4.7 4.8 4.7a1.4 1.4 0 01-2 2L1.5 12.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor" transform="rotate(180 12 12)"/></svg>';
-  wrap.innerHTML = profiles.map(p => `
+  const themeKeys = await Promise.all(profiles.map(async p => {
+    let key = 'mint';
+    try{
+      const r = await window.storage.get('meu-treino-accent:' + p.id, false);
+      if(r && r.value && ACCENT_ORDER.includes(r.value)) key = r.value;
+    }catch(e){}
+    return key;
+  }));
+  wrap.innerHTML = profiles.map((p, i) => `
     <div class="profile-row" onclick="openPinScreen('${p.id}')">
-      <div class="p-avatar">${p.initials}</div>
+      <div class="p-avatar" style="background:${ACCENT_SWATCH_BG[themeKeys[i]]}">${faceSvg(themeKeys[i])}</div>
       <div class="p-info">
         <div class="p-name">${p.name.split(' ')[0]}</div>
         <div class="p-hint">Toque para entrar</div>
@@ -1570,13 +1638,22 @@ function renderProfileList(){
   `;
 }
 
-function openPinScreen(userId){
+async function openPinScreen(userId){
   pendingUser = profiles.find(p => p.id === userId);
   if(!pendingUser) return;
   pinBuffer = '';
-  document.getElementById('pinAvatarInitials').textContent = pendingUser.initials;
   document.getElementById('pinUserName').textContent = pendingUser.name.split(' ')[0];
   renderPinDots();
+  let key = 'mint';
+  try{
+    const r = await window.storage.get('meu-treino-accent:' + userId, false);
+    if(r && r.value && ACCENT_ORDER.includes(r.value)) key = r.value;
+  }catch(e){}
+  const face = document.getElementById('pinAvatarFace');
+  if(face){
+    face.style.background = ACCENT_SWATCH_BG[key];
+    face.innerHTML = faceSvg(key);
+  }
   document.getElementById('gateSelect').classList.remove('active');
   document.getElementById('gateSignup').classList.remove('active');
   document.getElementById('gatePin').classList.add('active');
@@ -1585,6 +1662,7 @@ function openPinScreen(userId){
 function backToProfileSelect(){
   pendingUser = null;
   pinBuffer = '';
+  applyAccentTheme('mint');
   document.getElementById('gatePin').classList.remove('active');
   document.getElementById('gateSignup').classList.remove('active');
   document.getElementById('gateSelect').classList.add('active');
@@ -1592,8 +1670,22 @@ function backToProfileSelect(){
 
 function openSignupScreen(){
   ['suName','suEmail','suHeight','suAge','suWeight','suPin','suPinConfirm'].forEach(id => document.getElementById(id).value = '');
+  suSelectedAccent = 'mint';
+  applyAccentTheme('mint');
   document.getElementById('gateSelect').classList.remove('active');
   document.getElementById('gateSignup').classList.add('active');
+}
+
+let suSelectedAccent = 'mint';
+function selectSuAccent(key){
+  suSelectedAccent = key;
+  applyAccentTheme(key);
+}
+/* Trocar tema clicando na carinha do avatar, alterna entre as cores disponíveis */
+function cycleSuAccent(){
+  const idx = ACCENT_ORDER.indexOf(suSelectedAccent);
+  const next = ACCENT_ORDER[(idx + 1) % ACCENT_ORDER.length];
+  selectSuAccent(next);
 }
 
 async function submitSignup(){
@@ -1621,6 +1713,7 @@ async function submitSignup(){
   };
   profiles.push(profile);
   await saveProfiles();
+  try{ await window.storage.set('meu-treino-accent:' + profile.id, suSelectedAccent, false); }catch(e){}
   renderProfileList();
   showToast('Perfil criado!');
   playClick();
@@ -1683,10 +1776,6 @@ function logoutProfile(){
   customWorkouts = [];
   WEEK_DATA = [];
   applyAccentTheme('mint');
-  document.getElementById('profileAvatar').style.backgroundImage = '';
-  document.getElementById('profileAvatar').classList.remove('has-photo');
-  document.getElementById('avatarBtn').style.backgroundImage = '';
-  document.getElementById('avatarBtn').classList.remove('has-photo');
   goTo('home');
   const gate = document.getElementById('profileGate');
   gate.classList.remove('hide');
@@ -2269,7 +2358,6 @@ async function loadPlanEdits(){
 ===================================================================== */
 function renderPerfil(){
   renderStreakMonth();
-  renderAccentSwitch();
 }
 
 function renderStreakMonth(){
@@ -2304,38 +2392,9 @@ function renderStreakMonth(){
 }
 
 /* =====================================================================
-   EDIÇÃO DO PERFIL (foto + card)
+   EDIÇÃO DO PERFIL (card)
 ===================================================================== */
 let profileEditMode = false;
-
-function triggerAvatarUpload(){
-  document.getElementById('avatarInput').click();
-}
-function handleAvatarUpload(evt){
-  const file = evt.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    const url = e.target.result;
-    document.getElementById('profileAvatar').style.backgroundImage = `url('${url}')`;
-    document.getElementById('profileAvatar').classList.add('has-photo');
-    document.getElementById('avatarBtn').style.backgroundImage = `url('${url}')`;
-    document.getElementById('avatarBtn').classList.add('has-photo');
-    try{ window.storage.set('meu-treino-avatar:' + currentProfileId, url, false); }catch(err){}
-  };
-  reader.readAsDataURL(file);
-}
-async function loadAvatar(){
-  try{
-    const r = await window.storage.get('meu-treino-avatar:' + currentProfileId, false);
-    if(r && r.value){
-      document.getElementById('profileAvatar').style.backgroundImage = `url('${r.value}')`;
-      document.getElementById('profileAvatar').classList.add('has-photo');
-      document.getElementById('avatarBtn').style.backgroundImage = `url('${r.value}')`;
-      document.getElementById('avatarBtn').classList.add('has-photo');
-    }
-  }catch(e){}
-}
 
 function toggleProfileEdit(){
   profileEditMode = !profileEditMode;
@@ -2378,7 +2437,6 @@ async function saveProfileData(){
   p.age = document.getElementById('statAge').textContent.trim();
   p.weight = document.getElementById('statWeight').textContent.replace(' kg','').trim();
   p.initials = initials(p.name);
-  document.getElementById('avatarBtnInitials').textContent = p.initials;
   await saveProfiles();
   renderGreeting();
 }
@@ -2390,7 +2448,6 @@ function loadProfileData(){
   document.getElementById('statHeight').textContent = p.height + ' m';
   document.getElementById('statAge').textContent = p.age;
   document.getElementById('statWeight').textContent = p.weight + ' kg';
-  document.getElementById('avatarBtnInitials').textContent = p.initials;
 }
 
 /* =====================================================================
