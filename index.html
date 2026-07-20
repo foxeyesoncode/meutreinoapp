@@ -583,6 +583,14 @@
   .profile-cover::after{ width:80px; height:80px; bottom:-46px; left:18px; }
 
   .profile-avatar-wrap{ display:flex; justify-content:center; margin-top:-40px; position:relative; z-index:2; }
+  .home-avatar-btn{
+    width:38px; height:38px; flex-shrink:0; border-radius: 46% 46% 50% 50% / 52% 52% 44% 44%;
+    border:2px solid var(--card); background: var(--accent);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; overflow:hidden; padding:0;
+  }
+  .home-avatar-btn svg{ width:62%; height:auto; }
+
   .profile-avatar{
     width:80px; height:80px; border-radius: 46% 46% 50% 50% / 52% 52% 44% 44%;
     border:4px solid var(--card);
@@ -871,6 +879,7 @@
             </div>
           </div>
           <div class="head-right">
+            <button class="home-avatar-btn" id="homeAvatarBtn" onclick="goTo('perfil')" aria-label="Ver perfil"></button>
             <button class="theme-switch" id="themeSwitch" onclick="toggleTheme()">
               <span class="ts-knob" id="themeKnob"></span>
             </button>
@@ -1444,6 +1453,8 @@ function toggleTheme(){
   if(pAv) pAv.innerHTML = faceSvg(currentAccentTheme);
   const sAv = document.getElementById('suAvatarPreview');
   if(sAv) sAv.innerHTML = faceSvg(currentAccentTheme);
+  const hAv = document.getElementById('homeAvatarBtn');
+  if(hAv) hAv.innerHTML = faceSvg(currentAccentTheme);
 }
 document.getElementById('themeKnob').innerHTML = iconMoon();
 document.getElementById('themeKnobGate').innerHTML = iconMoon();
@@ -1532,6 +1543,8 @@ function applyAccentTheme(key){
   if(pAv) pAv.innerHTML = faceSvg(key);
   const sAv = document.getElementById('suAvatarPreview');
   if(sAv) sAv.innerHTML = faceSvg(key);
+  const hAv = document.getElementById('homeAvatarBtn');
+  if(hAv) hAv.innerHTML = faceSvg(key);
 }
 
 /* Trocar tema clicando na carinha do avatar (aba Perfil) */
