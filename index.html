@@ -1182,6 +1182,88 @@
     </div>
   </div>
 
+<!-- ===================== FIREBASE SDK (compat) ===================== -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics-compat.js"></script>
+
+<script>
+/* =====================================================================
+   FIREBASE — inicialização e ponte com window.storage
+   Todo o app já persiste dados via window.storage.get/set/delete/list,
+   então aqui só trocamos o "motor" por Firestore, sem tocar no resto do código.
+===================================================================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyB9SlH4fAU2sDTBVJm_SS2xq09A-1Nd_is",
+  authDomain: "meu-treino-app2026.firebaseapp.com",
+  projectId: "meu-treino-app2026",
+  storageBucket: "meu-treino-app2026.firebasestorage.app",
+  messagingSenderId: "222633654552",
+  appId: "1:222633654552:web:a74287dcc97d5f2d41466d",
+  measurementId: "G-J1XBNEFXHR"
+};
+
+firebase.initializeApp(firebaseConfig);
+try{ firebase.analytics(); }catch(e){ /* analytics pode falhar em file:// ou ad-blockers */ }
+
+const fbAuth = firebase.auth();
+const fbDb = firebase.firestore();
+
+// Garante que exista um usuário autenticado (anônimo) antes de qualquer leitura/escrita.
+// Isso é só uma "chave" para liberar o acesso via regras do Firestore — não é o
+// sistema de perfil/PIN do app, que continua exatamente como está.
+const fbAuthReady = new Promise((resolve, reject) => {
+  fbAuth.onAuthStateChanged(user => { if(user) resolve(user); });
+  fbAuth.signInAnonymously().catch(err => {
+    console.error('Falha no login anônimo do Firebase:', err);
+    reject(err);
+  });
+});
+
+function fbSanitizeKey(key){
+  // Firestore não aceita "/" no ID do documento
+  return String(key).replace(/\//g, '_');
+}
+
+function fbCollectionFor(shared){
+  // Dados "privados" e "compartilhados" ficam em coleções separadas.
+  // Como o app já embute o id do perfil (currentProfileId) nas chaves,
+  // usamos uma única base de dados no projeto (compartilhada entre dispositivos).
+  return fbDb.collection(shared ? 'meuTreinoSharedStorage' : 'meuTreinoStorage');
+}
+
+window.storage = {
+  async get(key, shared = false){
+    await fbAuthReady;
+    const doc = await fbCollectionFor(shared).doc(fbSanitizeKey(key)).get();
+    if(!doc.exists) return null;
+    const data = doc.data();
+    return { key, value: data.value, shared };
+  },
+  async set(key, value, shared = false){
+    await fbAuthReady;
+    await fbCollectionFor(shared).doc(fbSanitizeKey(key)).set({
+      value,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    return { key, value, shared };
+  },
+  async delete(key, shared = false){
+    await fbAuthReady;
+    await fbCollectionFor(shared).doc(fbSanitizeKey(key)).delete();
+    return { key, deleted: true, shared };
+  },
+  async list(prefix = '', shared = false){
+    await fbAuthReady;
+    const snap = await fbCollectionFor(shared).get();
+    const keys = [];
+    snap.forEach(doc => { if(!prefix || doc.id.startsWith(prefix)) keys.push(doc.id); });
+    return { keys, prefix, shared };
+  }
+};
+</script>
+
 <script>
 /* =====================================================================
    DADOS DO PLANO
