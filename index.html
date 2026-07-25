@@ -3750,10 +3750,7 @@ async function loadPlanEdits(){
     const r = await window.storage.get('meu-treino-plan:' + currentProfileId, false);
     if(r && r.value){
       const saved = JSON.parse(r.value);
-      saved.forEach(sd => {
-        const d = WEEK_DATA.find(x => x.id === sd.id);
-        if(d) d.groups = sd.groups;
-      });
+      if(Array.isArray(saved)) WEEK_DATA = saved;
     }
   }catch(e){}
 }
