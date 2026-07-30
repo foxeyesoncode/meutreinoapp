@@ -866,6 +866,16 @@
   .settings-row .t{ font-size:13.5px; font-weight:600; }
   .settings-row:active{ opacity:0.7; }
 
+  .justify-option{
+    display:flex; flex-direction:column; align-items:flex-start; text-align:left; gap:2px;
+    width:100%; padding:13px 14px; border-radius:var(--radius-md); border:1px solid var(--line);
+    background: var(--card); cursor:pointer; transition: border-color 0.15s ease, transform 0.1s ease;
+  }
+  .justify-option:active{ transform: scale(0.98); }
+  .justify-option .jo-title{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:13.5px; color: var(--ink); }
+  .justify-option .jo-sub{ font-size:11px; color: var(--ink-soft); }
+  .justify-option.jo-primary{ border-color: var(--accent); background: var(--accent-soft); }
+
   .edit-input{
     width:100%; border:1px solid var(--line); background: var(--card-soft); border-radius:10px;
     padding:8px 10px; font-size:13px; font-family:'Montserrat', sans-serif; font-weight:600; color: var(--ink); margin-top:6px;
@@ -1376,6 +1386,33 @@
         </div>
       </div>
       <div id="reportDetailBody" style="width:100%;"></div>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL JUSTIFICAR TREINO ===================== -->
+  <div class="pcm-overlay" id="justifyModal" onclick="if(event.target===this) closeJustifyModal()">
+    <div class="pcm-card">
+      <div class="pcm-top">
+        <div class="pcm-close" onclick="closeJustifyModal()" role="button" aria-label="Fechar" tabindex="0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="pcm-title" id="justifyModalTitle">Justificar treino</div>
+      <div class="pcm-sub">O que aconteceu nesse dia?</div>
+      <div style="width:100%; display:flex; flex-direction:column; gap:8px;">
+        <div class="justify-option jo-primary" onclick="submitJustification('done')">
+          <div class="jo-title">Fiz, mas não finalizei o treino no app</div>
+          <div class="jo-sub">Marca o dia como treinado</div>
+        </div>
+        <div class="justify-option" onclick="submitJustification('exercise')">
+          <div class="jo-title">Não fiz um exercício</div>
+          <div class="jo-sub">O dia continua sem treino marcado</div>
+        </div>
+        <div class="justify-option" onclick="submitJustification('cardio')">
+          <div class="jo-title">Pulei o cardio</div>
+          <div class="jo-sub">O dia continua sem treino marcado</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2110,6 +2147,7 @@ let cardioLog = []; // [{date:'YYYY-MM-DD', km:Number, minutes:Number}, ...] uma
 let reportsHistory = []; // relatórios trimestrais já gerados para o perfil atual
 let pendingReportDraft = null; // relatório em elaboração, aguardando confirmação dos objetivos
 let unfinishedSession = null; // { dayId, sessIndex, sessChecks, sessCardioKm, sessCardioMinutes } — treino que ficou pra trás
+let dayJustifications = {}; // { 'YYYY-MM-DD': 'exercise'|'cardio' } — motivo registrado quando o dia não foi marcado como feito
 
 function emptyMeasurements(){
   const m = {};
@@ -2132,7 +2170,7 @@ async function saveMeasurements(){
 }
 
 async function loadState(){
-  weekState = {}; streak = 0; record = 0; totalSessions = 0; totalKm = 0; totalMinutes = 0; dailyKm = {}; workoutLog = []; cardioLog = []; unfinishedSession = null;
+  weekState = {}; streak = 0; record = 0; totalSessions = 0; totalKm = 0; totalMinutes = 0; dailyKm = {}; workoutLog = []; cardioLog = []; unfinishedSession = null; dayJustifications = {};
   try{
     const r = await window.storage.get('meu-treino-state:' + currentProfileId, false);
     if(r && r.value){
@@ -2147,6 +2185,7 @@ async function loadState(){
       workoutLog = d.workoutLog || [];
       cardioLog = d.cardioLog || [];
       unfinishedSession = d.unfinishedSession || null;
+      dayJustifications = d.dayJustifications || {};
     }
   }catch(e){ /* sem dados salvos ainda */ }
   await loadPlanEdits();
@@ -2161,7 +2200,7 @@ async function loadState(){
 }
 async function saveState(){
   try{
-    await window.storage.set('meu-treino-state:' + currentProfileId, JSON.stringify({weekState, streak, record, totalSessions, totalKm, totalMinutes, dailyKm, workoutLog, cardioLog, unfinishedSession}), false);
+    await window.storage.set('meu-treino-state:' + currentProfileId, JSON.stringify({weekState, streak, record, totalSessions, totalKm, totalMinutes, dailyKm, workoutLog, cardioLog, unfinishedSession, dayJustifications}), false);
     flashSyncBadge();
   }catch(e){ showSaveError('seu progresso'); }
 }
@@ -3128,6 +3167,11 @@ function renderToday(){
     `;
     return;
   }
+  const targetKey = dateKeyForDow(day.dow);
+  const todayKey = dateKey(new Date());
+  const mondayKey = dateKey(mondayOfWeek(new Date()));
+  const canJustify = targetKey <= todayKey && targetKey >= mondayKey && weekState[targetKey] !== 'done';
+
   card.innerHTML = `
     <div class="today-eyebrow">${eyebrow}</div>
     <div class="today-badge-row">
@@ -3147,7 +3191,62 @@ function renderToday(){
       `).join('')}
     </div>
     <button class="today-cta" onclick="startSession('${day.id}')">Iniciar treino</button>
+    ${canJustify ? `<div class="btn-outline" style="width:100%; text-align:center; margin-top:10px;" onclick="openJustifyModal('${day.id}')">Justificar ${day.name}</div>` : ''}
   `;
+}
+
+/* =====================================================================
+   JUSTIFICAR TREINO — para quando o usuário treinou mas esqueceu de marcar
+===================================================================== */
+let justifyDayId = null;
+
+function openJustifyModal(dayId){
+  const day = findAnyDay(dayId);
+  if(!day) return;
+  justifyDayId = dayId;
+  document.getElementById('justifyModalTitle').textContent = 'Justificar ' + day.name;
+  document.getElementById('justifyModal').classList.add('show');
+}
+
+function closeJustifyModal(){
+  document.getElementById('justifyModal').classList.remove('show');
+  justifyDayId = null;
+}
+
+/* Só o motivo 'done' marca o dia como treinado de fato. Os outros dois
+   ('exercise' e 'cardio') apenas registram o motivo, sem contar o dia
+   como concluído no streak / histórico. */
+async function submitJustification(reason){
+  const day = findAnyDay(justifyDayId);
+  closeJustifyModal();
+  if(!day || day.dow === undefined) return;
+  const key = dateKeyForDow(day.dow);
+
+  if(reason === 'done'){
+    if(weekState[key] !== 'done'){
+      weekState[key] = 'done';
+      totalSessions++;
+      workoutLog.push(key);
+      totalMinutes += 55;
+      streak = calculateStreak();
+      if(streak > record) record = streak;
+      delete dayJustifications[key];
+      const p = profiles.find(x => x.id === currentProfileId);
+      if(p && startObjectiveCycleIfNeeded(p)) await saveProfiles();
+    }
+    showToast('Treino de ' + day.name + ' marcado como feito');
+  } else {
+    dayJustifications[key] = reason;
+    showToast('Registrado. O dia continua sem treino marcado.');
+  }
+
+  await saveState();
+  renderToday();
+  renderWeekCal();
+  renderStreakCard();
+  renderKmCard();
+  renderPerfil();
+  renderReportCountdown();
 }
 
 function renderWeekCal(){
@@ -4464,16 +4563,18 @@ function renderTrainingLog(){
   today.setHours(0,0,0,0);
   const totalWeeks = 52;
   const monday = mondayOfWeek(today);
-  const start = new Date(monday);
-  start.setDate(monday.getDate() - (totalWeeks - 1) * 7);
 
   const profile = profiles.find(p => p.id === currentProfileId);
   const createdKey = (profile && profile.createdAt) || dateKey(today);
 
+  // Coluna 0 (a mais à esquerda) é sempre a semana atual (Seg-Dom);
+  // cada coluna seguinte volta uma semana no tempo.
   let html = '';
   for(let i = 0; i < totalWeeks * 7; i++){
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
+    const weekOffset = Math.floor(i / 7);
+    const dayOffset = i % 7;
+    const d = new Date(monday);
+    d.setDate(monday.getDate() - weekOffset * 7 + dayOffset);
     const key = dateKey(d);
     const isFuture = d > today;
     const isBeforeAccount = key < createdKey; // dias antes do primeiro login não contam contra o usuário
@@ -4485,7 +4586,7 @@ function renderTrainingLog(){
   grid.innerHTML = html;
 
   const scroller = document.getElementById('smHeatmapScroll');
-  if(scroller) scroller.scrollLeft = scroller.scrollWidth;
+  if(scroller) scroller.scrollLeft = 0;
 }
 
 /* =====================================================================
