@@ -1001,11 +1001,6 @@
     font-size:12.5px; line-height:1.55; color: var(--ink-soft); margin-bottom:16px;
   }
   .session-tip b{ color: var(--ink); }
-  .cardio-early{
-    display:none; text-align:center; font-size:12px; font-weight:600; color: var(--ink-soft);
-    text-decoration:underline; cursor:pointer; margin-bottom:16px;
-  }
-  .cardio-early.show{ display:block; }
   .km-input-wrap{ display:none; background: var(--card); border:1px solid var(--line); border-radius:var(--radius-md); padding:16px; margin-bottom:16px; }
   .km-input-wrap.show{ display:block; }
   .km-input-lbl{ font-size:12.5px; font-weight:700; color: var(--ink-soft); text-align:center; margin-bottom:10px; }
@@ -1780,12 +1775,16 @@
 
         <div class="sets-lbl" id="setsLbl"></div>
         <div class="sets-grid" id="setsGrid"></div>
-        <div class="cardio-early" id="cardioEarly" onclick="finishCardioEarly()">Já terminei, registrar agora</div>
         <div class="km-input-wrap" id="kmInputWrap">
-          <div class="km-input-lbl">Quantos km você fez?</div>
+          <div class="km-input-lbl">Quantos km você fez? (opcional)</div>
           <div class="km-input-row">
             <input type="number" step="0.1" min="0" inputmode="decimal" id="kmInput" placeholder="0.0" oninput="updateCardioBtn()">
             <span class="km-unit">km</span>
+          </div>
+          <div class="km-input-lbl" style="margin-top:14px;">Quanto tempo você treinou?</div>
+          <div class="km-input-row">
+            <input type="number" step="1" min="0" inputmode="numeric" id="minInput" placeholder="0" oninput="updateCardioBtn()">
+            <span class="km-unit">min</span>
           </div>
         </div>
         <div class="session-tip"><b>Como fazer:</b> <span id="sessTip"></span></div>
@@ -2434,7 +2433,7 @@ document.addEventListener('click', function(e){
     '.grid-card:not(.rest), .theme-dot, .settings-row, .fab-check, .today-cta, ' +
     '.filter-chip, .pin-key, .switch-profile-btn, .profile-row, ' +
     '.session-close, .session-done-btn, .back-btn, .edit-pencil-btn, .nw-item-remove, ' +
-    '.rest-skip, .su-clickable, .gc-play, .theme-switch, .cardio-early, ' +
+    '.rest-skip, .su-clickable, .gc-play, .theme-switch, ' +
     '.session-yt-btn, .detail-start-btn, .medidas-side-btn, button'
   );
   if(el) playClick();
@@ -2893,7 +2892,6 @@ function randomizeGateLook(){
 
 function logoutProfile(){
   clearInterval(restInterval);
-  clearInterval(cardioInterval);
   document.getElementById('app').classList.remove('show');
   currentProfileId = null;
   pendingUser = null;
@@ -4582,7 +4580,6 @@ function renderSessionExercise(){
   document.getElementById('setsLbl').style.display = '';
   document.getElementById('setsGrid').style.display = '';
   document.getElementById('svLbl').textContent = 'séries';
-  document.getElementById('cardioEarly').classList.remove('show');
   document.getElementById('kmInputWrap').classList.remove('show');
   document.getElementById('setsLbl').textContent = ex.sets > 1 ? (ex.sets + ' séries · ' + ex.reps) : ex.reps;
   const grid = document.getElementById('setsGrid');
@@ -4648,86 +4645,42 @@ function sessPrev(){
   if(sessIndex > 0){ sessIndex--; renderSessionExercise(); }
 }
 
-/* ---- fluxo de cardio (exercício com goalType dentro de um treino normal) ---- */
-let cardioInterval = null, cardioState = 'idle';
-let cardioTotalSeconds = 40 * 60; // vem da duração configurada no exercício
-let cardioElapsedSeconds = 0;     // tempo real decorrido
+/* ---- fluxo de cardio (exercício com goalType dentro de um treino normal) ----
+   Sem contagem de tempo: o usuário registra manualmente quanto tempo treinou
+   e (opcionalmente) quantos km fez, ao final do cardio. */
+let cardioState = 'idle';
 
 function renderCardioExercise(){
-  clearInterval(cardioInterval);
   cardioState = 'idle';
   const ex = sessExercises[sessIndex] || {};
-  cardioTotalSeconds = Math.max(1, (ex.minutes || 30)) * 60;
-  cardioElapsedSeconds = 0;
-  document.getElementById('svLbl').textContent = 'min restantes';
+  document.getElementById('svLbl').textContent = 'sugerido';
+  document.getElementById('svCount').textContent = ex.minutes ? (ex.minutes + ' min') : '--';
   document.getElementById('kmInput').value = '';
+  document.getElementById('minInput').value = '';
   document.getElementById('kmInputWrap').classList.remove('show');
-  document.getElementById('cardioEarly').classList.remove('show');
   updateCardioRing();
   updateCardioBtn();
-}
-
-function startCardioTimer(){
-  cardioState = 'running';
-  updateCardioBtn();
-  clearInterval(cardioInterval);
-  cardioInterval = setInterval(() => {
-    cardioElapsedSeconds++;
-    updateCardioRing();
-    if(cardioElapsedSeconds >= cardioTotalSeconds){
-      clearInterval(cardioInterval);
-      finishCardioTimer();
-    }
-  }, 1000);
-}
-
-function finishCardioEarly(){
-  clearInterval(cardioInterval);
-  finishCardioTimer();
-}
-
-function finishCardioTimer(){
-  cardioState = 'done';
-  updateCardioRing();
-  updateCardioBtn();
-  document.getElementById('kmInput').focus();
 }
 
 function updateCardioRing(){
   const circumference = 326.7;
-  const left = Math.max(0, cardioTotalSeconds - cardioElapsedSeconds);
-  const pct = cardioTotalSeconds ? Math.min(1, cardioElapsedSeconds / cardioTotalSeconds) : 0;
-  const m = Math.floor(left / 60), s = left % 60;
-  const label = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-  document.getElementById('svProgress').style.strokeDashoffset = circumference * (1 - pct);
-  document.getElementById('svCount').textContent = label;
+  document.getElementById('svProgress').style.strokeDashoffset = circumference * (cardioState === 'done' ? 0 : 1);
   document.getElementById('svIcon').innerHTML = badgeContent(sessDayData.badge);
 }
 
 function updateCardioBtn(){
   const btn = document.getElementById('sessFinishBtn');
-  const early = document.getElementById('cardioEarly');
   const kmWrap = document.getElementById('kmInputWrap');
-  const kmLbl = kmWrap.querySelector('.km-input-lbl');
   const isLast = sessIndex === sessExercises.length - 1;
   if(cardioState === 'idle'){
-    btn.textContent = 'Iniciar cardio';
+    btn.textContent = 'Registrar cardio';
     btn.classList.add('ready');
-    btn.onclick = startCardioTimer;
-    early.classList.remove('show');
-    kmWrap.classList.remove('show');
-  } else if(cardioState === 'running'){
-    btn.textContent = 'Cardio em andamento…';
-    btn.classList.remove('ready');
-    btn.onclick = null;
-    early.classList.add('show');
+    btn.onclick = () => { cardioState = 'done'; updateCardioRing(); updateCardioBtn(); document.getElementById('minInput').focus(); };
     kmWrap.classList.remove('show');
   } else {
-    if(kmLbl) kmLbl.textContent = 'Quantos km você fez? (opcional)';
     btn.textContent = isLast ? 'Salvar e finalizar treino' : 'Salvar e continuar';
     btn.classList.add('ready');
     btn.onclick = saveCardioKm;
-    early.classList.remove('show');
     kmWrap.classList.add('show');
   }
 }
@@ -4735,7 +4688,9 @@ function updateCardioBtn(){
 async function saveCardioKm(){
   const km = parseFloat((document.getElementById('kmInput').value || '').replace(',', '.'));
   const finalKm = km > 0 ? km : 0;
-  const minutesSpent = Math.max(1, Math.round(cardioElapsedSeconds / 60));
+  const ex = sessExercises[sessIndex] || {};
+  const min = parseFloat((document.getElementById('minInput').value || '').replace(',', '.'));
+  const minutesSpent = min > 0 ? Math.round(min) : Math.max(1, (ex.minutes || 30));
   sessCardioKm += finalKm;
   sessCardioMinutes += minutesSpent;
   cardioLog.push({ date: dateKey(new Date()), km: finalKm, minutes: minutesSpent });
@@ -4799,7 +4754,6 @@ function closeSession(){
     el.removeEventListener('animationend', onEnd);
   });
   clearInterval(restInterval);
-  clearInterval(cardioInterval);
 }
 
 /* =====================================================================
