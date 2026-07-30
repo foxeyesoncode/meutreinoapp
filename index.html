@@ -971,8 +971,8 @@
   }
   .sv-center{ position:absolute; display:flex; flex-direction:column; align-items:center; gap:2px; }
   .sv-icon{ color: var(--accent); margin-bottom:6px; }
-  .sv-count{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:30px; color: var(--ink); }
-  .sv-lbl{ font-size:11px; font-weight:700; color: var(--ink-soft); text-transform:uppercase; letter-spacing:0.5px; }
+  .sv-count{ display:none; font-family:'Montserrat', sans-serif; font-weight:700; font-size:30px; color: var(--ink); }
+  .sv-lbl{ display:none; font-size:11px; font-weight:700; color: var(--ink-soft); text-transform:uppercase; letter-spacing:0.5px; }
 
   .sets-lbl{ font-size:14px; font-weight:600; color: var(--ink-soft); text-align:center; margin-bottom:12px; }
   .sets-grid{ display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-bottom: 16px; }
@@ -981,8 +981,7 @@
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer;
     transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
   }
-  .set-box .sn{ font-size:10px; font-weight:700; color: var(--ink-soft); }
-  .set-box .sc{ font-size:17px; display:inline-block; }
+  .set-box .sc{ font-size:22px; display:inline-block; }
   .set-box.checked{ border-color: var(--accent); background: var(--accent-soft); }
   .set-box.just-checked{ animation: sb-pop 0.42s cubic-bezier(.25,1.7,.4,1) both; }
   .set-box.just-checked .sc{ animation: sb-check-in 0.32s ease 0.05s both; }
@@ -1807,7 +1806,10 @@
         <div class="sess-back-btn" id="sessBackBtn" onclick="sessPrev()" aria-label="Exercício anterior">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M14.7 5.3a1.4 1.4 0 010 2L9.9 12l4.8 4.7a1.4 1.4 0 01-2 2l-5.8-5.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor"/></svg>
         </div>
-        <button class="sess-btn-main" id="sessFinishBtn" onclick="finishExercise()">Marque todas as séries</button>
+        <div class="sess-back-btn" id="sessSkipBtn" onclick="skipExercise()" aria-label="Pular exercício">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M6.6 5.3c.5-.4 1.2-.4 1.7 0l5.7 4.7a1.4 1.4 0 010 2.2l-5.7 4.7a1.3 1.3 0 01-1.7-2l4.5-3.7-4.5-3.7a1.3 1.3 0 010-2.2z" fill="currentColor"/><rect x="16" y="5" width="2.4" height="14" rx="1.2" fill="currentColor"/></svg>
+        </div>
+        <button class="sess-btn-main ready" id="sessFinishBtn" onclick="finishExercise()">Finalizar exercício</button>
       </div>
     </div>
   </div>
@@ -4561,6 +4563,7 @@ function renderSessionExercise(){
   document.getElementById('sessTip').textContent = ex.tip;
   document.getElementById('sessYtBtn').href = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(ex.name + ' como executar exercício');
   document.getElementById('sessionMain').scrollTop = 0;
+  document.getElementById('sessSkipBtn').style.display = sessExercises.length > 1 ? '' : 'none';
 
   const bodyMarkup = sessionBodyMarkup(realGroup);
   const bodyWrap = document.getElementById('sessBodyWrap');
@@ -4582,17 +4585,8 @@ function renderSessionExercise(){
   document.getElementById('svLbl').textContent = 'séries';
   document.getElementById('kmInputWrap').classList.remove('show');
   document.getElementById('setsLbl').textContent = ex.sets > 1 ? (ex.sets + ' séries · ' + ex.reps) : ex.reps;
-  const grid = document.getElementById('setsGrid');
-  grid.innerHTML = '';
-  for(let i=0;i<ex.sets;i++){
-    const box = document.createElement('div');
-    const isChecked = sessChecks[sessIndex][i];
-    box.className = 'set-box' + (isChecked ? ' checked' : '') + (i === lastToggledSetIndex && isChecked ? ' just-checked' : '');
-    box.innerHTML = `<div class="sn">SÉRIE ${i+1}</div><div class="sc">${isChecked ? '✓' : ''}</div>`;
-    box.onclick = () => toggleSet(i);
-    grid.appendChild(box);
-  }
-  lastToggledSetIndex = null;
+  document.getElementById('setsGrid').style.display = 'none';
+  document.getElementById('setsGrid').innerHTML = '';
   updateFinishBtn();
   renderSessionProgress();
 }
@@ -4625,24 +4619,28 @@ function startRestTimer(){
 function skipRest(){ clearInterval(restInterval); document.getElementById('restTimer').classList.remove('show'); }
 
 function updateFinishBtn(){
-  const allDone = sessChecks[sessIndex].every(Boolean);
   const btn = document.getElementById('sessFinishBtn');
   const isLast = sessIndex === sessExercises.length - 1;
-  btn.classList.toggle('ready', allDone);
-  btn.textContent = allDone
-    ? (isLast ? 'Finalizar treino' : 'Finalizar exercício')
-    : 'Marque todas as séries';
-  const total = sessChecks[sessIndex].length;
-  const doneCount = sessChecks[sessIndex].filter(Boolean).length;
-  document.getElementById('svCount').textContent = doneCount + '/' + total;
+  btn.classList.add('ready');
+  btn.textContent = isLast ? 'Finalizar treino' : 'Finalizar exercício';
   document.getElementById('svIcon').innerHTML = badgeContent(sessDayData.badge);
-  const circumference = 326.7;
-  const pct = total ? doneCount / total : 0;
-  document.getElementById('svProgress').style.strokeDashoffset = circumference * (1 - pct);
+  document.getElementById('svProgress').style.strokeDashoffset = 0;
 }
 
 function sessPrev(){
   if(sessIndex > 0){ sessIndex--; renderSessionExercise(); }
+}
+
+/* Pular exercício: manda o exercício atual pro final da fila (sem marcar
+   como concluído) e segue para o próximo que estava na sequência. */
+function skipExercise(){
+  if(sessExercises.length <= 1) return;
+  const [ex] = sessExercises.splice(sessIndex, 1);
+  const [chk] = sessChecks.splice(sessIndex, 1);
+  sessExercises.push(ex);
+  sessChecks.push(chk);
+  if(sessIndex >= sessExercises.length) sessIndex = sessExercises.length - 1;
+  renderSessionExercise();
 }
 
 /* ---- fluxo de cardio (exercício com goalType dentro de um treino normal) ----
@@ -4705,8 +4703,6 @@ async function saveCardioKm(){
 
 
 function finishExercise(){
-  const allDone = sessChecks[sessIndex].every(Boolean);
-  if(!allDone) return;
   if(sessIndex < sessExercises.length - 1){
     sessIndex++;
     renderSessionExercise();
