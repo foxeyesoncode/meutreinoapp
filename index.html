@@ -4562,7 +4562,7 @@ function renderTrainingLog(){
 
   const today = new Date();
   today.setHours(0,0,0,0);
-  const totalWeeks = 52;
+  const maxWeeks = 52;
   const monday = mondayOfWeek(today);
 
   const profile = profiles.find(p => p.id === currentProfileId);
@@ -4570,12 +4570,22 @@ function renderTrainingLog(){
   // (não da criação da conta). Enquanto o usuário não treinou nenhuma vez, nada conta.
   const firstWorkoutKey = profile ? profile.objectiveCycleStart : null;
 
-  // Coluna 0 (a mais à esquerda) é sempre a semana atual (Seg-Dom);
-  // cada coluna seguinte volta uma semana no tempo.
+  // Âncora do log: semana de criação do perfil (limitado a no máximo 52 semanas
+  // de histórico — se o perfil for mais antigo que isso, a janela desliza e
+  // mostra só as 52 semanas mais recentes).
+  const createdMonday = mondayOfWeek(new Date((profile && profile.createdAt ? profile.createdAt : dateKey(today)) + 'T00:00:00'));
+  const weeksSinceCreation = Math.round((monday - createdMonday) / (7 * 86400000)) + 1;
+  const totalWeeks = Math.min(maxWeeks, Math.max(1, weeksSinceCreation));
+
+  // Coluna 0 (a mais à esquerda) é a semana mais antiga (a de criação do perfil,
+  // ou a 52ª semana atrás quando o histórico excede o limite); as semanas vão
+  // "empurrando pra frente" — cada coluna seguinte é uma semana mais recente,
+  // e a última coluna (mais à direita) é sempre a semana atual.
   let html = '';
   for(let i = 0; i < totalWeeks * 7; i++){
-    const weekOffset = Math.floor(i / 7);
+    const col = Math.floor(i / 7);
     const dayOffset = i % 7;
+    const weekOffset = (totalWeeks - 1) - col;
     const d = new Date(monday);
     d.setDate(monday.getDate() - weekOffset * 7 + dayOffset);
     const key = dateKey(d);
@@ -4585,15 +4595,18 @@ function renderTrainingLog(){
     const isRest = !!dayInfo && dayInfo.type === 'descanso';
     const done = weekState[key] === 'done';
     const cls = ['sm-heat-cell'];
-    if(isFuture || isBeforeFirstWorkout) cls.push('future');
-    else if(isRest) cls.push('rest');
+    if(isFuture) cls.push('future');
+    else if(isRest) cls.push('rest'); // dia de descanso é sempre amarelo, mesmo antes do primeiro treino — nunca "conta" como falha
+    else if(isBeforeFirstWorkout) cls.push('future');
     else if(done) cls.push('done');
     html += `<div class="${cls.join(' ')}" title="${key}"></div>`;
   }
   grid.innerHTML = html;
 
+  // Semana atual fica na última coluna (mais à direita); rola até o fim pra
+  // ela aparecer sem precisar arrastar.
   const scroller = document.getElementById('smHeatmapScroll');
-  if(scroller) scroller.scrollLeft = 0;
+  if(scroller) scroller.scrollLeft = scroller.scrollWidth;
 }
 
 /* =====================================================================
