@@ -317,6 +317,17 @@
   .report-banner .rb-sub{ font-size:11.5px; opacity:0.85; margin-top:2px; }
   .report-banner .rb-arrow{ margin-left:auto; flex-shrink:0; }
 
+  .unfinished-banner{
+    display:none; align-items:center; gap:12px;
+    background: var(--danger); color:#FFFFFF;
+    border-radius:var(--radius-lg); padding:14px 16px; margin-bottom:14px; cursor:pointer;
+  }
+  .unfinished-banner.show{ display:flex; }
+  .unfinished-banner .rb-icon{ flex-shrink:0; display:flex; }
+  .unfinished-banner .rb-title{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:13.5px; }
+  .unfinished-banner .rb-sub{ font-size:11.5px; opacity:0.85; margin-top:2px; }
+  .unfinished-banner .rb-arrow{ margin-left:auto; flex-shrink:0; }
+
   .report-gate-card{
     display:none; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-ink);
     border-radius:var(--radius-lg); padding:18px; margin-bottom:16px;
@@ -971,8 +982,8 @@
   }
   .sv-center{ position:absolute; display:flex; flex-direction:column; align-items:center; gap:2px; }
   .sv-icon{ color: var(--accent); margin-bottom:6px; }
-  .sv-count{ display:none; font-family:'Montserrat', sans-serif; font-weight:700; font-size:30px; color: var(--ink); }
-  .sv-lbl{ display:none; font-size:11px; font-weight:700; color: var(--ink-soft); text-transform:uppercase; letter-spacing:0.5px; }
+  .sv-count{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:30px; color: var(--ink); }
+  .sv-lbl{ font-size:11px; font-weight:700; color: var(--ink-soft); text-transform:uppercase; letter-spacing:0.5px; }
 
   .sets-lbl{ font-size:14px; font-weight:600; color: var(--ink-soft); text-align:center; margin-bottom:12px; }
   .sets-grid{ display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-bottom: 16px; }
@@ -981,7 +992,8 @@
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer;
     transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
   }
-  .set-box .sc{ font-size:22px; display:inline-block; }
+  .set-box .sn{ font-size:10px; font-weight:700; color: var(--ink-soft); }
+  .set-box .sc{ font-size:17px; display:inline-block; }
   .set-box.checked{ border-color: var(--accent); background: var(--accent-soft); }
   .set-box.just-checked{ animation: sb-pop 0.42s cubic-bezier(.25,1.7,.4,1) both; }
   .set-box.just-checked .sc{ animation: sb-check-in 0.32s ease 0.05s both; }
@@ -1439,6 +1451,15 @@
           <div class="rb-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9.3 5.3a1.4 1.4 0 010 2l-4.8 4.7 4.8 4.7a1.4 1.4 0 01-2 2L1.5 12.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor" transform="rotate(180 12 12)"/></svg></div>
         </div>
 
+        <div class="unfinished-banner" id="unfinishedBanner" onclick="resumeUnfinishedSession()" role="button" tabindex="0" aria-label="Continuar treino não finalizado">
+          <div class="rb-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="currentColor" opacity="0.24"/><path d="M10 8.5l6 3.5-6 3.5v-7z" fill="currentColor"/></svg></div>
+          <div>
+            <div class="rb-title" id="ubTitle">Treino não finalizado</div>
+            <div class="rb-sub">Toque para continuar de onde parou</div>
+          </div>
+          <div class="rb-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9.3 5.3a1.4 1.4 0 010 2l-4.8 4.7 4.8 4.7a1.4 1.4 0 01-2 2L1.5 12.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor" transform="rotate(180 12 12)"/></svg></div>
+        </div>
+
         <div class="week-cal" id="weekCal"></div>
 
         <div class="today-card" id="todayCard"></div>
@@ -1806,10 +1827,7 @@
         <div class="sess-back-btn" id="sessBackBtn" onclick="sessPrev()" aria-label="Exercício anterior">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M14.7 5.3a1.4 1.4 0 010 2L9.9 12l4.8 4.7a1.4 1.4 0 01-2 2l-5.8-5.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor"/></svg>
         </div>
-        <div class="sess-back-btn" id="sessSkipBtn" onclick="skipExercise()" aria-label="Pular exercício">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M6.6 5.3c.5-.4 1.2-.4 1.7 0l5.7 4.7a1.4 1.4 0 010 2.2l-5.7 4.7a1.3 1.3 0 01-1.7-2l4.5-3.7-4.5-3.7a1.3 1.3 0 010-2.2z" fill="currentColor"/><rect x="16" y="5" width="2.4" height="14" rx="1.2" fill="currentColor"/></svg>
-        </div>
-        <button class="sess-btn-main ready" id="sessFinishBtn" onclick="finishExercise()">Finalizar exercício</button>
+        <button class="sess-btn-main" id="sessFinishBtn" onclick="finishExercise()">Marque todas as séries</button>
       </div>
     </div>
   </div>
@@ -2091,6 +2109,7 @@ let workoutLog = []; // ['YYYY-MM-DD', ...] uma entrada por treino concluído, u
 let cardioLog = []; // [{date:'YYYY-MM-DD', km:Number, minutes:Number}, ...] uma entrada por atividade de cardio concluída
 let reportsHistory = []; // relatórios trimestrais já gerados para o perfil atual
 let pendingReportDraft = null; // relatório em elaboração, aguardando confirmação dos objetivos
+let unfinishedSession = null; // { dayId, sessIndex, sessChecks, sessCardioKm, sessCardioMinutes } — treino que ficou pra trás
 
 function emptyMeasurements(){
   const m = {};
@@ -2113,7 +2132,7 @@ async function saveMeasurements(){
 }
 
 async function loadState(){
-  weekState = {}; streak = 0; record = 0; totalSessions = 0; totalKm = 0; totalMinutes = 0; dailyKm = {}; workoutLog = []; cardioLog = [];
+  weekState = {}; streak = 0; record = 0; totalSessions = 0; totalKm = 0; totalMinutes = 0; dailyKm = {}; workoutLog = []; cardioLog = []; unfinishedSession = null;
   try{
     const r = await window.storage.get('meu-treino-state:' + currentProfileId, false);
     if(r && r.value){
@@ -2127,6 +2146,7 @@ async function loadState(){
       dailyKm = d.dailyKm || {};
       workoutLog = d.workoutLog || [];
       cardioLog = d.cardioLog || [];
+      unfinishedSession = d.unfinishedSession || null;
     }
   }catch(e){ /* sem dados salvos ainda */ }
   await loadPlanEdits();
@@ -2141,7 +2161,7 @@ async function loadState(){
 }
 async function saveState(){
   try{
-    await window.storage.set('meu-treino-state:' + currentProfileId, JSON.stringify({weekState, streak, record, totalSessions, totalKm, totalMinutes, dailyKm, workoutLog, cardioLog}), false);
+    await window.storage.set('meu-treino-state:' + currentProfileId, JSON.stringify({weekState, streak, record, totalSessions, totalKm, totalMinutes, dailyKm, workoutLog, cardioLog, unfinishedSession}), false);
     flashSyncBadge();
   }catch(e){ showSaveError('seu progresso'); }
 }
@@ -2183,6 +2203,18 @@ function mondayOfWeek(d){
   date.setDate(date.getDate() + diff);
   date.setHours(0,0,0,0);
   return date;
+}
+
+/* Retorna a dateKey do dia da semana (dow) DENTRO DA SEMANA ATUAL, e não
+   necessariamente a data de hoje. Isso é o que corrige o bug de marcar o
+   treino no dia errado quando o usuário treina um dia e registra depois
+   (ex: fazer o treino de quarta e só marcar na app na quinta). */
+function dateKeyForDow(dow){
+  const monday = mondayOfWeek(new Date());
+  const offset = dow === 0 ? 6 : dow - 1; // semana começa na segunda (i=0)
+  const d = new Date(monday);
+  d.setDate(monday.getDate() + offset);
+  return dateKey(d);
 }
 
 /* Sequência conta dias úteis seguidos com treino concluído.
@@ -4525,6 +4557,7 @@ function loadProfileData(){
 let sessDayData = null, sessExercises = [], sessIndex = 0, sessChecks = [], restInterval = null;
 let lastToggledSetIndex = null;
 let sessCardioKm = 0, sessCardioMinutes = 0;
+let sessCompleted = false; // false enquanto o treino aberto ainda não foi finalizado
 
 function startSession(dayId){
   const day = findAnyDay(dayId);
@@ -4535,12 +4568,63 @@ function startSession(dayId){
   sessChecks = sessExercises.map(e => new Array(e.sets).fill(false));
   sessCardioKm = 0;
   sessCardioMinutes = 0;
+  sessCompleted = false;
   document.getElementById('sessionDoneScreen').classList.remove('show');
   document.getElementById('sessionMain').style.display = '';
   document.getElementById('sessionVisual').style.display = '';
   document.getElementById('sessionNav').style.display = '';
   document.getElementById('session').classList.add('open');
   renderSessionExercise();
+}
+
+/* Retoma um treino salvo como "não finalizado" — mesma abertura do startSession,
+   mas restaurando o passo e as séries marcadas em vez de começar do zero. */
+function resumeUnfinishedSession(){
+  if(!unfinishedSession) return;
+  const day = findAnyDay(unfinishedSession.dayId);
+  if(!day || day.type === 'descanso'){
+    unfinishedSession = null;
+    saveState();
+    renderUnfinishedBanner();
+    return;
+  }
+  sessDayData = day;
+  sessExercises = flatExercises(day);
+  sessCompleted = false;
+  sessIndex = Math.min(unfinishedSession.sessIndex || 0, sessExercises.length - 1);
+  sessChecks = (Array.isArray(unfinishedSession.sessChecks) && unfinishedSession.sessChecks.length === sessExercises.length)
+    ? unfinishedSession.sessChecks
+    : sessExercises.map(e => new Array(e.sets).fill(false));
+  sessCardioKm = unfinishedSession.sessCardioKm || 0;
+  sessCardioMinutes = unfinishedSession.sessCardioMinutes || 0;
+  document.getElementById('sessionDoneScreen').classList.remove('show');
+  document.getElementById('sessionMain').style.display = '';
+  document.getElementById('sessionVisual').style.display = '';
+  document.getElementById('sessionNav').style.display = '';
+  document.getElementById('session').classList.add('open');
+  renderSessionExercise();
+}
+
+/* Salva o ponto exato em que o treino foi deixado (dia, exercício, séries marcadas). */
+function saveUnfinishedSession(){
+  if(!sessDayData || sessCompleted) return;
+  unfinishedSession = {
+    dayId: sessDayData.id,
+    sessIndex,
+    sessChecks,
+    sessCardioKm,
+    sessCardioMinutes
+  };
+  saveState();
+  renderUnfinishedBanner();
+}
+
+function renderUnfinishedBanner(){
+  const banner = document.getElementById('unfinishedBanner');
+  if(!banner) return;
+  const day = unfinishedSession ? findAnyDay(unfinishedSession.dayId) : null;
+  banner.classList.toggle('show', !!day);
+  if(day) document.getElementById('ubTitle').textContent = 'Treino de ' + day.name + ' não finalizado';
 }
 
 function renderSessionProgress(){
@@ -4563,7 +4647,6 @@ function renderSessionExercise(){
   document.getElementById('sessTip').textContent = ex.tip;
   document.getElementById('sessYtBtn').href = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(ex.name + ' como executar exercício');
   document.getElementById('sessionMain').scrollTop = 0;
-  document.getElementById('sessSkipBtn').style.display = sessExercises.length > 1 ? '' : 'none';
 
   const bodyMarkup = sessionBodyMarkup(realGroup);
   const bodyWrap = document.getElementById('sessBodyWrap');
@@ -4585,8 +4668,17 @@ function renderSessionExercise(){
   document.getElementById('svLbl').textContent = 'séries';
   document.getElementById('kmInputWrap').classList.remove('show');
   document.getElementById('setsLbl').textContent = ex.sets > 1 ? (ex.sets + ' séries · ' + ex.reps) : ex.reps;
-  document.getElementById('setsGrid').style.display = 'none';
-  document.getElementById('setsGrid').innerHTML = '';
+  const grid = document.getElementById('setsGrid');
+  grid.innerHTML = '';
+  for(let i=0;i<ex.sets;i++){
+    const box = document.createElement('div');
+    const isChecked = sessChecks[sessIndex][i];
+    box.className = 'set-box' + (isChecked ? ' checked' : '') + (i === lastToggledSetIndex && isChecked ? ' just-checked' : '');
+    box.innerHTML = `<div class="sn">SÉRIE ${i+1}</div><div class="sc">${isChecked ? '✓' : ''}</div>`;
+    box.onclick = () => toggleSet(i);
+    grid.appendChild(box);
+  }
+  lastToggledSetIndex = null;
   updateFinishBtn();
   renderSessionProgress();
 }
@@ -4596,6 +4688,7 @@ function toggleSet(i){
   sessChecks[sessIndex][i] = !wasChecked;
   lastToggledSetIndex = !wasChecked ? i : null;
   renderSessionExercise();
+  saveUnfinishedSession();
   if(!wasChecked){
     const allDone = sessChecks[sessIndex].every(Boolean);
     if(!allDone) startRestTimer();
@@ -4619,28 +4712,24 @@ function startRestTimer(){
 function skipRest(){ clearInterval(restInterval); document.getElementById('restTimer').classList.remove('show'); }
 
 function updateFinishBtn(){
+  const allDone = sessChecks[sessIndex].every(Boolean);
   const btn = document.getElementById('sessFinishBtn');
   const isLast = sessIndex === sessExercises.length - 1;
-  btn.classList.add('ready');
-  btn.textContent = isLast ? 'Finalizar treino' : 'Finalizar exercício';
+  btn.classList.toggle('ready', allDone);
+  btn.textContent = allDone
+    ? (isLast ? 'Finalizar treino' : 'Finalizar exercício')
+    : 'Marque todas as séries';
+  const total = sessChecks[sessIndex].length;
+  const doneCount = sessChecks[sessIndex].filter(Boolean).length;
+  document.getElementById('svCount').textContent = doneCount + '/' + total;
   document.getElementById('svIcon').innerHTML = badgeContent(sessDayData.badge);
-  document.getElementById('svProgress').style.strokeDashoffset = 0;
+  const circumference = 326.7;
+  const pct = total ? doneCount / total : 0;
+  document.getElementById('svProgress').style.strokeDashoffset = circumference * (1 - pct);
 }
 
 function sessPrev(){
   if(sessIndex > 0){ sessIndex--; renderSessionExercise(); }
-}
-
-/* Pular exercício: manda o exercício atual pro final da fila (sem marcar
-   como concluído) e segue para o próximo que estava na sequência. */
-function skipExercise(){
-  if(sessExercises.length <= 1) return;
-  const [ex] = sessExercises.splice(sessIndex, 1);
-  const [chk] = sessChecks.splice(sessIndex, 1);
-  sessExercises.push(ex);
-  sessChecks.push(chk);
-  if(sessIndex >= sessExercises.length) sessIndex = sessExercises.length - 1;
-  renderSessionExercise();
 }
 
 /* ---- fluxo de cardio (exercício com goalType dentro de um treino normal) ----
@@ -4691,10 +4780,12 @@ async function saveCardioKm(){
   const minutesSpent = min > 0 ? Math.round(min) : Math.max(1, (ex.minutes || 30));
   sessCardioKm += finalKm;
   sessCardioMinutes += minutesSpent;
-  cardioLog.push({ date: dateKey(new Date()), km: finalKm, minutes: minutesSpent });
+  const cardioDate = (sessDayData && sessDayData.dow !== undefined) ? dateKeyForDow(sessDayData.dow) : dateKey(new Date());
+  cardioLog.push({ date: cardioDate, km: finalKm, minutes: minutesSpent });
   if(sessIndex < sessExercises.length - 1){
     sessIndex++;
     renderSessionExercise();
+    saveUnfinishedSession();
   } else {
     const hasNonCardio = sessExercises.some(e => !e.goalType);
     await completeSession(sessCardioKm, sessCardioMinutes + (hasNonCardio ? 55 : 0));
@@ -4703,6 +4794,8 @@ async function saveCardioKm(){
 
 
 function finishExercise(){
+  const allDone = sessChecks[sessIndex].every(Boolean);
+  if(!allDone) return;
   if(sessIndex < sessExercises.length - 1){
     sessIndex++;
     renderSessionExercise();
@@ -4712,7 +4805,9 @@ function finishExercise(){
 }
 
 async function completeSession(extraKm, extraMinutes){
-  const today = dateKey(new Date());
+  sessCompleted = true;
+  unfinishedSession = null;
+  const today = (sessDayData && sessDayData.dow !== undefined) ? dateKeyForDow(sessDayData.dow) : dateKey(new Date());
   weekState[today] = 'done';
   totalSessions++;
   workoutLog.push(today);
@@ -4739,9 +4834,11 @@ async function completeSession(extraKm, extraMinutes){
   renderStreakCard();
   renderKmCard();
   renderReportCountdown();
+  renderUnfinishedBanner();
 }
 
 function closeSession(){
+  if(sessDayData && !sessCompleted) saveUnfinishedSession();
   const el = document.getElementById('session');
   el.classList.remove('open');
   el.classList.add('closing');
@@ -4767,6 +4864,7 @@ function renderAll(){
   renderMedidas();
   renderObjectiveWidgets();
   renderReportCountdown();
+  renderUnfinishedBanner();
 }
 (async function initApp(){
   await loadGlobalThemeMode();
