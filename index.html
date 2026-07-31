@@ -562,8 +562,14 @@
     width:26px; height:26px; border-radius:50%; background: var(--card-soft); color: var(--ink-soft);
     display:flex; align-items:center; justify-content:center;
   }
-  .streak-day.done .sd-dot{ background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-ink); }
-  .streak-day.rest .sd-dot{ opacity:0.55; }
+  .streak-day .sd-dot svg{ width:12px; height:12px; }
+  .streak-day.rest .sd-dot{ background:#8B5CF6; color:#fff; } /* descanso: roxo + lua */
+  .streak-day.done .sd-dot{ background:#2ecc71; color:#fff; } /* feito: verde + check */
+  .streak-day.missed .sd-dot{ background:#e5484d; color:#fff; } /* não fez: vermelho + X */
+  .streak-day.pending .sd-dot{ background:#f2b705; color:#fff; } /* hoje, ainda não feito: amarelo + foguinho */
+  .streak-day.scheduled .sd-dot{ background: var(--card-soft); color: var(--ink-soft); } /* futuro com treino: cinza + foguinho */
+  .streak-day.untracked .sd-dot{ background: var(--card-soft); color: var(--ink-soft); opacity:0.45; } /* antes do 1º treino: cinza vazio */
+  .streak-day.created .sd-dot{ background:#141414; color:#fff; } /* dia de criação do perfil: bolinha preta */
   .streak-day .sd-lbl{ font-size:8.5px; font-weight:700; color: var(--ink-soft); text-transform:uppercase; }
   .streak-day.today .sd-lbl{ color: var(--ink); }
   .sk-km-label{ font-size:10.5px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; color: var(--ink-soft); }
@@ -993,7 +999,13 @@
   .sm-cal-weekdays{ display:grid; grid-template-columns: repeat(7,1fr); margin-bottom:10px; }
   .sm-cal-weekdays span{ text-align:center; font-size:11px; font-weight:700; color: var(--ink-soft); }
 
-  .sm-cal-grid{ display:grid; grid-template-columns: repeat(7,1fr); row-gap:10px; }
+  .sm-cal-grid{ display:flex; flex-direction:column; row-gap:10px; }
+  .sm-cal-week{
+    position:relative; display:grid; grid-template-columns: repeat(7,1fr);
+    border-radius:16px; padding:4px 0; margin:-4px 0;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+  }
+  .sm-cal-week.week-complete{ background: rgba(229,72,77,0.14); box-shadow: 0 0 0 1px rgba(229,72,77,0.4) inset; }
   .sm-cal-day-wrap{ display:flex; align-items:center; justify-content:center; }
   .sm-cal-day{
     position:relative; width:36px; height:36px; border-radius:50%;
@@ -1001,11 +1013,15 @@
     background: var(--card-soft); color: var(--ink-soft); font-size:13px; font-weight:700;
   }
   .sm-cal-day.outside{ background:none; color: var(--ink-soft); opacity:0.38; font-size:13px; font-weight:600; }
-  .sm-cal-day.rest{ background:#f2b705; color:#fff; }
-  .sm-cal-day.done{ background:#2ecc71; color:#fff; }
-  .sm-cal-day.missed{ background:#e5484d; color:#fff; }
+  .sm-cal-day.rest{ background:#8B5CF6; color:#fff; } /* descanso: roxo + lua */
+  .sm-cal-day.done{ background:#2ecc71; color:#fff; } /* feito: verde + check */
+  .sm-cal-day.missed{ background:#e5484d; color:#fff; } /* não fez: vermelho + X */
   .sm-cal-day.missed.clickable{ cursor:pointer; }
   .sm-cal-day.missed.clickable:active{ transform: scale(0.9); }
+  .sm-cal-day.pending{ background:#f2b705; color:#fff; } /* hoje, ainda não feito: amarelo + foguinho */
+  .sm-cal-day.scheduled{ background: var(--card-soft); color: var(--ink-soft); } /* futuro com treino: cinza + foguinho */
+  .sm-cal-day.untracked{ background: var(--card-soft); color: var(--ink-soft); opacity:0.45; } /* antes do 1º treino: cinza vazio */
+  .sm-cal-day.created{ background:#141414; color:#fff; } /* dia de criação do perfil: bolinha preta, diferente de tudo */
   .sm-cal-day.today{ box-shadow: 0 0 0 2px var(--ink) inset; }
   .sm-cal-day-icon{ display:flex; align-items:center; justify-content:center; line-height:1; }
   .sm-cal-day-icon svg{ width:15px; height:15px; }
@@ -3827,8 +3843,12 @@ function renderGreeting(){
 function renderStreakCard(){
   document.getElementById('streakNum').textContent = streak + (streak === 1 ? ' dia' : ' dias');
   const monday = mondayOfWeek(new Date());
-  const todayKey = dateKey(new Date());
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayKey = dateKey(today);
   const DOW_SHORT = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
+  const profile = profiles.find(x => x.id === currentProfileId);
+  const createdKey = profile ? profile.createdAt : null;
+  const firstWorkoutKey = profile ? profile.objectiveCycleStart : null;
   let doneCount = 0;
   const daysHtml = [];
   for(let i=0;i<7;i++){
@@ -3837,14 +3857,40 @@ function renderStreakCard(){
     const dayInfo = getDayByDow(d.getDay());
     const shortLbl = dayInfo ? dayInfo.short : DOW_SHORT[d.getDay()];
     const isRest = dayInfo ? dayInfo.type === 'descanso' : (d.getDay() === 0 || d.getDay() === 6);
-    const isDone = weekState[key] === 'done';
+    const isFuture = d > today;
     const isToday = key === todayKey;
+    const isBeforeFirstWorkout = !firstWorkoutKey || key < firstWorkoutKey;
+    const isCreated = createdKey === key;
+    const isDone = weekState[key] === 'done';
     if(isDone) doneCount++;
-    let dotIcon = '';
-    if(isDone) dotIcon = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    else if(isRest) dotIcon = badgeContent('rest');
+
+    /* Mesma prioridade de estados do calendário mensal (ver buildMonthBlockHtml). */
+    let stateCls, dotIcon;
+    if(isCreated){
+      stateCls = 'created';
+      dotIcon = SM_CAL_MARK_CREATED;
+    } else if(isRest){
+      stateCls = 'rest';
+      dotIcon = badgeContent('rest');
+    } else if(isDone){
+      stateCls = 'done';
+      dotIcon = CAL_ICON_CHECK;
+    } else if(isFuture){
+      stateCls = 'scheduled';
+      dotIcon = CAL_ICON_FIRE;
+    } else if(isToday){
+      stateCls = 'pending';
+      dotIcon = CAL_ICON_FIRE;
+    } else if(isBeforeFirstWorkout){
+      stateCls = 'untracked';
+      dotIcon = '';
+    } else {
+      stateCls = 'missed';
+      dotIcon = CAL_ICON_X;
+    }
+
     daysHtml.push(`
-      <div class="streak-day ${isDone ? 'done' : ''} ${isRest && !isDone ? 'rest' : ''} ${isToday ? 'today' : ''}">
+      <div class="streak-day ${stateCls} ${isToday ? 'today' : ''}">
         <div class="sd-dot">${dotIcon}</div>
         <div class="sd-lbl">${shortLbl.slice(0,3)}</div>
       </div>
@@ -5063,6 +5109,9 @@ function renderPerfil(){
 const MONTH_NAMES_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const SM_CAL_MARK_CREATED = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 21V4M5 4h11l-2.3 3.3L16 11H5" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const SM_CAL_MARK_FIRST = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2.9 6.3L22 9l-5 4.9L18.2 21 12 17.6 5.8 21 7 13.9 2 9l7.1-.7L12 2z"/></svg>';
+const CAL_ICON_CHECK = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const CAL_ICON_X = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
+const CAL_ICON_FIRE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2c1 3-3 4-3 8a3 3 0 006 0c1.5 1 2.5 2.7 2.5 4.5A5.5 5.5 0 0112 20a5.5 5.5 0 01-5.5-5.5C6.5 10 9 8 12 2z"/></svg>';
 
 let trainingLogMonth = null; // Date (dia 1 do mês exibido no Training Log)
 
@@ -5090,6 +5139,7 @@ function buildMonthBlockHtml(monthDate, today, todayKeyStr, createdKey, firstWor
     const monday = new Date(gridStart);
     monday.setDate(gridStart.getDate() + w * 7);
 
+    let weekHtml = '';
     for(let i = 0; i < 7; i++){
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
@@ -5097,43 +5147,90 @@ function buildMonthBlockHtml(monthDate, today, todayKeyStr, createdKey, firstWor
       const outsideMonth = d.getMonth() !== monthDate.getMonth();
 
       if(outsideMonth){
-        gridHtml += `<div class="sm-cal-day-wrap"><div class="sm-cal-day outside">${d.getDate()}</div></div>`;
+        weekHtml += `<div class="sm-cal-day-wrap"><div class="sm-cal-day outside">${d.getDate()}</div></div>`;
         continue;
       }
 
       const dayInfo = getDayByDow(d.getDay());
       const isRest = !!dayInfo && dayInfo.type === 'descanso';
       const isFuture = d > today;
+      const isToday = key === todayKeyStr;
       const isBeforeFirstWorkout = !firstWorkoutKey || key < firstWorkoutKey;
       const done = weekState[key] === 'done';
-      const isToday = key === todayKeyStr;
-
-      let stateCls = 'future';
-      let clickable = false;
-      if(isFuture) stateCls = 'future';
-      else if(isRest) stateCls = 'rest'; // dia de descanso é sempre amarelo, mesmo antes do primeiro treino — nunca "conta" como falha
-      else if(isBeforeFirstWorkout) stateCls = 'future';
-      else if(done) stateCls = 'done';
-      else if(isToday) stateCls = 'future'; // hoje fica neutro até o dia passar
-      else { stateCls = 'missed'; clickable = true; }
-
-      const iconHtml = isRest ? badgeContent('rest') : (dayInfo ? badgeContent(dayInfo.badge) : '');
       const isCreated = createdKey === key;
+
+      /* Prioridade dos estados do dia:
+         0) dia de criação do perfil → bolinha preta com a bandeira, diferente de tudo
+         1) descanso → roxo + lua (sempre, mesmo antes do 1º treino ou no futuro)
+         2) feito → verde + check (mesmo que seja hoje ou algo assim)
+         3) futuro (ainda não chegou) → cinza + foguinho (treino programado à frente)
+         4) hoje (ainda não concluído) → amarelo + foguinho ("no dia")
+         5) antes do primeiro treino concluído → cinza, sem ícone (sem dado)
+         6) sobrou: passado, dia de treino, não feito → vermelho + X (não fez) */
+      let stateCls, iconHtml;
+      if(isCreated){
+        stateCls = 'created';
+        iconHtml = SM_CAL_MARK_CREATED;
+      } else if(isRest){
+        stateCls = 'rest';
+        iconHtml = badgeContent('rest');
+      } else if(done){
+        stateCls = 'done';
+        iconHtml = CAL_ICON_CHECK;
+      } else if(isFuture){
+        stateCls = 'scheduled';
+        iconHtml = CAL_ICON_FIRE;
+      } else if(isToday){
+        stateCls = 'pending';
+        iconHtml = CAL_ICON_FIRE;
+      } else if(isBeforeFirstWorkout){
+        stateCls = 'untracked';
+        iconHtml = '';
+      } else {
+        stateCls = 'missed';
+        iconHtml = CAL_ICON_X;
+      }
+      const clickable = stateCls === 'missed';
+
       const isFirstWorkout = !isCreated && firstWorkoutKey === key;
-      const markHtml = isCreated
-        ? `<span class="sm-cal-mark" title="Início do app">${SM_CAL_MARK_CREATED}</span>`
-        : (isFirstWorkout ? `<span class="sm-cal-mark" title="Primeiro treino">${SM_CAL_MARK_FIRST}</span>` : '');
+      const markHtml = isFirstWorkout ? `<span class="sm-cal-mark" title="Primeiro treino">${SM_CAL_MARK_FIRST}</span>` : '';
 
       const cls = ['sm-cal-day', stateCls];
       if(isToday) cls.push('today');
       if(clickable) cls.push('clickable');
       const clickAttr = clickable ? ` onclick="onCalendarDayClick('${key}','${dayInfo ? dayInfo.id : ''}')"` : '';
 
-      gridHtml += `<div class="sm-cal-day-wrap"><div class="${cls.join(' ')}"${clickAttr}>${markHtml}<span class="sm-cal-day-icon">${iconHtml}</span></div></div>`;
+      weekHtml += `<div class="sm-cal-day-wrap"><div class="${cls.join(' ')}"${clickAttr}>${markHtml}<span class="sm-cal-day-icon">${iconHtml}</span></div></div>`;
     }
+
+    const weekComplete = isWeekTrainingComplete(monday, today, firstWorkoutKey);
+    gridHtml += `<div class="sm-cal-week${weekComplete ? ' week-complete' : ''}">${weekHtml}</div>`;
   }
 
   return { gridHtml, totalWeeks };
+}
+
+/* Uma semana "fecha com chave de ouro" (destaque vermelho na semana toda) quando
+   TODOS os dias de treino dessa semana (segundo o plano fixo, ignorando dias de
+   descanso) já aconteceram e foram concluídos, sem nenhuma falta. Se a semana
+   ainda tem dia de treino no futuro, não dá pra saber ainda — não conta.
+   Dias anteriores ao início do acompanhamento (1º treino) são ignorados. */
+function isWeekTrainingComplete(monday, today, firstWorkoutKey){
+  if(!firstWorkoutKey) return false;
+  let countedTrainingDays = 0;
+  for(let i = 0; i < 7; i++){
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    d.setHours(0,0,0,0);
+    const dayInfo = getDayByDow(d.getDay());
+    if(!dayInfo || dayInfo.type === 'descanso') continue;
+    const key = dateKey(d);
+    if(key < firstWorkoutKey) continue;
+    if(d > today) return false;
+    countedTrainingDays++;
+    if(weekState[key] !== 'done') return false;
+  }
+  return countedTrainingDays > 0;
 }
 
 function renderTrainingLog(){
