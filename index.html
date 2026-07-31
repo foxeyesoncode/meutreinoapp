@@ -885,6 +885,62 @@
   .justify-option .jo-sub{ font-size:11px; color: var(--ink-soft); }
   .justify-option.jo-primary{ border-color: var(--accent); background: var(--accent-soft); }
 
+  /* ---- Medalhas ---- */
+  .medals-entry-card{
+    background: var(--card); border:1px solid var(--line); border-radius:var(--radius-xl);
+    padding:16px 18px; display:flex; align-items:center; gap:14px; cursor:pointer; margin-bottom:16px;
+  }
+  .medals-entry-card:active{ opacity:0.75; }
+  .medals-entry-icon{
+    width:44px; height:44px; border-radius:14px; flex-shrink:0;
+    background: linear-gradient(135deg, #F6C453, #D89A2A); color: #3A2600;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .medals-entry-info{ flex:1; }
+  .medals-entry-title{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:14.5px; color: var(--ink); }
+  .medals-entry-sub{ font-size:12px; color: var(--ink-soft); margin-top:2px; }
+
+  .medal-tabs{ display:flex; gap:8px; margin-top:4px; }
+  .medal-tab{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:5px;
+    text-align:center; padding:10px 4px; border-radius:var(--radius-sm);
+    background: var(--card); border:1px solid var(--line); font-family:'Montserrat', sans-serif;
+    font-weight:700; font-size:11.5px; color: var(--ink-soft); cursor:pointer; transition: all 0.15s ease;
+  }
+  .medal-tab.active{ background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  .medal-progress-wrap{ margin-top:20px; }
+  .medal-progress-lbl{ display:flex; justify-content:space-between; font-size:12px; font-weight:700; color: var(--ink-soft); margin-bottom:6px; }
+  .medal-progress-bar{ height:8px; border-radius:6px; background: var(--accent-soft); overflow:hidden; }
+  .medal-progress-fill{ height:100%; width:0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius:6px; transition: width 0.4s ease; }
+
+  .medal-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:18px; padding-bottom:12px; }
+  .medal-item{
+    background: var(--card); border:1px solid var(--line); border-radius:var(--radius-lg);
+    padding:18px 10px; display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
+  }
+  .medal-item-icon{
+    width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-ink);
+  }
+  .medal-item.locked .medal-item-icon{ background: var(--card-soft); color: var(--ink-soft); filter: grayscale(1); opacity:0.7; }
+  .medal-item.locked .medal-item-lbl{ color: var(--ink-soft); }
+  .medal-item-lbl{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:12.5px; color: var(--ink); }
+
+  @keyframes medalPop{
+    0%{ transform: scale(0.4) rotate(-15deg); opacity:0; }
+    60%{ transform: scale(1.15) rotate(5deg); opacity:1; }
+    100%{ transform: scale(1) rotate(0deg); opacity:1; }
+  }
+  .medal-unlock-icon{
+    width:88px; height:88px; border-radius:50%; margin:6px auto 0;
+    display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-ink);
+    animation: medalPop 0.55s cubic-bezier(.22,1.4,.36,1) both;
+    box-shadow: 0 12px 30px rgba(var(--accent-rgb), 0.4);
+  }
+  .medal-unlock-name{ font-family:'Montserrat', sans-serif; font-weight:800; font-size:16px; color: var(--accent); margin: 4px 0 10px; }
+
   .edit-input{
     width:100%; border:1px solid var(--line); background: var(--card-soft); border-radius:10px;
     padding:8px 10px; font-size:13px; font-family:'Montserrat', sans-serif; font-weight:600; color: var(--ink); margin-top:6px;
@@ -1421,6 +1477,17 @@
   </div>
 
   <!-- ===================== MODAL JUSTIFICAR TREINO ===================== -->
+  <!-- ===================== MODAL DESBLOQUEIO DE MEDALHA ===================== -->
+  <div class="pcm-overlay" id="medalUnlockModal">
+    <div class="pcm-card" style="text-align:center; align-items:center;">
+      <div class="medal-unlock-icon" id="medalUnlockIcon"></div>
+      <div class="pcm-title" style="margin-top:14px;">🏆 Nova Medalha Conquistada!</div>
+      <div class="medal-unlock-name" id="medalUnlockName">—</div>
+      <div class="pcm-sub">Parabéns! Você concluiu este desafio.</div>
+      <button class="today-cta" onclick="closeMedalUnlockModal()">Continuar</button>
+    </div>
+  </div>
+
   <div class="pcm-overlay" id="justifyModal" onclick="if(event.target===this) closeJustifyModal()">
     <div class="pcm-card">
       <div class="pcm-top">
@@ -1428,7 +1495,12 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </div>
       </div>
-      <div id="justifyStepChoose" style="width:100%;">
+      <div id="justifyStepDay" style="width:100%;">
+        <div class="pcm-title">Qual treino você quer justificar?</div>
+        <div class="pcm-sub">Só dá pra justificar até 48h depois do dia.</div>
+        <div style="width:100%; display:flex; flex-direction:column; gap:8px;" id="justifyDayList"></div>
+      </div>
+      <div id="justifyStepChoose" style="display:none; width:100%;">
         <div class="pcm-title" id="justifyModalTitle">Justificar treino</div>
         <div class="pcm-sub">O que aconteceu nesse dia?</div>
         <div style="width:100%; display:flex; flex-direction:column; gap:8px;" id="justifyOptionsList">
@@ -1757,11 +1829,48 @@
           </div>
         </div>
 
+        <div class="medals-entry-card" onclick="openMedalsScreen()" role="button" tabindex="0" aria-label="Ver medalhas">
+          <div class="medals-entry-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="14" r="7" fill="currentColor" opacity="0.35"/><path d="M12 9.5l1.4 2.9 3.2.5-2.3 2.2.5 3.2L12 16.7l-2.8 1.6.5-3.2-2.3-2.2 3.2-.5L12 9.5z" fill="currentColor"/><path d="M8.5 2.5L6 8l3.5 2M15.5 2.5L18 8l-3.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/></svg>
+          </div>
+          <div class="medals-entry-info">
+            <div class="medals-entry-title">Medalhas</div>
+            <div class="medals-entry-sub" id="medalsEntrySub">0 medalhas conquistadas</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9.3 5.3a1.4 1.4 0 010 2l-4.8 4.7 4.8 4.7a1.4 1.4 0 01-2 2L1.5 12.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor" opacity="0.5" transform="rotate(180 12 12)"/></svg>
+        </div>
+
         <div class="reports-section" id="reportsSection">
           <div class="sm-title disp">Relatórios Trimestrais</div>
           <div id="reportsList"></div>
         </div>
 
+      </div>
+    </div>
+
+    <div class="view" id="view-medalhas">
+      <div class="wrap">
+        <div class="detail-head">
+          <div class="back-btn" onclick="goTo('perfil')" role="button" aria-label="Voltar" tabindex="0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14.7 5.3a1.4 1.4 0 010 2L9.9 12l4.8 4.7a1.4 1.4 0 01-2 2l-5.8-5.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor"/></svg>
+          </div>
+          <div style="flex:1;">
+            <h2 class="disp" style="margin-bottom:0;">Medalhas</h2>
+          </div>
+        </div>
+
+        <div class="medal-tabs">
+          <div class="medal-tab active" data-cat="km" onclick="switchMedalTab('km')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-7.2 7-12a7 7 0 10-14 0c0 4.8 7 12 7 12z" fill="currentColor" opacity="0.32"/><circle cx="12" cy="9" r="2.6" fill="currentColor"/></svg> Quilometragem</div>
+          <div class="medal-tab" data-cat="streak" onclick="switchMedalTab('streak')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 2c1 3-3 4-3 7.5A3 3 0 0012 13a3 3 0 003-3.5c1.2 1 2 2.6 2 4.2A5 5 0 0112 18.5 5 5 0 017 13.5c0-3.8 2.6-4.9 3.6-7.2C11 5.3 11.6 3.6 12 2z" fill="currentColor" opacity="0.32"/><path d="M12.4 6.4c.3 1.7-1.6 2.5-1.6 4.4a1.4 1.4 0 002.8 0c0-.5-.1-.9-.3-1.3.9.7 1.5 1.9 1.5 3.1a2.8 2.8 0 01-5.6 0c0-2.6 1.7-3.8 2.3-5.4.3-.6.6-1.2.9-1.8z" fill="currentColor"/></svg> Sequência</div>
+          <div class="medal-tab" data-cat="workouts" onclick="switchMedalTab('workouts')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="4" rx="1.5" fill="currentColor" opacity="0.32"/><rect x="2" y="8" width="3" height="8" rx="1.2" fill="currentColor"/><rect x="19" y="8" width="3" height="8" rx="1.2" fill="currentColor"/></svg> Treinos</div>
+        </div>
+
+        <div class="medal-progress-wrap">
+          <div class="medal-progress-lbl"><span id="medalProgressLbl">—</span><span id="medalProgressPct">0%</span></div>
+          <div class="medal-progress-bar"><div class="medal-progress-fill" id="medalProgressFill"></div></div>
+        </div>
+
+        <div class="medal-grid" id="medalGrid"></div>
       </div>
     </div>
 
@@ -2182,7 +2291,6 @@ let streak = 0, record = 0, totalSessions = 0, totalKm = 0, totalMinutes = 0;
 let statsRecalcV1 = false; // true depois que o recálculo retroativo (dedup de sessões + minutos só do cardio) já rodou uma vez
 let statsRecalcV2 = false; // true depois que a correção retroativa da minutagem de cardio (v2) já rodou uma vez
 let dailyKm = {}; // { 'YYYY-MM-DD': km feitos naquele dia }
-const KM_WEEKLY_GOAL = 20;
 let bodyMeasurements = {}; // { 'Peito': {d:number|null, e:number|null}, ... }
 let medidasSide = 'front';
 let workoutLog = []; // ['YYYY-MM-DD', ...] uma entrada por treino concluído, usado nos relatórios trimestrais
@@ -2194,6 +2302,15 @@ let dayJustifications = {}; // { 'YYYY-MM-DD': 'exercise'|'cardio' } — motivo 
 const JUSTIFY_WEEKLY_LIMIT = 2; // máximo de justificativas permitidas por semana
 let justifyWeekKey = null; // dateKey da segunda-feira da semana à qual justifyWeekCount se refere
 let justifyWeekCount = 0; // quantas justificativas já foram usadas nessa semana
+
+/* ---- Medalhas ---- */
+const KM_MEDALS = [1, 5, 10, 20, 30, 40, 50];
+const WORKOUT_MEDALS = [10, 25, 50, 100, 250, 500, 750, 1000];
+const STREAK_MEDALS = [5, 10, 20, 30, 60, 90, 120, 180];
+let kmMedalIndex = 0, kmMedalProgress = 0; // desafio de km não é acumulativo: zera a cada medalha conquistada
+let workoutMedalIndex = 0, workoutMedalProgress = 0; // mesma lógica, mas contando treinos
+let streakMedalIndex = 0; // quantas medalhas de sequência já foram conquistadas (com base no recorde, não na sequência atual)
+let medalsBackfillV1 = false; // true depois que o crédito retroativo (histórico antigo do usuário) já rodou uma vez
 
 function emptyMeasurements(){
   const m = {};
@@ -2217,6 +2334,7 @@ async function saveMeasurements(){
 
 async function loadState(){
   weekState = {}; streak = 0; record = 0; totalSessions = 0; totalKm = 0; totalMinutes = 0; dailyKm = {}; workoutLog = []; cardioLog = []; unfinishedSession = null; dayJustifications = {}; statsRecalcV1 = false; statsRecalcV2 = false; justifyWeekKey = null; justifyWeekCount = 0;
+  kmMedalIndex = 0; kmMedalProgress = 0; workoutMedalIndex = 0; workoutMedalProgress = 0; streakMedalIndex = 0; medalsBackfillV1 = false;
   try{
     const r = await window.storage.get('meu-treino-state:' + currentProfileId, false);
     if(r && r.value){
@@ -2236,6 +2354,12 @@ async function loadState(){
       statsRecalcV2 = d.statsRecalcV2 || false;
       justifyWeekKey = d.justifyWeekKey || null;
       justifyWeekCount = d.justifyWeekCount || 0;
+      kmMedalIndex = d.kmMedalIndex || 0;
+      kmMedalProgress = d.kmMedalProgress || 0;
+      workoutMedalIndex = d.workoutMedalIndex || 0;
+      workoutMedalProgress = d.workoutMedalProgress || 0;
+      streakMedalIndex = d.streakMedalIndex || 0;
+      medalsBackfillV1 = d.medalsBackfillV1 || false;
     }
   }catch(e){ /* sem dados salvos ainda */ }
   ensureJustifyWeekFresh();
@@ -2247,14 +2371,15 @@ async function loadState(){
   const recalculatedV2 = recalcStatsV2IfNeeded();
   streak = calculateStreak();
   if(streak > record) record = streak;
+  const medalsBackfilled = backfillMedalsIfNeeded();
   loadProfileData();
   await loadAccentTheme();
   renderAll();
-  if(recalculatedV1 || recalculatedV2) await saveState();
+  if(recalculatedV1 || recalculatedV2 || medalsBackfilled) await saveState();
 }
 async function saveState(){
   try{
-    await window.storage.set('meu-treino-state:' + currentProfileId, JSON.stringify({weekState, streak, record, totalSessions, totalKm, totalMinutes, dailyKm, workoutLog, cardioLog, unfinishedSession, dayJustifications, statsRecalcV1, statsRecalcV2, justifyWeekKey, justifyWeekCount}), false);
+    await window.storage.set('meu-treino-state:' + currentProfileId, JSON.stringify({weekState, streak, record, totalSessions, totalKm, totalMinutes, dailyKm, workoutLog, cardioLog, unfinishedSession, dayJustifications, statsRecalcV1, statsRecalcV2, justifyWeekKey, justifyWeekCount, kmMedalIndex, kmMedalProgress, workoutMedalIndex, workoutMedalProgress, streakMedalIndex, medalsBackfillV1}), false);
     flashSyncBadge();
   }catch(e){ showSaveError('seu progresso'); }
 }
@@ -2291,6 +2416,154 @@ function recalcStatsV2IfNeeded(){
   totalMinutes = 0;
   statsRecalcV2 = true;
   return true;
+}
+
+/* =====================================================================
+   MEDALHAS
+   - Km e Treinos: desafios independentes e NÃO cumulativos. Cada medalha
+     conquistada zera o contador (com o excedente "estourando" pra próxima
+     medalha, em cascata) e o próximo alvo começa do zero.
+   - Sequência: é contínua — não zera ao conquistar uma medalha, só quando o
+     usuário perde a sequência (o que já é tratado pelo streak/record
+     existentes). Por isso ela é conferida contra 'record' (o recorde
+     histórico), não a 'streak' atual: uma vez conquistada, a medalha nunca
+     é perdida, mesmo que a sequência quebre depois.
+===================================================================== */
+function addKmMedalProgress(km){
+  if(!km || km <= 0) return [];
+  kmMedalProgress += km;
+  const unlocked = [];
+  while(kmMedalIndex < KM_MEDALS.length && kmMedalProgress >= KM_MEDALS[kmMedalIndex]){
+    const target = KM_MEDALS[kmMedalIndex];
+    kmMedalProgress -= target;
+    unlocked.push({ category: 'km', label: target + ' km' });
+    kmMedalIndex++;
+  }
+  if(kmMedalIndex >= KM_MEDALS.length) kmMedalProgress = 0;
+  return unlocked;
+}
+
+function addWorkoutMedalProgress(count){
+  if(!count || count <= 0) return [];
+  workoutMedalProgress += count;
+  const unlocked = [];
+  while(workoutMedalIndex < WORKOUT_MEDALS.length && workoutMedalProgress >= WORKOUT_MEDALS[workoutMedalIndex]){
+    const target = WORKOUT_MEDALS[workoutMedalIndex];
+    workoutMedalProgress -= target;
+    unlocked.push({ category: 'workouts', label: target + ' treinos' });
+    workoutMedalIndex++;
+  }
+  if(workoutMedalIndex >= WORKOUT_MEDALS.length) workoutMedalProgress = 0;
+  return unlocked;
+}
+
+function checkStreakMedals(){
+  const unlocked = [];
+  while(streakMedalIndex < STREAK_MEDALS.length && record >= STREAK_MEDALS[streakMedalIndex]){
+    unlocked.push({ category: 'streak', label: STREAK_MEDALS[streakMedalIndex] + ' dias' });
+    streakMedalIndex++;
+  }
+  return unlocked;
+}
+
+/* Dá crédito retroativo pra quem já tinha progresso antes desse sistema
+   existir, usando o histórico (totalKm, totalSessions, record) — roda uma
+   única vez, sem mostrar o modal de desbloqueio (é só uma atualização
+   silenciosa de estado, não uma conquista "nova"). */
+function backfillMedalsIfNeeded(){
+  if(medalsBackfillV1) return false;
+  addKmMedalProgress(totalKm);
+  addWorkoutMedalProgress(totalSessions);
+  checkStreakMedals();
+  medalsBackfillV1 = true;
+  return true;
+}
+
+const MEDAL_ICON_PATHS = {
+  km: '<path d="M12 21s7-7.2 7-12a7 7 0 10-14 0c0 4.8 7 12 7 12z" fill="currentColor" opacity="0.32"/><circle cx="12" cy="9" r="2.6" fill="currentColor"/>',
+  streak: '<path d="M12 2c1 3-3 4-3 7.5A3 3 0 0012 13a3 3 0 003-3.5c1.2 1 2 2.6 2 4.2A5 5 0 0112 18.5 5 5 0 017 13.5c0-3.8 2.6-4.9 3.6-7.2C11 5.3 11.6 3.6 12 2z" fill="currentColor" opacity="0.32"/><path d="M12.4 6.4c.3 1.7-1.6 2.5-1.6 4.4a1.4 1.4 0 002.8 0c0-.5-.1-.9-.3-1.3.9.7 1.5 1.9 1.5 3.1a2.8 2.8 0 01-5.6 0c0-2.6 1.7-3.8 2.3-5.4.3-.6.6-1.2.9-1.8z" fill="currentColor"/>',
+  workouts: '<rect x="4" y="10" width="16" height="4" rx="1.5" fill="currentColor" opacity="0.32"/><rect x="2" y="8" width="3" height="8" rx="1.2" fill="currentColor"/><rect x="19" y="8" width="3" height="8" rx="1.2" fill="currentColor"/>'
+};
+function medalIcon(cat, size){
+  size = size || 24;
+  return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none">' + (MEDAL_ICON_PATHS[cat] || '') + '</svg>';
+}
+
+/* Fila de modais de desbloqueio — se mais de uma medalha "estourar" de uma
+   vez (ex: um cardio grande passando por 2 alvos de km), mostra uma de
+   cada vez, na ordem em que foram conquistadas. */
+let medalUnlockQueue = [];
+function queueMedalUnlocks(list){
+  if(!list || !list.length) return;
+  const wasEmpty = medalUnlockQueue.length === 0;
+  medalUnlockQueue = medalUnlockQueue.concat(list);
+  if(wasEmpty) showNextMedalUnlock();
+}
+function showNextMedalUnlock(){
+  if(!medalUnlockQueue.length) return;
+  const medal = medalUnlockQueue[0];
+  document.getElementById('medalUnlockIcon').innerHTML = medalIcon(medal.category, 40);
+  document.getElementById('medalUnlockName').textContent = medal.label;
+  document.getElementById('medalUnlockModal').classList.add('show');
+}
+function closeMedalUnlockModal(){
+  document.getElementById('medalUnlockModal').classList.remove('show');
+  medalUnlockQueue.shift();
+  renderMedalsEntry();
+  if(document.getElementById('view-medalhas').classList.contains('active')) renderMedalsScreen();
+  if(medalUnlockQueue.length) setTimeout(showNextMedalUnlock, 380);
+}
+
+let currentMedalTab = 'km';
+function openMedalsScreen(){
+  goTo('medalhas');
+  renderMedalsScreen();
+}
+function switchMedalTab(cat){
+  currentMedalTab = cat;
+  renderMedalsScreen();
+}
+function renderMedalsEntry(){
+  const el = document.getElementById('medalsEntrySub');
+  if(!el) return;
+  const total = kmMedalIndex + workoutMedalIndex + streakMedalIndex;
+  el.textContent = total + (total === 1 ? ' medalha conquistada' : ' medalhas conquistadas');
+}
+function renderMedalsScreen(){
+  document.querySelectorAll('.medal-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === currentMedalTab));
+
+  let list, index, progress, unit, iconCat, decimals;
+  if(currentMedalTab === 'km'){
+    list = KM_MEDALS; index = kmMedalIndex; progress = kmMedalProgress; unit = 'km'; iconCat = 'km'; decimals = 1;
+  } else if(currentMedalTab === 'streak'){
+    list = STREAK_MEDALS; index = streakMedalIndex; progress = Math.min(streak, list[index] ?? list[list.length - 1]); unit = 'dias'; iconCat = 'streak'; decimals = 0;
+  } else {
+    list = WORKOUT_MEDALS; index = workoutMedalIndex; progress = workoutMedalProgress; unit = 'treinos'; iconCat = 'workouts'; decimals = 0;
+  }
+
+  const progLbl = document.getElementById('medalProgressLbl');
+  const progPct = document.getElementById('medalProgressPct');
+  const progFill = document.getElementById('medalProgressFill');
+  if(index >= list.length){
+    progLbl.textContent = 'Todas as medalhas conquistadas!';
+    progPct.textContent = '100%';
+    progFill.style.width = '100%';
+  } else {
+    const target = list[index];
+    const pct = target ? Math.min(progress / target, 1) : 0;
+    const progressTxt = decimals ? progress.toFixed(decimals).replace('.', ',') : Math.floor(progress);
+    progLbl.textContent = progressTxt + '/' + target + ' ' + unit;
+    progPct.textContent = Math.round(pct * 100) + '%';
+    progFill.style.width = (pct * 100) + '%';
+  }
+
+  const grid = document.getElementById('medalGrid');
+  grid.innerHTML = list.map((target, i) => `
+    <div class="medal-item ${i < index ? 'unlocked' : 'locked'}">
+      <div class="medal-item-icon">${medalIcon(iconCat)}</div>
+      <div class="medal-item-lbl">${target} ${unit}</div>
+    </div>
+  `).join('');
 }
 
 /* =====================================================================
@@ -3287,44 +3560,42 @@ function ensureJustifyWeekFresh(){
   }
 }
 
-/* Acha o dia mais recente da semana atual que já passou, não é descanso e
-   ainda não foi marcado como feito — é esse dia que o botão de justificar
-   (ao lado da contagem de 90 dias) vai abrir pra justificar. */
-function findJustifiableDay(){
-  const monday = mondayOfWeek(new Date());
-  const todayKey = dateKey(new Date());
-  for(let i = 6; i >= 0; i--){
-    const d = new Date(monday); d.setDate(monday.getDate() + i);
+/* Acha os dias que ainda podem ser justificados: o prazo é de 48h, ou seja,
+   só ontem e anteontem — não a semana toda. Dia de descanso e dia já
+   marcado como feito nunca entram na lista. */
+function findJustifiableDays(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const RELATIVE_LABELS = {1: 'Ontem', 2: 'Anteontem'};
+  const results = [];
+  for(let offset = 1; offset <= 2; offset++){
+    const d = new Date(today); d.setDate(d.getDate() - offset);
     const key = dateKey(d);
-    if(key >= todayKey) continue; // só dias que já passaram
     const dayInfo = getDayByDow(d.getDay());
     if(!dayInfo || dayInfo.type === 'descanso') continue;
     if(weekState[key] === 'done') continue;
-    return dayInfo;
+    results.push({ id: dayInfo.id, name: dayInfo.name, dateKeyForJustify: key, relLabel: RELATIVE_LABELS[offset] });
   }
-  return null;
+  return results;
 }
 
 function renderJustifyBtn(){
   const btn = document.getElementById('justifyBtn');
   if(!btn) return;
-  btn.classList.toggle('show', !!findJustifiableDay());
+  btn.classList.toggle('show', findJustifiableDays().length > 0);
 }
 
 /* Clique no botão de justificar: primeiro mostra o aviso sobre o limite
    semanal (1ª vez, última vez disponível, ou bloqueado se já usou as 2). Só
    quando o usuário confirma que quer continuar é que a justificativa em si
-   é aberta — e só nesse momento a tentativa é contabilizada. */
+   é aberta — e só nesse momento a tentativa é contabilizada. Qual treino
+   justificar é escolhido dentro do próprio modal, não aqui. */
 function onJustifyBtnClick(){
-  const day = findJustifiableDay();
-  if(!day) return;
+  if(findJustifiableDays().length === 0) return;
   ensureJustifyWeekFresh();
-  openJustifyIntroModal(day.id);
+  openJustifyIntroModal();
 }
 
-let justifyIntroDayId = null;
-function openJustifyIntroModal(dayId){
-  justifyIntroDayId = dayId;
+function openJustifyIntroModal(){
   ensureJustifyWeekFresh();
   const sub = document.getElementById('justifyIntroSub');
   const continueBtn = document.getElementById('justifyIntroContinueBtn');
@@ -3349,7 +3620,6 @@ function openJustifyIntroModal(dayId){
 }
 function closeJustifyIntroModal(){
   document.getElementById('justifyIntroModal').classList.remove('show');
-  justifyIntroDayId = null;
 }
 /* Só chega aqui se o usuário apertou "Continuar" — é aqui que a tentativa
    passa a contar pro limite semanal, mesmo que ele feche a justificativa
@@ -3358,41 +3628,65 @@ async function confirmJustifyIntro(){
   if(justifyWeekCount >= JUSTIFY_WEEKLY_LIMIT) return;
   justifyWeekCount++;
   await saveState();
-  const dayId = justifyIntroDayId;
   closeJustifyIntroModal();
-  openJustifyModal(dayId);
+  openJustifyModal();
 }
 
 /* =====================================================================
    JUSTIFICAR TREINO — para quando o usuário treinou mas esqueceu de marcar
 ===================================================================== */
 let justifyDayId = null;
+let justifyTargetKey = null; // dateKey real do dia sendo justificado (não recalculado por dow, pra não errar em virada de semana)
 let selectedJustifyReason = null;
 
 function resetJustifyModalUI(){
   selectedJustifyReason = null;
+  justifyDayId = null;
+  justifyTargetKey = null;
+  const stepDay = document.getElementById('justifyStepDay');
   const stepChoose = document.getElementById('justifyStepChoose');
   const stepResult = document.getElementById('justifyStepResult');
-  if(stepChoose) stepChoose.style.display = '';
+  if(stepDay) stepDay.style.display = '';
+  if(stepChoose) stepChoose.style.display = 'none';
   if(stepResult) stepResult.style.display = 'none';
   document.querySelectorAll('#justifyOptionsList .justify-option').forEach(el => el.classList.remove('jo-primary'));
   const btn = document.getElementById('justifyConfirmBtn');
   if(btn){ btn.disabled = true; btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none'; }
 }
 
-function openJustifyModal(dayId){
-  const day = findAnyDay(dayId);
-  if(!day) return;
-  justifyDayId = dayId;
+function renderJustifyDayList(){
+  const wrap = document.getElementById('justifyDayList');
+  if(!wrap) return;
+  const days = findJustifiableDays();
+  wrap.innerHTML = days.map(d => `
+    <div class="justify-option" onclick="selectJustifyDay('${d.dateKeyForJustify}','${d.id}')">
+      <div class="jo-title">${d.name}</div>
+      <div class="jo-sub">${d.relLabel}</div>
+    </div>
+  `).join('');
+}
+
+function openJustifyModal(){
   resetJustifyModalUI();
-  document.getElementById('justifyModalTitle').textContent = 'Justificar ' + day.name;
+  renderJustifyDayList();
   document.getElementById('justifyModal').classList.add('show');
 }
 
 function closeJustifyModal(){
   document.getElementById('justifyModal').classList.remove('show');
-  justifyDayId = null;
   resetJustifyModalUI();
+}
+
+/* Escolher o dia avança pro passo de "o que aconteceu" — a data real fica
+   guardada em justifyTargetKey, já resolvida (não depende mais de dow). */
+function selectJustifyDay(key, dayId){
+  const day = findAnyDay(dayId);
+  if(!day) return;
+  justifyDayId = dayId;
+  justifyTargetKey = key;
+  document.getElementById('justifyModalTitle').textContent = 'Justificar ' + day.name;
+  document.getElementById('justifyStepDay').style.display = 'none';
+  document.getElementById('justifyStepChoose').style.display = '';
 }
 
 /* Escolher uma opção só seleciona — nada é salvo ainda. É preciso apertar
@@ -3414,11 +3708,10 @@ function selectJustifyOption(reason){
    apertar "Confirmar" — depois disso mostra a mensagem de resultado e um
    botão "Fechar". */
 async function confirmJustification(){
-  if(!selectedJustifyReason) return;
+  if(!selectedJustifyReason || !justifyTargetKey) return;
   const reason = selectedJustifyReason;
-  const day = findAnyDay(justifyDayId);
-  if(!day || day.dow === undefined) return;
-  const key = dateKeyForDow(day.dow);
+  const key = justifyTargetKey;
+  let unlockedMedals = [];
 
   if(reason === 'done'){
     if(weekState[key] !== 'done'){
@@ -3430,6 +3723,8 @@ async function confirmJustification(){
       delete dayJustifications[key];
       const p = profiles.find(x => x.id === currentProfileId);
       if(p && startObjectiveCycleIfNeeded(p, key)) await saveProfiles();
+      unlockedMedals = unlockedMedals.concat(addWorkoutMedalProgress(1));
+      unlockedMedals = unlockedMedals.concat(checkStreakMedals());
     }
   } else {
     dayJustifications[key] = reason;
@@ -3442,6 +3737,7 @@ async function confirmJustification(){
   renderKmCard();
   renderPerfil();
   renderReportCountdown();
+  renderMedalsEntry();
 
   const resTitle = document.getElementById('justifyResultTitle');
   const resSub = document.getElementById('justifyResultSub');
@@ -3454,6 +3750,7 @@ async function confirmJustification(){
   }
   document.getElementById('justifyStepChoose').style.display = 'none';
   document.getElementById('justifyStepResult').style.display = '';
+  queueMedalUnlocks(unlockedMedals);
 }
 
 function renderWeekCal(){
@@ -3551,19 +3848,15 @@ function renderStreakCard(){
 }
 
 function renderKmCard(){
-  const now = new Date();
+  const allDone = kmMedalIndex >= KM_MEDALS.length;
+  const target = allDone ? KM_MEDALS[KM_MEDALS.length - 1] : KM_MEDALS[kmMedalIndex];
+  const progress = allDone ? target : kmMedalProgress;
+  const pct = target ? Math.min(progress / target, 1) : 0;
 
-  const monday = mondayOfWeek(now);
-  let weekKm = 0;
-  for(let i=0;i<7;i++){
-    const d = new Date(monday); d.setDate(monday.getDate()+i);
-    weekKm += dailyKm[dateKey(d)] || 0;
-  }
-  const pct = KM_WEEKLY_GOAL ? Math.min(weekKm / KM_WEEKLY_GOAL, 1) : 0;
   document.getElementById('kmBarFill').style.width = (pct * 100) + '%';
-  document.getElementById('kmWeekNum').textContent = weekKm.toFixed(1).replace('.', ',');
-  document.getElementById('kmGoalNum').textContent = KM_WEEKLY_GOAL;
-  document.getElementById('kmPct').textContent = Math.round(pct * 100) + '%';
+  document.getElementById('kmWeekNum').textContent = progress.toFixed(1).replace('.', ',');
+  document.getElementById('kmGoalNum').textContent = target;
+  document.getElementById('kmPct').textContent = allDone ? 'Máx!' : Math.round(pct * 100) + '%';
 
   document.getElementById('kmBigNum').textContent = totalKm.toFixed(1).replace('.', ',');
   document.getElementById('kmStatSessions').textContent = totalSessions;
@@ -5137,6 +5430,7 @@ async function completeSession(extraKm, extraMinutes){
   // (ex: reabrir e concluir de novo) infle o total de treinos/km/minutos.
   const alreadyDoneToday = weekState[today] === 'done';
   weekState[today] = 'done';
+  let unlockedMedals = [];
   if(!alreadyDoneToday){
     totalSessions++;
     workoutLog.push(today);
@@ -5145,6 +5439,10 @@ async function completeSession(extraKm, extraMinutes){
     totalKm += extraKm || 0;
     totalMinutes += extraMinutes || 0;
     if(extraKm > 0) dailyKm[today] = (dailyKm[today] || 0) + extraKm;
+
+    unlockedMedals = unlockedMedals.concat(addWorkoutMedalProgress(1));
+    unlockedMedals = unlockedMedals.concat(addKmMedalProgress(extraKm || 0));
+    unlockedMedals = unlockedMedals.concat(checkStreakMedals());
   }
 
   // O ciclo de 90 dias (objetivo + relatório trimestral) começa na conclusão do primeiro treino.
@@ -5165,6 +5463,8 @@ async function completeSession(extraKm, extraMinutes){
   renderKmCard();
   renderReportCountdown();
   renderUnfinishedBanner();
+  renderMedalsEntry();
+  queueMedalUnlocks(unlockedMedals);
 }
 
 function closeSession(){
@@ -5195,6 +5495,7 @@ function renderAll(){
   renderObjectiveWidgets();
   renderReportCountdown();
   renderUnfinishedBanner();
+  renderMedalsEntry();
 }
 (async function initApp(){
   await loadGlobalThemeMode();
