@@ -1,4 +1,4 @@
-l<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="UTF-8">
@@ -2146,6 +2146,7 @@ function badgeContent(badge){
 let weekState = {}; // { 'YYYY-Www-dow': 'done' }
 let streak = 0, record = 0, totalSessions = 0, totalKm = 0, totalMinutes = 0;
 let statsRecalcV1 = false; // true depois que o recálculo retroativo (dedup de sessões + minutos só do cardio) já rodou uma vez
+let statsRecalcV2 = false; // true depois que a correção retroativa da minutagem de cardio (v2) já rodou uma vez
 let dailyKm = {}; // { 'YYYY-MM-DD': km feitos naquele dia }
 const KM_WEEKLY_GOAL = 20;
 let bodyMeasurements = {}; // { 'Peito': {d:number|null, e:number|null}, ... }
@@ -2178,7 +2179,7 @@ async function saveMeasurements(){
 }
 
 async function loadState(){
-  weekState = {}; streak = 0; record = 0; totalSessions = 0; totalKm = 0; totalMinutes = 0; dailyKm = {}; workoutLog = []; cardioLog = []; unfinishedSession = null; dayJustifications = {}; statsRecalcV1 = false;
+  weekState = {}; streak = 0; record = 0; totalSessions = 0; totalKm = 0; totalMinutes = 0; dailyKm = {}; workoutLog = []; cardioLog = []; unfinishedSession = null; dayJustifications = {}; statsRecalcV1 = false; statsRecalcV2 = false;
   try{
     const r = await window.storage.get('meu-treino-state:' + currentProfileId, false);
     if(r && r.value){
@@ -2195,23 +2196,25 @@ async function loadState(){
       unfinishedSession = d.unfinishedSession || null;
       dayJustifications = d.dayJustifications || {};
       statsRecalcV1 = d.statsRecalcV1 || false;
+      statsRecalcV2 = d.statsRecalcV2 || false;
     }
   }catch(e){ /* sem dados salvos ainda */ }
   await loadPlanEdits();
   await loadCustomWorkouts();
   await loadMeasurements();
   await loadReports();
-  const recalculated = recalcStatsIfNeeded();
+  const recalculatedV1 = recalcStatsIfNeeded();
+  const recalculatedV2 = recalcStatsV2IfNeeded();
   streak = calculateStreak();
   if(streak > record) record = streak;
   loadProfileData();
   await loadAccentTheme();
   renderAll();
-  if(recalculated) await saveState();
+  if(recalculatedV1 || recalculatedV2) await saveState();
 }
 async function saveState(){
   try{
-    await window.storage.set('meu-treino-state:' + currentProfileId, JSON.stringify({weekState, streak, record, totalSessions, totalKm, totalMinutes, dailyKm, workoutLog, cardioLog, unfinishedSession, dayJustifications, statsRecalcV1}), false);
+    await window.storage.set('meu-treino-state:' + currentProfileId, JSON.stringify({weekState, streak, record, totalSessions, totalKm, totalMinutes, dailyKm, workoutLog, cardioLog, unfinishedSession, dayJustifications, statsRecalcV1, statsRecalcV2}), false);
     flashSyncBadge();
   }catch(e){ showSaveError('seu progresso'); }
 }
@@ -2231,6 +2234,22 @@ function recalcStatsIfNeeded(){
   cardioLog.forEach(c => { if(c.km > 0) newDailyKm[c.date] = +((newDailyKm[c.date] || 0) + c.km).toFixed(2); });
   dailyKm = newDailyKm;
   statsRecalcV1 = true;
+  return true;
+}
+
+/* Correção retroativa v2 (roda uma única vez por perfil, depois da v1): a v1
+   recalculava totalMinutes a partir do cardioLog, mas os próprios registros
+   em cardioLog já continham minutos "chutados" de antes da correção do bug
+   (tempo de treino sendo somado como se fosse cardio) — por isso a minutagem
+   continuava errada mesmo depois da v1. Aqui a minutagem de cada registro de
+   cardio já salvo é zerada e o total agregado também, mantendo os km (que já
+   estavam corretos). Dali em diante, minutos só voltam a contar quando o
+   aluno de fato registrar o tempo no fim do cardio — nada é especulado.*/
+function recalcStatsV2IfNeeded(){
+  if(statsRecalcV2) return false;
+  cardioLog.forEach(c => { c.minutes = 0; });
+  totalMinutes = 0;
+  statsRecalcV2 = true;
   return true;
 }
 
