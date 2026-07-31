@@ -977,31 +977,40 @@
   .nw-add-lbl{ font-family:'Montserrat', sans-serif; font-size:12.5px; font-weight:700; color: var(--ink); margin-bottom:2px; }
 
   /* ===================== SUA SEQUÊNCIA (mês) ===================== */
+  .sm-title{ font-size:19px; font-weight:700; color: var(--ink); margin-bottom:16px; }
   .streak-month-card{ background: var(--card); border:1px solid var(--line); border-radius:var(--radius-xl); padding:20px; margin-bottom:16px; }
 
-  .sm-title{ font-size:19px; font-weight:700; color: var(--ink); margin-bottom:16px; }
-  .sm-stats{ display:flex; align-items:center; margin-bottom:20px; }
-  .sm-stat{ flex:1; display:flex; align-items:center; gap:10px; }
-  .sm-stat-icon{
-    width:36px; height:36px; border-radius:11px; flex-shrink:0;
-    background: var(--accent-soft); color: var(--accent);
-    display:flex; align-items:center; justify-content:center;
-  }
-  .sm-stat-num{ font-family:'Montserrat', sans-serif; font-weight:800; font-size:22px; color: var(--ink); line-height:1; }
-  .sm-stat-lbl{ font-size:11px; color: var(--ink-soft); font-weight:600; margin-top:2px; }
-  .sm-sep{ width:1px; height:34px; background: var(--line); margin:0 14px; flex-shrink:0; }
+  .sm-cal-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .sm-cal-nav-btn{ width:30px; height:30px; border-radius:50%; border:1px solid var(--line); background: var(--card-soft); color: var(--ink); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+  .sm-cal-nav-btn.disabled{ opacity:0.28; pointer-events:none; }
+  .sm-cal-title{ font-size:22px; font-weight:800; color: var(--ink); text-transform:capitalize; }
 
-  .sm-log-lbl{ font-size:12px; font-weight:700; color: var(--ink-soft); margin-bottom:10px; text-transform:capitalize; }
-  .sm-heat-row{ display:flex; gap:6px; align-items:stretch; }
-  .sm-heat-labels{ display:flex; flex-direction:column; justify-content:space-between; flex:0 0 auto; padding:1px 0; }
-  .sm-heat-labels span{ font-size:9px; font-weight:700; color: var(--ink-soft); line-height:1; height:11px; display:flex; align-items:center; }
-  .sm-heatmap-scroll{ overflow-x:auto; flex:1; min-width:0; -webkit-overflow-scrolling:touch; }
-  .sm-heatmap-scroll::-webkit-scrollbar{ display:none; }
-  .sm-heatmap{ display:grid; grid-template-rows: repeat(7, 11px); grid-auto-flow:column; grid-auto-columns:11px; gap:3px; width:max-content; }
-  .sm-heat-cell{ width:11px; height:11px; border-radius:3px; background:#e5484d; }
-  .sm-heat-cell.done{ background:#2ecc71; }
-  .sm-heat-cell.rest{ background:#f2b705; }
-  .sm-heat-cell.future{ background: var(--card-soft); }
+  .sm-cal-stats-row{ display:flex; gap:32px; margin-bottom:20px; }
+  .sm-cal-stat .lbl{ font-size:12px; color: var(--ink-soft); font-weight:600; margin-bottom:3px; }
+  .sm-cal-stat .val{ font-family:'Montserrat', sans-serif; font-weight:800; font-size:19px; color: var(--ink); }
+  .sm-cal-stat.hot .val{ color:#FF5D3D; }
+
+  .sm-cal-weekdays{ display:grid; grid-template-columns: repeat(7,1fr); margin-bottom:10px; }
+  .sm-cal-weekdays span{ text-align:center; font-size:11px; font-weight:700; color: var(--ink-soft); }
+
+  .sm-cal-grid{ display:grid; grid-template-columns: repeat(7,1fr); row-gap:10px; }
+  .sm-cal-day-wrap{ display:flex; align-items:center; justify-content:center; }
+  .sm-cal-day{
+    position:relative; width:36px; height:36px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background: var(--card-soft); color: var(--ink-soft); font-size:13px; font-weight:700;
+  }
+  .sm-cal-day.outside{ background:none; color: var(--ink-soft); opacity:0.38; font-size:13px; font-weight:600; }
+  .sm-cal-day.rest{ background:#f2b705; color:#fff; }
+  .sm-cal-day.done{ background:#2ecc71; color:#fff; }
+  .sm-cal-day.missed{ background:#e5484d; color:#fff; }
+  .sm-cal-day.missed.clickable{ cursor:pointer; }
+  .sm-cal-day.missed.clickable:active{ transform: scale(0.9); }
+  .sm-cal-day.today{ box-shadow: 0 0 0 2px var(--ink) inset; }
+  .sm-cal-day-icon{ display:flex; align-items:center; justify-content:center; line-height:1; }
+  .sm-cal-day-icon svg{ width:15px; height:15px; }
+  .sm-cal-mark{ position:absolute; top:-3px; right:-3px; width:14px; height:14px; border-radius:50%; background: var(--card); color: var(--ink); display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 1.5px var(--card); }
+  .sm-cal-mark svg{ width:9px; height:9px; }
 
   /* ===================== SESSÃO GUIADA (segue o tema do app) ===================== */
   #session{
@@ -1807,26 +1816,29 @@
         </div>
 
         <div class="streak-month-card" id="streakMonthCard">
-          <div class="sm-title disp">Sua sequência</div>
-          <div class="sm-stats">
-            <div class="sm-stat">
-              <div class="sm-stat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2c1 3-3 4-3 7.5A3 3 0 0012 13a3 3 0 003-3.5c1.2 1 2 2.6 2 4.2A5 5 0 0112 18.5 5 5 0 017 13.5c0-3.8 2.6-4.9 3.6-7.2C11 5.3 11.6 3.6 12 2z" fill="currentColor" opacity="0.32"/><path d="M12.4 6.4c.3 1.7-1.6 2.5-1.6 4.4a1.4 1.4 0 002.8 0c0-.5-.1-.9-.3-1.3.9.7 1.5 1.9 1.5 3.1a2.8 2.8 0 01-5.6 0c0-2.6 1.7-3.8 2.3-5.4.3-.6.6-1.2.9-1.8z" fill="currentColor"/></svg></div>
-              <div class="sm-stat-num" id="smCurrent">0</div>
-              <div class="sm-stat-lbl">Atual</div>
+          <div class="sm-cal-nav">
+            <div class="sm-cal-nav-btn" id="smCalPrev" onclick="shiftTrainingLogMonth(-1)" role="button" aria-label="Mês anterior">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M14.7 5.3a1.4 1.4 0 010 2L9.9 12l4.8 4.7a1.4 1.4 0 01-2 2l-5.8-5.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor"/></svg>
             </div>
-            <div class="sm-sep"></div>
-            <div class="sm-stat">
-              <div class="sm-stat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 4h10v5a5 5 0 01-10 0V4z" fill="currentColor" opacity="0.32"/><path d="M7 5H4.5a2 2 0 000 4H7M17 5h2.5a2 2 0 010 4H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.6"/><path d="M9.5 15.5h5L15 20h2v1H7v-1h2l.5-4.5z" fill="currentColor"/></svg></div>
-              <div class="sm-stat-num" id="smRecord">0</div>
-              <div class="sm-stat-lbl">Recorde</div>
+            <div class="sm-cal-title disp" id="smCalTitle">—</div>
+            <div class="sm-cal-nav-btn" id="smCalNext" onclick="shiftTrainingLogMonth(1)" role="button" aria-label="Próximo mês">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9.3 5.3a1.4 1.4 0 010 2l-4.8 4.7 4.8 4.7a1.4 1.4 0 01-2 2L1.5 12.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor" transform="rotate(180 12 12)"/></svg>
             </div>
           </div>
 
-          <div class="sm-log-lbl">Training Log</div>
-          <div class="sm-heat-row">
-            <div class="sm-heat-labels"><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span><span>D</span></div>
-            <div class="sm-heatmap-scroll" id="smHeatmapScroll"><div class="sm-heatmap" id="smHeatmap"></div></div>
+          <div class="sm-cal-stats-row">
+            <div class="sm-cal-stat" id="smStreakStat">
+              <div class="lbl">Sua sequência</div>
+              <div class="val"><span id="smCurrent">0</span> dias</div>
+            </div>
+            <div class="sm-cal-stat">
+              <div class="lbl">Recorde</div>
+              <div class="val"><span id="smRecord">0</span> dias</div>
+            </div>
           </div>
+
+          <div class="sm-cal-weekdays"><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span><span>D</span></div>
+          <div class="sm-cal-grid" id="smCalGrid"></div>
         </div>
 
         <div class="medals-entry-card" onclick="openMedalsScreen()" role="button" tabindex="0" aria-label="Ver medalhas">
@@ -3303,6 +3315,7 @@ function checkPin(){
 
 function enterApp(){
   currentProfileId = pendingUser.id;
+  trainingLogMonth = null; // recomeça no mês atual ao entrar no perfil
   const gate = document.getElementById('profileGate');
   const welcome = document.getElementById('welcomeScreen');
   gate.classList.add('hide');
@@ -3578,6 +3591,22 @@ function findJustifiableDays(){
   return results;
 }
 
+/* Dia clicado direto no calendário do Training Log, aguardando ser
+   pré-selecionado assim que o modal de justificativa abrir. */
+let calendarJustifyPending = null;
+
+/* Clique num dia vermelho (perdido) do calendário mensal. Só funciona se
+   esse dia ainda estiver dentro da janela de justificativa (48h / limite
+   semanal) — a mesma regra do botão "Justificar" já existente. Dias mais
+   antigos ficam vermelhos mas não são clicáveis. */
+function onCalendarDayClick(key, dayId){
+  const justifiable = findJustifiableDays().find(d => d.dateKeyForJustify === key);
+  if(!justifiable) return;
+  calendarJustifyPending = { key, dayId };
+  ensureJustifyWeekFresh();
+  openJustifyIntroModal();
+}
+
 function renderJustifyBtn(){
   const btn = document.getElementById('justifyBtn');
   if(!btn) return;
@@ -3620,6 +3649,7 @@ function openJustifyIntroModal(){
 }
 function closeJustifyIntroModal(){
   document.getElementById('justifyIntroModal').classList.remove('show');
+  calendarJustifyPending = null;
 }
 /* Só chega aqui se o usuário apertou "Continuar" — é aqui que a tentativa
    passa a contar pro limite semanal, mesmo que ele feche a justificativa
@@ -3670,6 +3700,10 @@ function openJustifyModal(){
   resetJustifyModalUI();
   renderJustifyDayList();
   document.getElementById('justifyModal').classList.add('show');
+  if(calendarJustifyPending){
+    selectJustifyDay(calendarJustifyPending.key, calendarJustifyPending.dayId);
+    calendarJustifyPending = null;
+  }
 }
 
 function closeJustifyModal(){
@@ -3778,35 +3812,6 @@ function renderWeekCal(){
   }
 }
 
-const MOTIVATIONAL_PHRASES = [
-  'Vamos com tudo hoje!',
-  'Cada treino te deixa mais forte.',
-  'Disciplina vence a preguiça.',
-  'Você já é mais forte que ontem.',
-  'Foco no processo, o resultado vem.',
-  'Hoje é dia de superar seus limites.',
-  'Constância é o segredo.',
-  'Seu único adversário é você mesmo.',
-  'Um treino de cada vez.',
-  'A dor de hoje é a força de amanhã.',
-  'Não pare quando cansar, pare quando terminar.',
-  'Progresso, não perfeição.',
-  'Transforme suor em resultado.',
-  'Sua melhor versão está a um treino de distância.',
-  'Comece agora, agradeça depois.',
-  'Consistência supera intensidade.',
-  'Levanta e vai — o corpo agradece.',
-  'Cada repetição conta.',
-  'Force seus limites com inteligência.',
-  'Hoje treina quem quer crescer.',
-];
-
-function dayOfYear(date){
-  const start = new Date(date.getFullYear(), 0, 0);
-  const diff = date - start;
-  return Math.floor(diff / 86400000);
-}
-
 function renderGreeting(){
   const now = new Date();
   const h = now.getHours();
@@ -3814,8 +3819,9 @@ function renderGreeting(){
   const p = profiles.find(x => x.id === currentProfileId);
   const firstName = p ? p.name.split(' ')[0] : '';
   document.getElementById('greetTitle').textContent = `${period}, ${firstName}`;
-  const phrase = MOTIVATIONAL_PHRASES[dayOfYear(now) % MOTIVATIONAL_PHRASES.length];
-  document.getElementById('greetDate').textContent = phrase;
+  const DOW_FULL = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const MONTH_FULL = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  document.getElementById('greetDate').textContent = `${DOW_FULL[now.getDay()]}, ${now.getDate()} de ${MONTH_FULL[now.getMonth()]}`;
 }
 
 function renderStreakCard(){
@@ -5054,64 +5060,129 @@ function renderPerfil(){
   renderReportsList();
 }
 
+const MONTH_NAMES_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const SM_CAL_MARK_CREATED = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 21V4M5 4h11l-2.3 3.3L16 11H5" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const SM_CAL_MARK_FIRST = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2.9 6.3L22 9l-5 4.9L18.2 21 12 17.6 5.8 21 7 13.9 2 9l7.1-.7L12 2z"/></svg>';
+
+let trainingLogMonth = null; // Date (dia 1 do mês exibido no Training Log)
+
+function shiftTrainingLogMonth(delta){
+  if(!trainingLogMonth) return;
+  const btn = delta < 0 ? document.getElementById('smCalPrev') : document.getElementById('smCalNext');
+  if(btn && btn.classList.contains('disabled')) return;
+  const d = new Date(trainingLogMonth);
+  d.setMonth(d.getMonth() + delta);
+  trainingLogMonth = d;
+  renderTrainingLog();
+}
+
+/* Monta a grade de dias de UM mês. */
+function buildMonthBlockHtml(monthDate, today, todayKeyStr, createdKey, firstWorkoutKey){
+  const firstOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+  const lastOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+  const gridStart = mondayOfWeek(firstOfMonth);
+  const gridEndMonday = mondayOfWeek(lastOfMonth);
+  const totalWeeks = Math.round((gridEndMonday - gridStart) / 86400000) / 7 + 1;
+
+  let gridHtml = '';
+
+  for(let w = 0; w < totalWeeks; w++){
+    const monday = new Date(gridStart);
+    monday.setDate(gridStart.getDate() + w * 7);
+
+    for(let i = 0; i < 7; i++){
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const key = dateKey(d);
+      const outsideMonth = d.getMonth() !== monthDate.getMonth();
+
+      if(outsideMonth){
+        gridHtml += `<div class="sm-cal-day-wrap"><div class="sm-cal-day outside">${d.getDate()}</div></div>`;
+        continue;
+      }
+
+      const dayInfo = getDayByDow(d.getDay());
+      const isRest = !!dayInfo && dayInfo.type === 'descanso';
+      const isFuture = d > today;
+      const isBeforeFirstWorkout = !firstWorkoutKey || key < firstWorkoutKey;
+      const done = weekState[key] === 'done';
+      const isToday = key === todayKeyStr;
+
+      let stateCls = 'future';
+      let clickable = false;
+      if(isFuture) stateCls = 'future';
+      else if(isRest) stateCls = 'rest'; // dia de descanso é sempre amarelo, mesmo antes do primeiro treino — nunca "conta" como falha
+      else if(isBeforeFirstWorkout) stateCls = 'future';
+      else if(done) stateCls = 'done';
+      else if(isToday) stateCls = 'future'; // hoje fica neutro até o dia passar
+      else { stateCls = 'missed'; clickable = true; }
+
+      const iconHtml = isRest ? badgeContent('rest') : (dayInfo ? badgeContent(dayInfo.badge) : '');
+      const isCreated = createdKey === key;
+      const isFirstWorkout = !isCreated && firstWorkoutKey === key;
+      const markHtml = isCreated
+        ? `<span class="sm-cal-mark" title="Início do app">${SM_CAL_MARK_CREATED}</span>`
+        : (isFirstWorkout ? `<span class="sm-cal-mark" title="Primeiro treino">${SM_CAL_MARK_FIRST}</span>` : '');
+
+      const cls = ['sm-cal-day', stateCls];
+      if(isToday) cls.push('today');
+      if(clickable) cls.push('clickable');
+      const clickAttr = clickable ? ` onclick="onCalendarDayClick('${key}','${dayInfo ? dayInfo.id : ''}')"` : '';
+
+      gridHtml += `<div class="sm-cal-day-wrap"><div class="${cls.join(' ')}"${clickAttr}>${markHtml}<span class="sm-cal-day-icon">${iconHtml}</span></div></div>`;
+    }
+  }
+
+  return { gridHtml, totalWeeks };
+}
+
 function renderTrainingLog(){
-  const grid = document.getElementById('smHeatmap');
+  const grid = document.getElementById('smCalGrid');
   if(!grid) return;
   document.getElementById('smCurrent').textContent = streak;
   document.getElementById('smRecord').textContent = Math.max(record, streak);
 
+  // O streak só "pega fogo" (visual em destaque) depois que o usuário
+  // completa 1 semana inteira de treinos em sequência — ou seja, quando o
+  // streak atinge o número de dias de treino configurados no plano dele
+  // (dias de descanso não entram nessa conta).
+  const trainingDaysPerWeek = WEEK_DATA.filter(d => d.type !== 'descanso').length;
+  const isHot = streak > 0 && trainingDaysPerWeek > 0 && streak >= trainingDaysPerWeek;
+  const streakStatEl = document.getElementById('smStreakStat');
+  if(streakStatEl) streakStatEl.classList.toggle('hot', isHot);
+
   const today = new Date();
   today.setHours(0,0,0,0);
   const todayKeyStr = dateKey(today);
-  const maxWeeks = 52;
-  const monday = mondayOfWeek(today);
 
   const profile = profiles.find(p => p.id === currentProfileId);
+  const createdKey = profile ? profile.createdAt : null;
   // O Training Log só passa a contar a partir do dia do PRIMEIRO treino iniciado
   // (não da criação da conta). Enquanto o usuário não treinou nenhuma vez, nada conta.
   const firstWorkoutKey = profile ? profile.objectiveCycleStart : null;
 
-  // Âncora do log: semana de criação do perfil (limitado a no máximo 52 semanas
-  // de histórico — se o perfil for mais antigo que isso, a janela desliza e
-  // mostra só as 52 semanas mais recentes).
-  const createdMonday = mondayOfWeek(new Date((profile && profile.createdAt ? profile.createdAt : dateKey(today)) + 'T00:00:00'));
-  const weeksSinceCreation = Math.round((monday - createdMonday) / (7 * 86400000)) + 1;
-  const totalWeeks = Math.min(maxWeeks, Math.max(1, weeksSinceCreation));
+  if(!trainingLogMonth) trainingLogMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-  // Coluna 0 (a mais à esquerda) é a semana mais antiga (a de criação do perfil,
-  // ou a 52ª semana atrás quando o histórico excede o limite); as semanas vão
-  // "empurrando pra frente" — cada coluna seguinte é uma semana mais recente,
-  // e a última coluna (mais à direita) é sempre a semana atual.
-  let html = '';
-  for(let i = 0; i < totalWeeks * 7; i++){
-    const col = Math.floor(i / 7);
-    const dayOffset = i % 7;
-    const weekOffset = (totalWeeks - 1) - col;
-    const d = new Date(monday);
-    d.setDate(monday.getDate() - weekOffset * 7 + dayOffset);
-    const key = dateKey(d);
-    const isFuture = d > today;
-    const isBeforeFirstWorkout = !firstWorkoutKey || key < firstWorkoutKey;
-    const dayInfo = getDayByDow(d.getDay());
-    const isRest = !!dayInfo && dayInfo.type === 'descanso';
-    const done = weekState[key] === 'done';
-    const isToday = key === todayKeyStr;
-    const cls = ['sm-heat-cell'];
-    if(isFuture) cls.push('future');
-    else if(isRest) cls.push('rest'); // dia de descanso é sempre amarelo, mesmo antes do primeiro treino — nunca "conta" como falha
-    else if(isBeforeFirstWorkout) cls.push('future');
-    else if(done) cls.push('done');
-    // O dia de hoje fica neutro (cinza) enquanto ainda não virou: só vira
-    // vermelho (falha) depois que o dia passa sem ter sido marcado como feito.
-    else if(isToday) cls.push('future');
-    html += `<div class="${cls.join(' ')}" title="${key}"></div>`;
-  }
-  grid.innerHTML = html;
+  // O mínimo navegável é sempre pelo menos 12 meses atrás — mesmo se o
+  // perfil foi criado agora — pra dar pra testar/visualizar o calendário.
+  // Se o perfil for mais antigo que isso, usa o mês de criação como limite.
+  const createdDate = createdKey ? new Date(createdKey + 'T00:00:00') : today;
+  const twelveBack = new Date(today.getFullYear(), today.getMonth() - 12, 1);
+  const createdMonth = new Date(createdDate.getFullYear(), createdDate.getMonth(), 1);
+  const minMonth = createdMonth < twelveBack ? createdMonth : twelveBack;
+  const maxMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  if(trainingLogMonth < minMonth) trainingLogMonth = new Date(minMonth);
+  if(trainingLogMonth > maxMonth) trainingLogMonth = new Date(maxMonth);
 
-  // Semana atual fica na última coluna (mais à direita); rola até o fim pra
-  // ela aparecer sem precisar arrastar.
-  const scroller = document.getElementById('smHeatmapScroll');
-  if(scroller) scroller.scrollLeft = scroller.scrollWidth;
+  const titleEl = document.getElementById('smCalTitle');
+  if(titleEl) titleEl.textContent = MONTH_NAMES_FULL[trainingLogMonth.getMonth()] + ' ' + trainingLogMonth.getFullYear();
+  const prevBtn = document.getElementById('smCalPrev');
+  const nextBtn = document.getElementById('smCalNext');
+  if(prevBtn) prevBtn.classList.toggle('disabled', trainingLogMonth.getFullYear() === minMonth.getFullYear() && trainingLogMonth.getMonth() === minMonth.getMonth());
+  if(nextBtn) nextBtn.classList.toggle('disabled', trainingLogMonth.getFullYear() === maxMonth.getFullYear() && trainingLogMonth.getMonth() === maxMonth.getMonth());
+
+  const { gridHtml } = buildMonthBlockHtml(trainingLogMonth, today, todayKeyStr, createdKey, firstWorkoutKey);
+  grid.innerHTML = gridHtml;
 }
 
 /* =====================================================================
