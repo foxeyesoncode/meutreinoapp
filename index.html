@@ -1,4 +1,4 @@
-l<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="UTF-8">
@@ -805,6 +805,9 @@ l<!DOCTYPE html>
     background: var(--ink); color: var(--bg-1);
     box-shadow: var(--shadow);
   }
+  .detail-start-btn.locked{
+    background: var(--card-soft); color: var(--ink-soft); box-shadow:none; cursor:default;
+  }
 
   /* ===================== DETALHE (Ver treino completo) ===================== */
   .detail-head{ display:flex; align-items:center; gap:12px; padding-top:26px; margin-bottom:20px; }
@@ -1208,6 +1211,55 @@ l<!DOCTYPE html>
     margin-top:14px; padding:14px 30px; border-radius:var(--radius-pill); border:none; font-family:'Montserrat', sans-serif; font-weight:700;
     background: var(--accent); color: var(--accent-ink); cursor:pointer;
   }
+
+  /* ===================== COMEMORAÇÃO: SEQUÊNCIA (streak) ===================== */
+  .streak-celeb-flame{
+    width:88px; height:88px; border-radius:50%; background: var(--card-soft); color: var(--ink);
+    display:flex; align-items:center; justify-content:center; margin-bottom:2px;
+    transition: width 0.3s ease, height 0.3s ease, background 0.3s ease, color 0.3s ease;
+  }
+  .streak-celeb-flame svg{ width:44px; height:44px; }
+  .streak-celeb-screen.show .streak-celeb-flame{ animation: sd-check-pop 0.55s cubic-bezier(.22,1.4,.36,1) both; }
+  .streak-celeb-screen.milestone .streak-celeb-flame{ width:112px; height:112px; background: var(--accent); color: var(--accent-ink); box-shadow: var(--shadow); }
+  .streak-celeb-screen.milestone .streak-celeb-flame svg{ width:58px; height:58px; }
+  .streak-celeb-num{ font-size:52px; font-weight:800; color: var(--ink); letter-spacing:-1.5px; line-height:1; margin-top:8px; }
+  .streak-celeb-screen.show .streak-celeb-num{ animation: sd-text-in 0.5s ease 0.12s both; }
+  .streak-celeb-screen.milestone .streak-celeb-num{ font-size:60px; color: var(--accent); }
+  .streak-celeb-lbl{ font-size:13px; font-weight:700; color: var(--ink-soft); text-transform:uppercase; letter-spacing:0.6px; }
+  .streak-celeb-screen.show .streak-celeb-lbl{ animation: sd-text-in 0.5s ease 0.18s both; }
+  .streak-celeb-days-wrap{ width:100%; max-width:300px; margin: 20px 0 2px; }
+  .streak-celeb-screen.show .streak-celeb-days-wrap{ animation: sd-text-in 0.5s ease 0.24s both; }
+  .streak-celeb-badge{
+    display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border-radius:var(--radius-pill);
+    background: var(--accent-soft); color: var(--accent); font-family:'Montserrat', sans-serif; font-weight:700; font-size:12.5px; margin-top:14px;
+  }
+  .streak-celeb-screen.show .streak-celeb-badge{ animation: sd-text-in 0.5s ease 0.3s both; }
+  .streak-celeb-screen.show p{ animation: sd-text-in 0.5s ease 0.3s both; }
+  .streak-celeb-screen.show .session-done-btn{ animation: sd-text-in 0.5s ease 0.38s both; }
+
+  /* ===================== COMEMORAÇÃO: META / MEDALHA ===================== */
+  .goal-celeb-icon{
+    width:96px; height:96px; border-radius:50%; background: var(--accent); color: var(--accent-ink);
+    display:flex; align-items:center; justify-content:center; box-shadow: var(--shadow); margin-bottom:4px;
+  }
+  .goal-celeb-icon svg{ width:46px; height:46px; }
+  .goal-celeb-screen.show .goal-celeb-icon{ animation: medalPop 0.55s cubic-bezier(.22,1.4,.36,1) both; }
+  .goal-celeb-kicker{ font-size:12.5px; font-weight:700; color: var(--ink-soft); text-transform:uppercase; letter-spacing:0.6px; margin-top:10px; }
+  .goal-celeb-screen.show .goal-celeb-kicker{ animation: sd-text-in 0.5s ease 0.14s both; }
+  .goal-celeb-label{ font-size:28px; font-weight:800; color: var(--ink); margin: 2px 0 2px; }
+  .goal-celeb-screen.show .goal-celeb-label{ animation: sd-text-in 0.5s ease 0.2s both; }
+  .goal-celeb-screen.show p{ animation: sd-text-in 0.5s ease 0.26s both; }
+  .goal-celeb-steps{ display:flex; gap:7px; flex-wrap:wrap; justify-content:center; max-width:280px; margin: 18px 0 4px; }
+  .goal-celeb-screen.show .goal-celeb-steps{ animation: sd-text-in 0.5s ease 0.32s both; }
+  .goal-step{
+    width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background: var(--accent); color: var(--accent-ink); border:1px solid var(--accent); flex-shrink:0;
+  }
+  .goal-step svg{ width:13px; height:13px; }
+  .goal-step.final{ background: var(--card); border:2px dashed var(--accent); color: var(--accent); font-size:14px; }
+  .goal-celeb-bar-wrap{ width:100%; max-width:260px; margin: 18px 0 4px; }
+  .goal-celeb-screen.show .goal-celeb-bar-wrap{ animation: sd-text-in 0.5s ease 0.32s both; }
+  .goal-celeb-screen.show .session-done-btn{ animation: sd-text-in 0.5s ease 0.4s both; }
 
   /* ===================== SPLASH (abertura do app) ===================== */
   #appSplash{
@@ -2081,8 +2133,32 @@ l<!DOCTYPE html>
         <div class="big-check"><svg width="52" height="52" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="26" fill="var(--accent)"/><path d="M8 12.3l2.7 2.7L16.3 9" stroke="var(--accent-ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
         <h3 class="disp">Treino concluído!</h3>
         <p>Mandou bem. O dia de hoje já foi marcado como treinado no seu histórico.</p>
-        <button class="session-done-btn" onclick="closeSession()">Voltar</button>
+        <button class="session-done-btn" id="sessionDoneBtn" onclick="advanceCeleb()">Voltar</button>
       </div>
+
+      <!-- Comemoração de sequência (aparece a cada treino que mantém a streak, com destaque maior nos marcos) -->
+      <div class="session-done-screen streak-celeb-screen" id="streakCelebScreen">
+        <div class="sd-confetti-layer" id="streakConfettiLayer"></div>
+        <div class="streak-celeb-flame" id="streakCelebFlame"><svg width="44" height="44" viewBox="0 0 24 24" fill="none"><path d="M12 2c1 3-3 4-3 7.5A3 3 0 0012 13a3 3 0 003-3.5c1.2 1 2 2.6 2 4.2A5 5 0 0112 18.5 5 5 0 017 13.5c0-3.8 2.6-4.9 3.6-7.2C11 5.3 11.6 3.6 12 2z" fill="currentColor" opacity="0.32"/><path d="M12.4 6.4c.3 1.7-1.6 2.5-1.6 4.4a1.4 1.4 0 002.8 0c0-.5-.1-.9-.3-1.3.9.7 1.5 1.9 1.5 3.1a2.8 2.8 0 01-5.6 0c0-2.6 1.7-3.8 2.3-5.4.3-.6.6-1.2.9-1.8z" fill="currentColor"/></svg></div>
+        <div class="streak-celeb-num disp" id="streakCelebNum">0</div>
+        <div class="streak-celeb-lbl" id="streakCelebLbl">dias seguidos</div>
+        <div class="streak-celeb-days-wrap"><div class="streak-days" id="streakCelebDays"></div></div>
+        <p id="streakCelebMsg">Mandou bem, continue assim!</p>
+        <div class="streak-celeb-badge" id="streakCelebBadge" style="display:none;"></div>
+        <button class="session-done-btn" id="streakCelebBtn" onclick="advanceCeleb()">Continuar</button>
+      </div>
+
+      <!-- Comemoração de meta batida (uma tela por medalha desbloqueada, além do modal de medalhas já existente) -->
+      <div class="session-done-screen goal-celeb-screen" id="goalCelebScreen">
+        <div class="sd-confetti-layer" id="goalConfettiLayer"></div>
+        <div class="goal-celeb-icon" id="goalCelebIcon"></div>
+        <div class="goal-celeb-kicker">Meta batida</div>
+        <div class="goal-celeb-label disp" id="goalCelebLabel">—</div>
+        <p id="goalCelebMsg">Você desbloqueou uma nova medalha!</p>
+        <div class="goal-celeb-steps" id="goalCelebSteps"></div>
+        <button class="session-done-btn" id="goalCelebBtn" onclick="advanceCeleb()">Continuar</button>
+      </div>
+
       <div class="session-nav" id="sessionNav">
         <div class="sess-nav-row">
           <div class="sess-back-btn" id="sessBackBtn" onclick="sessPrev()" aria-label="Exercício anterior">
@@ -2588,6 +2664,114 @@ function closeMedalUnlockModal(){
   renderMedalsEntry();
   if(document.getElementById('view-medalhas').classList.contains('active')) renderMedalsScreen();
   if(medalUnlockQueue.length) setTimeout(showNextMedalUnlock, 380);
+}
+
+/* =====================================================================
+   COMEMORAÇÕES PÓS-TREINO
+   - Sequência: aparece sempre que o treino do dia mantém/inicia a streak.
+     Nos marcos da lista abaixo, ganha um destaque maior (chama grande,
+     confete e uma "medalha" de sequência perfeita).
+   - Meta batida: uma tela por medalha desbloqueada (km, treinos, sequência),
+     mostradas uma atrás da outra — além do modal de medalha já existente
+     em outros pontos do app (ex: tela de Medalhas).
+   Ambas entram numa fila (celebQueue) exibida logo após a tela padrão de
+   "Treino concluído", uma de cada vez, até fechar a sessão.
+===================================================================== */
+const STREAK_CELEB_MILESTONES = [3, 7, 14, 21, 30, 45, 60, 90, 120, 150, 180, 250, 365];
+let celebQueue = [];
+
+function renderStreakCeleb(item){
+  const screen = document.getElementById('streakCelebScreen');
+  const isMilestone = !!item.milestone;
+  screen.classList.toggle('milestone', isMilestone);
+  document.getElementById('streakCelebNum').textContent = item.value;
+  document.getElementById('streakCelebLbl').textContent = item.value === 1 ? 'dia seguido' : 'dias seguidos';
+  document.getElementById('streakCelebMsg').textContent = isMilestone
+    ? 'Sequência perfeita! Você não deixou o treino de lado nenhum dia útil.'
+    : 'Mandou bem, o dia de hoje entrou na sua sequência.';
+  const badge = document.getElementById('streakCelebBadge');
+  if(isMilestone){
+    badge.style.display = 'inline-flex';
+    badge.innerHTML = medalIcon('streak', 14) + '<span>Marco de ' + item.value + ' dias</span>';
+  } else {
+    badge.style.display = 'none';
+  }
+
+  // Reaproveita a mesma semana (seg–dom) e as mesmas regras de estado do card de streak da home.
+  const monday = mondayOfWeek(new Date());
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayKey = dateKey(today);
+  const DOW_SHORT = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
+  const profile = profiles.find(x => x.id === currentProfileId);
+  const createdKey = profile ? profile.createdAt : null;
+  const firstWorkoutKey = profile ? profile.objectiveCycleStart : null;
+  const daysHtml = [];
+  for(let i=0;i<7;i++){
+    const d = new Date(monday); d.setDate(monday.getDate()+i);
+    const key = dateKey(d);
+    const dayInfo = getDayByDow(d.getDay());
+    const shortLbl = dayInfo ? dayInfo.short : DOW_SHORT[d.getDay()];
+    const isRest = dayInfo ? dayInfo.type === 'descanso' : (d.getDay() === 0 || d.getDay() === 6);
+    const isFuture = d > today;
+    const isToday = key === todayKey;
+    const isBeforeFirstWorkout = !firstWorkoutKey || key < firstWorkoutKey;
+    const isCreated = createdKey === key;
+    const isDone = weekState[key] === 'done';
+    let stateCls, dotIcon;
+    if(isCreated){ stateCls = 'created'; dotIcon = SM_CAL_MARK_CREATED; }
+    else if(isBeforeFirstWorkout){ stateCls = 'untracked'; dotIcon = ''; }
+    else if(isRest){ stateCls = 'rest'; dotIcon = badgeContent('rest'); }
+    else if(isDone){ stateCls = 'done'; dotIcon = CAL_ICON_CHECK; }
+    else if(isFuture){ stateCls = 'scheduled'; dotIcon = CAL_ICON_FIRE; }
+    else if(isToday){ stateCls = 'pending'; dotIcon = CAL_ICON_FIRE; }
+    else { stateCls = 'missed'; dotIcon = CAL_ICON_X; }
+    daysHtml.push('<div class="streak-day ' + stateCls + ' ' + (isToday ? 'today' : '') + '"><div class="sd-dot">' + dotIcon + '</div><div class="sd-lbl">' + shortLbl.slice(0,3) + '</div></div>');
+  }
+  document.getElementById('streakCelebDays').innerHTML = daysHtml.join('');
+
+  document.getElementById('sessionDoneScreen').classList.remove('show');
+  screen.classList.add('show');
+  if(isMilestone) launchConfetti('streakConfettiLayer', 34);
+}
+
+function renderGoalCeleb(medal){
+  const msgs = {
+    km: 'Você bateu uma nova meta de quilometragem!',
+    streak: 'Sua sequência virou uma nova medalha!',
+    workouts: 'Mais uma medalha de treinos garantida!'
+  };
+  document.getElementById('goalCelebIcon').innerHTML = medalIcon(medal.category, 44);
+  document.getElementById('goalCelebLabel').textContent = medal.label;
+  document.getElementById('goalCelebMsg').textContent = msgs[medal.category] || 'Você desbloqueou uma nova medalha!';
+
+  const target = parseInt(medal.label, 10) || 0;
+  const stepCount = Math.min(target || 1, 8);
+  let stepsHtml = '';
+  for(let i = 0; i < stepCount; i++){
+    stepsHtml += '<div class="goal-step">' + CAL_ICON_CHECK + '</div>';
+  }
+  stepsHtml += '<div class="goal-step final">🏆</div>';
+  document.getElementById('goalCelebSteps').innerHTML = stepsHtml;
+
+  document.getElementById('sessionDoneScreen').classList.remove('show');
+  document.getElementById('streakCelebScreen').classList.remove('show');
+  document.getElementById('goalCelebScreen').classList.add('show');
+  launchConfetti('goalConfettiLayer', 30);
+}
+
+/* Avança a fila de comemorações (streak -> medalhas, uma de cada vez).
+   Quando a fila acaba, fecha a sessão normalmente. */
+function advanceCeleb(){
+  document.getElementById('sessionDoneScreen').classList.remove('show');
+  document.getElementById('streakCelebScreen').classList.remove('show', 'milestone');
+  document.getElementById('goalCelebScreen').classList.remove('show');
+  if(!celebQueue.length){
+    closeSession();
+    return;
+  }
+  const item = celebQueue.shift();
+  if(item.type === 'streak') renderStreakCeleb(item);
+  else renderGoalCeleb(item.medal);
 }
 
 let currentMedalTab = 'km';
@@ -4189,6 +4373,13 @@ function renderDetail(){
   document.getElementById('detailSub').textContent = day.sub;
   const body = document.getElementById('detailBody');
 
+  const startBtn = document.getElementById('detailStartBtn');
+  if(startBtn){
+    const startable = isStartableToday(day);
+    startBtn.classList.toggle('locked', !startable);
+    startBtn.textContent = startable ? 'Iniciar treino' : 'Disponível só em ' + day.name.toLowerCase();
+  }
+
   body.innerHTML = day.groups.map((g,gi) => `
     <div class="group-label">${g.label}</div>
     ${g.exercises.map((e,ei) => {
@@ -5481,16 +5672,31 @@ let sessDayData = null, sessExercises = [], sessIndex = 0, restInterval = null;
 let sessCardioKm = 0, sessCardioMinutes = 0;
 let sessCompleted = false; // false enquanto o treino aberto ainda não foi finalizado
 
+/* Um treino de dia fixo (WEEK_DATA) só pode ser iniciado no seu próprio dia
+   da semana — treinos personalizados (sem 'dow') não têm essa restrição.
+   Isso evita, por exemplo, marcar o treino de segunda como feito no sábado. */
+function isStartableToday(day){
+  if(!day || day.dow === undefined || day.dow === null) return true;
+  return day.dow === new Date().getDay();
+}
+
 function startSession(dayId){
   const day = findAnyDay(dayId);
   if(!day || day.type === 'descanso') return;
+  if(!isStartableToday(day)){
+    showToast('Esse treino é de ' + day.name.toLowerCase() + ' — você só pode iniciá-lo nesse dia.');
+    return;
+  }
   sessDayData = day;
   sessExercises = flatExercises(day);
   sessIndex = 0;
   sessCardioKm = 0;
   sessCardioMinutes = 0;
   sessCompleted = false;
+  celebQueue = [];
   document.getElementById('sessionDoneScreen').classList.remove('show');
+  document.getElementById('streakCelebScreen').classList.remove('show', 'milestone');
+  document.getElementById('goalCelebScreen').classList.remove('show');
   document.getElementById('sessionMain').style.display = '';
   document.getElementById('sessionVisual').style.display = '';
   document.getElementById('sessionNav').style.display = '';
@@ -5521,7 +5727,10 @@ function resumeUnfinishedSession(){
   sessIndex = Math.min(unfinishedSession.sessIndex || 0, sessExercises.length - 1);
   sessCardioKm = unfinishedSession.sessCardioKm || 0;
   sessCardioMinutes = unfinishedSession.sessCardioMinutes || 0;
+  celebQueue = [];
   document.getElementById('sessionDoneScreen').classList.remove('show');
+  document.getElementById('streakCelebScreen').classList.remove('show', 'milestone');
+  document.getElementById('goalCelebScreen').classList.remove('show');
   document.getElementById('sessionMain').style.display = '';
   document.getElementById('sessionVisual').style.display = '';
   document.getElementById('sessionNav').style.display = '';
@@ -5728,6 +5937,7 @@ async function completeSession(extraKm, extraMinutes){
   const alreadyDoneToday = weekState[today] === 'done';
   weekState[today] = 'done';
   let unlockedMedals = [];
+  celebQueue = [];
   if(!alreadyDoneToday){
     totalSessions++;
     workoutLog.push(today);
@@ -5740,6 +5950,12 @@ async function completeSession(extraKm, extraMinutes){
     unlockedMedals = unlockedMedals.concat(addWorkoutMedalProgress(1));
     unlockedMedals = unlockedMedals.concat(addKmMedalProgress(extraKm || 0));
     unlockedMedals = unlockedMedals.concat(checkStreakMedals());
+
+    // Fila de comemorações: sequência primeiro (se o dia contou pra streak), depois uma tela por medalha desbloqueada.
+    if(streak > 0){
+      celebQueue.push({ type: 'streak', value: streak, milestone: STREAK_CELEB_MILESTONES.includes(streak) });
+    }
+    unlockedMedals.forEach(m => celebQueue.push({ type: 'goal', medal: m }));
   }
 
   // O ciclo de 90 dias (objetivo + relatório trimestral) começa na conclusão do primeiro treino.
@@ -5754,6 +5970,8 @@ async function completeSession(extraKm, extraMinutes){
   document.getElementById('sessionNav').style.display = 'none';
   document.getElementById('sessionDoneScreen').classList.add('show');
   launchConfetti('sdConfettiLayer');
+  const doneBtn = document.getElementById('sessionDoneBtn');
+  doneBtn.textContent = celebQueue.length ? 'Continuar' : 'Voltar';
   renderPerfil();
   renderToday();
   renderStreakCard();
@@ -5761,11 +5979,14 @@ async function completeSession(extraKm, extraMinutes){
   renderReportCountdown();
   renderUnfinishedBanner();
   renderMedalsEntry();
-  queueMedalUnlocks(unlockedMedals);
+  // As medalhas já ganham a tela de "meta batida" na fila de comemoração acima;
+  // o modal antigo (medalUnlockModal) continua existindo no app e é usado
+  // quando uma medalha é conquistada fora do fluxo pós-treino (ex: recálculo retroativo).
 }
 
 function closeSession(){
   if(sessDayData && !sessCompleted) saveUnfinishedSession();
+  celebQueue = [];
   const el = document.getElementById('session');
   el.classList.remove('open');
   el.classList.add('closing');
