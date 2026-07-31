@@ -4927,14 +4927,20 @@ async function completeSession(extraKm, extraMinutes){
   sessCompleted = true;
   unfinishedSession = null;
   const today = (sessDayData && sessDayData.dow !== undefined) ? dateKeyForDow(sessDayData.dow) : dateKey(new Date());
+  // Só conta como um novo treino se esse dia ainda não tinha sido marcado como
+  // concluído. Isso evita que finalizar mais de uma sessão no mesmo dia
+  // (ex: reabrir e concluir de novo) infle o total de treinos/km/minutos.
+  const alreadyDoneToday = weekState[today] === 'done';
   weekState[today] = 'done';
-  totalSessions++;
-  workoutLog.push(today);
-  streak = calculateStreak();
-  if(streak > record) record = streak;
-  totalKm += extraKm || 0;
-  totalMinutes += extraMinutes || 0;
-  if(extraKm > 0) dailyKm[today] = (dailyKm[today] || 0) + extraKm;
+  if(!alreadyDoneToday){
+    totalSessions++;
+    workoutLog.push(today);
+    streak = calculateStreak();
+    if(streak > record) record = streak;
+    totalKm += extraKm || 0;
+    totalMinutes += extraMinutes || 0;
+    if(extraKm > 0) dailyKm[today] = (dailyKm[today] || 0) + extraKm;
+  }
 
   // O ciclo de 90 dias (objetivo + relatório trimestral) começa na conclusão do primeiro treino.
   const p = profiles.find(x => x.id === currentProfileId);
