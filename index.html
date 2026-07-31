@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+l<!DOCTYPE html>
 <html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="UTF-8">
@@ -2145,6 +2145,7 @@ function badgeContent(badge){
 ===================================================================== */
 let weekState = {}; // { 'YYYY-Www-dow': 'done' }
 let streak = 0, record = 0, totalSessions = 0, totalKm = 0, totalMinutes = 0;
+let statsRecalcV1 = false; // true depois que o recálculo retroativo (dedup de sessões + minutos só do cardio) já rodou uma vez
 let dailyKm = {}; // { 'YYYY-MM-DD': km feitos naquele dia }
 const KM_WEEKLY_GOAL = 20;
 let bodyMeasurements = {}; // { 'Peito': {d:number|null, e:number|null}, ... }
@@ -2177,7 +2178,7 @@ async function saveMeasurements(){
 }
 
 async function loadState(){
-  weekState = {}; streak = 0; record = 0; totalSessions = 0; totalKm = 0; totalMinutes = 0; dailyKm = {}; workoutLog = []; cardioLog = []; unfinishedSession = null; dayJustifications = {};
+  weekState = {}; streak = 0; record = 0; totalSessions = 0; totalKm = 0; totalMinutes = 0; dailyKm = {}; workoutLog = []; cardioLog = []; unfinishedSession = null; dayJustifications = {}; statsRecalcV1 = false;
   try{
     const r = await window.storage.get('meu-treino-state:' + currentProfileId, false);
     if(r && r.value){
@@ -2193,23 +2194,44 @@ async function loadState(){
       cardioLog = d.cardioLog || [];
       unfinishedSession = d.unfinishedSession || null;
       dayJustifications = d.dayJustifications || {};
+      statsRecalcV1 = d.statsRecalcV1 || false;
     }
   }catch(e){ /* sem dados salvos ainda */ }
   await loadPlanEdits();
   await loadCustomWorkouts();
   await loadMeasurements();
   await loadReports();
+  const recalculated = recalcStatsIfNeeded();
   streak = calculateStreak();
   if(streak > record) record = streak;
   loadProfileData();
   await loadAccentTheme();
   renderAll();
+  if(recalculated) await saveState();
 }
 async function saveState(){
   try{
-    await window.storage.set('meu-treino-state:' + currentProfileId, JSON.stringify({weekState, streak, record, totalSessions, totalKm, totalMinutes, dailyKm, workoutLog, cardioLog, unfinishedSession, dayJustifications}), false);
+    await window.storage.set('meu-treino-state:' + currentProfileId, JSON.stringify({weekState, streak, record, totalSessions, totalKm, totalMinutes, dailyKm, workoutLog, cardioLog, unfinishedSession, dayJustifications, statsRecalcV1}), false);
     flashSyncBadge();
   }catch(e){ showSaveError('seu progresso'); }
+}
+
+/* Correção retroativa (roda uma única vez por perfil): antes, cada finalização de
+   sessão no mesmo dia somava +1 treino de novo, e todo treino de força somava um
+   valor fixo de 55min inventado. Isso refaz totalSessions/workoutLog (só dias
+   únicos) e recalcula totalMinutes/totalKm/dailyKm com base só no que realmente
+   foi registrado no cardio (cardioLog), descartando os minutos "chutados". */
+function recalcStatsIfNeeded(){
+  if(statsRecalcV1) return false;
+  workoutLog = Array.from(new Set(workoutLog));
+  totalSessions = workoutLog.length;
+  totalMinutes = cardioLog.reduce((s, c) => s + (c.minutes || 0), 0);
+  totalKm = +cardioLog.reduce((s, c) => s + (c.km || 0), 0).toFixed(2);
+  const newDailyKm = {};
+  cardioLog.forEach(c => { if(c.km > 0) newDailyKm[c.date] = +((newDailyKm[c.date] || 0) + c.km).toFixed(2); });
+  dailyKm = newDailyKm;
+  statsRecalcV1 = true;
+  return true;
 }
 
 /* =====================================================================
@@ -3234,7 +3256,6 @@ async function submitJustification(reason){
       weekState[key] = 'done';
       totalSessions++;
       workoutLog.push(key);
-      totalMinutes += 55;
       streak = calculateStreak();
       if(streak > record) record = streak;
       delete dayJustifications[key];
@@ -4894,7 +4915,7 @@ async function saveCardioKm(){
   const finalKm = km > 0 ? km : 0;
   const ex = sessExercises[sessIndex] || {};
   const min = parseFloat((document.getElementById('minInput').value || '').replace(',', '.'));
-  const minutesSpent = min > 0 ? Math.round(min) : Math.max(1, (ex.minutes || 30));
+  const minutesSpent = min > 0 ? Math.round(min) : 0;
   sessCardioKm += finalKm;
   sessCardioMinutes += minutesSpent;
   const cardioDate = (sessDayData && sessDayData.dow !== undefined) ? dateKeyForDow(sessDayData.dow) : dateKey(new Date());
@@ -4904,8 +4925,7 @@ async function saveCardioKm(){
     renderSessionExercise();
     saveUnfinishedSession();
   } else {
-    const hasNonCardio = sessExercises.some(e => !e.goalType);
-    await completeSession(sessCardioKm, sessCardioMinutes + (hasNonCardio ? 55 : 0));
+    await completeSession(sessCardioKm, sessCardioMinutes);
   }
 }
 
@@ -4919,7 +4939,7 @@ function finishExercise(){
     saveUnfinishedSession();
     startRestTimer(finishedEx);
   } else {
-    completeSession(sessCardioKm, sessCardioMinutes + 55);
+    completeSession(sessCardioKm, sessCardioMinutes);
   }
 }
 
