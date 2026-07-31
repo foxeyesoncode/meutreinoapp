@@ -1042,7 +1042,11 @@
   .rest-timer .rt-num{ font-family:'Montserrat', sans-serif; font-size:24px; font-weight:700; color: var(--ink); }
   .rest-skip{ font-size:11.5px; font-weight:700; color: var(--ink); opacity:0.8; cursor:pointer; text-decoration:underline; }
 
-  .session-nav{ margin-top:auto; padding-top:14px; display:flex; align-items:center; gap:12px; }
+  .session-nav{ margin-top:auto; padding-top:14px; display:flex; flex-direction:column; gap:10px; }
+  .sess-nav-row{ display:flex; align-items:center; gap:12px; }
+  .sess-skip-link{ text-align:center; font-size:12px; font-weight:700; color: var(--ink-soft); opacity:0.75; cursor:pointer; text-decoration:underline; }
+  .sess-skip-link:active{ opacity:0.5; }
+  .sess-skip-link.hidden{ visibility:hidden; }
   .sess-back-btn{
     width:52px; height:52px; flex-shrink:0; border-radius:var(--radius-pill); background: var(--card); border:1px solid var(--line); color: var(--ink);
     display:flex; align-items:center; justify-content:center; cursor:pointer;
@@ -1832,7 +1836,6 @@
         </div>
 
         <div class="sets-lbl" id="setsLbl"></div>
-        <div class="sets-grid" id="setsGrid"></div>
         <div class="km-input-wrap" id="kmInputWrap">
           <div class="km-input-lbl">Quantos km você fez? (opcional)</div>
           <div class="km-input-row">
@@ -1862,10 +1865,13 @@
         <button class="session-done-btn" onclick="closeSession()">Voltar</button>
       </div>
       <div class="session-nav" id="sessionNav">
-        <div class="sess-back-btn" id="sessBackBtn" onclick="sessPrev()" aria-label="Exercício anterior">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M14.7 5.3a1.4 1.4 0 010 2L9.9 12l4.8 4.7a1.4 1.4 0 01-2 2l-5.8-5.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor"/></svg>
+        <div class="sess-nav-row">
+          <div class="sess-back-btn" id="sessBackBtn" onclick="sessPrev()" aria-label="Exercício anterior">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M14.7 5.3a1.4 1.4 0 010 2L9.9 12l4.8 4.7a1.4 1.4 0 01-2 2l-5.8-5.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor"/></svg>
+          </div>
+          <button class="sess-btn-main" id="sessFinishBtn" onclick="finishExercise()">Concluir exercício</button>
         </div>
-        <button class="sess-btn-main" id="sessFinishBtn" onclick="finishExercise()">Marque todas as séries</button>
+        <div class="sess-skip-link" id="sessSkipBtn" onclick="skipExercise()">Pular exercício</div>
       </div>
     </div>
   </div>
@@ -2147,7 +2153,7 @@ let workoutLog = []; // ['YYYY-MM-DD', ...] uma entrada por treino concluído, u
 let cardioLog = []; // [{date:'YYYY-MM-DD', km:Number, minutes:Number}, ...] uma entrada por atividade de cardio concluída
 let reportsHistory = []; // relatórios trimestrais já gerados para o perfil atual
 let pendingReportDraft = null; // relatório em elaboração, aguardando confirmação dos objetivos
-let unfinishedSession = null; // { dayId, sessIndex, sessChecks, sessCardioKm, sessCardioMinutes } — treino que ficou pra trás
+let unfinishedSession = null; // { dayId, sessIndex, sessExerciseOrder, sessCardioKm, sessCardioMinutes } — treino que ficou pra trás
 let dayJustifications = {}; // { 'YYYY-MM-DD': 'exercise'|'cardio' } — motivo registrado quando o dia não foi marcado como feito
 
 function emptyMeasurements(){
@@ -4675,8 +4681,7 @@ function loadProfileData(){
 /* =====================================================================
    SESSÃO GUIADA
 ===================================================================== */
-let sessDayData = null, sessExercises = [], sessIndex = 0, sessChecks = [], restInterval = null;
-let lastToggledSetIndex = null;
+let sessDayData = null, sessExercises = [], sessIndex = 0, restInterval = null;
 let sessCardioKm = 0, sessCardioMinutes = 0;
 let sessCompleted = false; // false enquanto o treino aberto ainda não foi finalizado
 
@@ -4686,7 +4691,6 @@ function startSession(dayId){
   sessDayData = day;
   sessExercises = flatExercises(day);
   sessIndex = 0;
-  sessChecks = sessExercises.map(e => new Array(e.sets).fill(false));
   sessCardioKm = 0;
   sessCardioMinutes = 0;
   sessCompleted = false;
@@ -4711,11 +4715,14 @@ function resumeUnfinishedSession(){
   }
   sessDayData = day;
   sessExercises = flatExercises(day);
+  // Se algum exercício foi pulado antes de fechar o treino, restaura a ordem
+  // (com o pulado no fim) em vez de voltar à ordem original do plano.
+  if(Array.isArray(unfinishedSession.sessExerciseOrder) && unfinishedSession.sessExerciseOrder.length === sessExercises.length){
+    const order = unfinishedSession.sessExerciseOrder;
+    sessExercises.sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
+  }
   sessCompleted = false;
   sessIndex = Math.min(unfinishedSession.sessIndex || 0, sessExercises.length - 1);
-  sessChecks = (Array.isArray(unfinishedSession.sessChecks) && unfinishedSession.sessChecks.length === sessExercises.length)
-    ? unfinishedSession.sessChecks
-    : sessExercises.map(e => new Array(e.sets).fill(false));
   sessCardioKm = unfinishedSession.sessCardioKm || 0;
   sessCardioMinutes = unfinishedSession.sessCardioMinutes || 0;
   document.getElementById('sessionDoneScreen').classList.remove('show');
@@ -4732,7 +4739,7 @@ function saveUnfinishedSession(){
   unfinishedSession = {
     dayId: sessDayData.id,
     sessIndex,
-    sessChecks,
+    sessExerciseOrder: sessExercises.map(e => e.name),
     sessCardioKm,
     sessCardioMinutes
   };
@@ -4774,10 +4781,13 @@ function renderSessionExercise(){
   bodyWrap.innerHTML = bodyMarkup;
   bodyWrap.style.display = bodyMarkup ? '' : 'none';
 
+  const isLastExercise = sessIndex === sessExercises.length - 1;
+  const skipBtn = document.getElementById('sessSkipBtn');
+  if(skipBtn) skipBtn.classList.toggle('hidden', isLastExercise);
+
   if(ex.goalType){
     document.getElementById('sessBackBtn').style.display = sessIndex > 0 ? '' : 'none';
     document.getElementById('setsLbl').style.display = 'none';
-    document.getElementById('setsGrid').style.display = 'none';
     document.getElementById('svLbl').textContent = 'min restantes';
     renderSessionProgress();
     renderCardioExercise();
@@ -4785,39 +4795,28 @@ function renderSessionExercise(){
   }
   document.getElementById('sessBackBtn').style.display = '';
   document.getElementById('setsLbl').style.display = '';
-  document.getElementById('setsGrid').style.display = '';
-  document.getElementById('svLbl').textContent = 'séries';
+  document.getElementById('svLbl').textContent = 'exercícios';
   document.getElementById('kmInputWrap').classList.remove('show');
   document.getElementById('setsLbl').textContent = ex.sets > 1 ? (ex.sets + ' séries · ' + ex.reps) : ex.reps;
-  const grid = document.getElementById('setsGrid');
-  grid.innerHTML = '';
-  for(let i=0;i<ex.sets;i++){
-    const box = document.createElement('div');
-    const isChecked = sessChecks[sessIndex][i];
-    box.className = 'set-box' + (isChecked ? ' checked' : '') + (i === lastToggledSetIndex && isChecked ? ' just-checked' : '');
-    box.innerHTML = `<div class="sn">SÉRIE ${i+1}</div><div class="sc">${isChecked ? '✓' : ''}</div>`;
-    box.onclick = () => toggleSet(i);
-    grid.appendChild(box);
-  }
-  lastToggledSetIndex = null;
   updateFinishBtn();
   renderSessionProgress();
 }
 
-function toggleSet(i){
-  const wasChecked = sessChecks[sessIndex][i];
-  sessChecks[sessIndex][i] = !wasChecked;
-  lastToggledSetIndex = !wasChecked ? i : null;
+/* Move o exercício atual pro final da lista (não conta como concluído) e
+   segue direto pro que assumir a posição atual. */
+function skipExercise(){
+  const isLast = sessIndex === sessExercises.length - 1;
+  if(isLast) return; // não há pra onde pular
+  const [skipped] = sessExercises.splice(sessIndex, 1);
+  sessExercises.push(skipped);
+  clearInterval(restInterval);
+  document.getElementById('restTimer').classList.remove('show');
   renderSessionExercise();
   saveUnfinishedSession();
-  if(!wasChecked){
-    const allDone = sessChecks[sessIndex].every(Boolean);
-    if(!allDone) startRestTimer();
-  }
 }
 
-function startRestTimer(){
-  const ex = sessExercises[sessIndex];
+function startRestTimer(exOverride){
+  const ex = exOverride || sessExercises[sessIndex];
   let t = (ex && parseInt(ex.rest)) || 60;
   const timer = document.getElementById('restTimer');
   const num = document.getElementById('restNum');
@@ -4833,15 +4832,12 @@ function startRestTimer(){
 function skipRest(){ clearInterval(restInterval); document.getElementById('restTimer').classList.remove('show'); }
 
 function updateFinishBtn(){
-  const allDone = sessChecks[sessIndex].every(Boolean);
   const btn = document.getElementById('sessFinishBtn');
   const isLast = sessIndex === sessExercises.length - 1;
-  btn.classList.toggle('ready', allDone);
-  btn.textContent = allDone
-    ? (isLast ? 'Finalizar treino' : 'Finalizar exercício')
-    : 'Marque todas as séries';
-  const total = sessChecks[sessIndex].length;
-  const doneCount = sessChecks[sessIndex].filter(Boolean).length;
+  btn.classList.add('ready');
+  btn.textContent = isLast ? 'Finalizar treino' : 'Concluir exercício';
+  const total = sessExercises.length;
+  const doneCount = sessIndex;
   document.getElementById('svCount').textContent = doneCount + '/' + total;
   document.getElementById('svIcon').innerHTML = badgeContent(sessDayData.badge);
   const circumference = 326.7;
@@ -4915,11 +4911,13 @@ async function saveCardioKm(){
 
 
 function finishExercise(){
-  const allDone = sessChecks[sessIndex].every(Boolean);
-  if(!allDone) return;
-  if(sessIndex < sessExercises.length - 1){
+  const finishedEx = sessExercises[sessIndex];
+  const isLast = sessIndex === sessExercises.length - 1;
+  if(!isLast){
     sessIndex++;
     renderSessionExercise();
+    saveUnfinishedSession();
+    startRestTimer(finishedEx);
   } else {
     completeSession(sessCardioKm, sessCardioMinutes + 55);
   }
