@@ -3869,6 +3869,9 @@ function renderStreakCard(){
     if(isCreated){
       stateCls = 'created';
       dotIcon = SM_CAL_MARK_CREATED;
+    } else if(isBeforeFirstWorkout){
+      stateCls = 'untracked';
+      dotIcon = '';
     } else if(isRest){
       stateCls = 'rest';
       dotIcon = badgeContent('rest');
@@ -3881,9 +3884,6 @@ function renderStreakCard(){
     } else if(isToday){
       stateCls = 'pending';
       dotIcon = CAL_ICON_FIRE;
-    } else if(isBeforeFirstWorkout){
-      stateCls = 'untracked';
-      dotIcon = '';
     } else {
       stateCls = 'missed';
       dotIcon = CAL_ICON_X;
@@ -5161,16 +5161,21 @@ function buildMonthBlockHtml(monthDate, today, todayKeyStr, createdKey, firstWor
 
       /* Prioridade dos estados do dia:
          0) dia de criação do perfil → bolinha preta com a bandeira, diferente de tudo
-         1) descanso → roxo + lua (sempre, mesmo antes do 1º treino ou no futuro)
-         2) feito → verde + check (mesmo que seja hoje ou algo assim)
-         3) futuro (ainda não chegou) → cinza + foguinho (treino programado à frente)
-         4) hoje (ainda não concluído) → amarelo + foguinho ("no dia")
-         5) antes do primeiro treino concluído → cinza, sem ícone (sem dado)
+         1) antes do primeiro treino concluído → cinza, sem ícone (sem dado) — inclusive
+            se cair num dia de descanso: sem treino iniciado ainda, não faz sentido
+            pintar fins de semana de roxo lá atrás, no passado anterior ao início.
+         2) descanso → roxo + lua (daqui pra frente, nunca pra trás)
+         3) feito → verde + check (mesmo que seja hoje ou algo assim)
+         4) futuro (ainda não chegou) → cinza + foguinho (treino programado à frente)
+         5) hoje (ainda não concluído) → amarelo + foguinho ("no dia")
          6) sobrou: passado, dia de treino, não feito → vermelho + X (não fez) */
       let stateCls, iconHtml;
       if(isCreated){
         stateCls = 'created';
         iconHtml = SM_CAL_MARK_CREATED;
+      } else if(isBeforeFirstWorkout){
+        stateCls = 'untracked';
+        iconHtml = '';
       } else if(isRest){
         stateCls = 'rest';
         iconHtml = badgeContent('rest');
@@ -5183,9 +5188,6 @@ function buildMonthBlockHtml(monthDate, today, todayKeyStr, createdKey, firstWor
       } else if(isToday){
         stateCls = 'pending';
         iconHtml = CAL_ICON_FIRE;
-      } else if(isBeforeFirstWorkout){
-        stateCls = 'untracked';
-        iconHtml = '';
       } else {
         stateCls = 'missed';
         iconHtml = CAL_ICON_X;
