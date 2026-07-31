@@ -306,6 +306,15 @@
   .report-countdown.ready .rc-num, .report-countdown.ready .rc-lbl{ color: var(--accent-ink); }
   @keyframes rcPulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.6; } }
 
+  .justify-btn{
+    display:none; align-items:center; justify-content:center;
+    width:38px; height:38px; border-radius:12px; flex-shrink:0;
+    background: var(--card); border:1px solid var(--line); color: var(--danger);
+    cursor:pointer;
+  }
+  .justify-btn.show{ display:flex; }
+  .justify-btn:active{ transform: scale(0.94); }
+
   .report-banner{
     display:none; align-items:center; gap:12px;
     background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-ink);
@@ -1394,6 +1403,23 @@
     </div>
   </div>
 
+  <!-- ===================== MODAL AVISO LIMITE DE JUSTIFICATIVAS ===================== -->
+  <div class="pcm-overlay" id="justifyIntroModal" onclick="if(event.target===this) closeJustifyIntroModal()">
+    <div class="pcm-card">
+      <div class="pcm-top">
+        <div class="pcm-close" onclick="closeJustifyIntroModal()" role="button" aria-label="Fechar" tabindex="0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="pcm-title">Justificar treino</div>
+      <div class="pcm-sub" id="justifyIntroSub">—</div>
+      <div style="width:100%; display:flex; gap:8px; margin-top:16px;">
+        <div class="btn-outline" id="justifyIntroExitBtn" style="flex:1; text-align:center;" onclick="closeJustifyIntroModal()">Sair</div>
+        <button class="today-cta" id="justifyIntroContinueBtn" style="flex:1; margin-top:0;" onclick="confirmJustifyIntro()">Continuar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===================== MODAL JUSTIFICAR TREINO ===================== -->
   <div class="pcm-overlay" id="justifyModal" onclick="if(event.target===this) closeJustifyModal()">
     <div class="pcm-card">
@@ -1402,21 +1428,26 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </div>
       </div>
-      <div class="pcm-title" id="justifyModalTitle">Justificar treino</div>
-      <div class="pcm-sub">O que aconteceu nesse dia?</div>
-      <div style="width:100%; display:flex; flex-direction:column; gap:8px;">
-        <div class="justify-option jo-primary" onclick="submitJustification('done')">
-          <div class="jo-title">Fiz, mas não finalizei o treino no app</div>
-          <div class="jo-sub">Marca o dia como treinado</div>
+      <div id="justifyStepChoose" style="width:100%;">
+        <div class="pcm-title" id="justifyModalTitle">Justificar treino</div>
+        <div class="pcm-sub">O que aconteceu nesse dia?</div>
+        <div style="width:100%; display:flex; flex-direction:column; gap:8px;" id="justifyOptionsList">
+          <div class="justify-option" data-reason="done" onclick="selectJustifyOption('done')">
+            <div class="jo-title">Fiz, mas não finalizei o treino no app</div>
+          </div>
+          <div class="justify-option" data-reason="exercise" onclick="selectJustifyOption('exercise')">
+            <div class="jo-title">Não fiz um exercício</div>
+          </div>
+          <div class="justify-option" data-reason="cardio" onclick="selectJustifyOption('cardio')">
+            <div class="jo-title">Pulei o cardio</div>
+          </div>
         </div>
-        <div class="justify-option" onclick="submitJustification('exercise')">
-          <div class="jo-title">Não fiz um exercício</div>
-          <div class="jo-sub">O dia continua sem treino marcado</div>
-        </div>
-        <div class="justify-option" onclick="submitJustification('cardio')">
-          <div class="jo-title">Pulei o cardio</div>
-          <div class="jo-sub">O dia continua sem treino marcado</div>
-        </div>
+        <button class="today-cta" id="justifyConfirmBtn" style="opacity:0.4; pointer-events:none;" disabled onclick="confirmJustification()">Confirmar</button>
+      </div>
+      <div id="justifyStepResult" style="display:none; width:100%; text-align:center;">
+        <div class="pcm-title" id="justifyResultTitle">—</div>
+        <div class="pcm-sub" id="justifyResultSub">—</div>
+        <button class="today-cta" onclick="closeJustifyModal()">Fechar</button>
       </div>
     </div>
   </div>
@@ -1473,6 +1504,9 @@
             <div class="sync-badge" id="syncBadge" aria-live="polite" aria-label="Progresso salvo automaticamente">
               <svg class="fab-check" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
               <span>Salvo</span>
+            </div>
+            <div class="justify-btn" id="justifyBtn" onclick="onJustifyBtnClick()" role="button" tabindex="0" aria-label="Justificar treino não concluído">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 8.5v5m0 3h.01M10.13 4.36L1.9 18.5a1.4 1.4 0 001.21 2.1h17.78a1.4 1.4 0 001.21-2.1L13.87 4.36a1.4 1.4 0 00-2.44 0z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
             <div class="report-countdown" id="reportCountdown" onclick="onReportCountdownClick()" role="button" tabindex="0" aria-label="Relatório trimestral">
               <div class="rc-num" id="reportCountdownNum">90</div>
@@ -2157,6 +2191,9 @@ let reportsHistory = []; // relatórios trimestrais já gerados para o perfil at
 let pendingReportDraft = null; // relatório em elaboração, aguardando confirmação dos objetivos
 let unfinishedSession = null; // { dayId, sessIndex, sessExerciseOrder, sessCardioKm, sessCardioMinutes } — treino que ficou pra trás
 let dayJustifications = {}; // { 'YYYY-MM-DD': 'exercise'|'cardio' } — motivo registrado quando o dia não foi marcado como feito
+const JUSTIFY_WEEKLY_LIMIT = 2; // máximo de justificativas permitidas por semana
+let justifyWeekKey = null; // dateKey da segunda-feira da semana à qual justifyWeekCount se refere
+let justifyWeekCount = 0; // quantas justificativas já foram usadas nessa semana
 
 function emptyMeasurements(){
   const m = {};
@@ -2179,7 +2216,7 @@ async function saveMeasurements(){
 }
 
 async function loadState(){
-  weekState = {}; streak = 0; record = 0; totalSessions = 0; totalKm = 0; totalMinutes = 0; dailyKm = {}; workoutLog = []; cardioLog = []; unfinishedSession = null; dayJustifications = {}; statsRecalcV1 = false; statsRecalcV2 = false;
+  weekState = {}; streak = 0; record = 0; totalSessions = 0; totalKm = 0; totalMinutes = 0; dailyKm = {}; workoutLog = []; cardioLog = []; unfinishedSession = null; dayJustifications = {}; statsRecalcV1 = false; statsRecalcV2 = false; justifyWeekKey = null; justifyWeekCount = 0;
   try{
     const r = await window.storage.get('meu-treino-state:' + currentProfileId, false);
     if(r && r.value){
@@ -2197,8 +2234,11 @@ async function loadState(){
       dayJustifications = d.dayJustifications || {};
       statsRecalcV1 = d.statsRecalcV1 || false;
       statsRecalcV2 = d.statsRecalcV2 || false;
+      justifyWeekKey = d.justifyWeekKey || null;
+      justifyWeekCount = d.justifyWeekCount || 0;
     }
   }catch(e){ /* sem dados salvos ainda */ }
+  ensureJustifyWeekFresh();
   await loadPlanEdits();
   await loadCustomWorkouts();
   await loadMeasurements();
@@ -2214,7 +2254,7 @@ async function loadState(){
 }
 async function saveState(){
   try{
-    await window.storage.set('meu-treino-state:' + currentProfileId, JSON.stringify({weekState, streak, record, totalSessions, totalKm, totalMinutes, dailyKm, workoutLog, cardioLog, unfinishedSession, dayJustifications, statsRecalcV1, statsRecalcV2}), false);
+    await window.storage.set('meu-treino-state:' + currentProfileId, JSON.stringify({weekState, streak, record, totalSessions, totalKm, totalMinutes, dailyKm, workoutLog, cardioLog, unfinishedSession, dayJustifications, statsRecalcV1, statsRecalcV2, justifyWeekKey, justifyWeekCount}), false);
     flashSyncBadge();
   }catch(e){ showSaveError('seu progresso'); }
 }
@@ -3215,11 +3255,6 @@ function renderToday(){
     `;
     return;
   }
-  const targetKey = dateKeyForDow(day.dow);
-  const todayKey = dateKey(new Date());
-  const mondayKey = dateKey(mondayOfWeek(new Date()));
-  const canJustify = targetKey <= todayKey && targetKey >= mondayKey && weekState[targetKey] !== 'done';
-
   card.innerHTML = `
     <div class="today-eyebrow">${eyebrow}</div>
     <div class="today-badge-row">
@@ -3239,19 +3274,117 @@ function renderToday(){
       `).join('')}
     </div>
     <button class="today-cta" onclick="startSession('${day.id}')">Iniciar treino</button>
-    ${canJustify ? `<div class="btn-outline" style="width:100%; text-align:center; margin-top:10px;" onclick="openJustifyModal('${day.id}')">Justificar ${day.name}</div>` : ''}
   `;
+}
+
+/* Zera o contador de justificativas quando a semana atual (segunda a segunda)
+   é diferente da semana em que o contador foi usado pela última vez. */
+function ensureJustifyWeekFresh(){
+  const currentMonday = dateKey(mondayOfWeek(new Date()));
+  if(justifyWeekKey !== currentMonday){
+    justifyWeekKey = currentMonday;
+    justifyWeekCount = 0;
+  }
+}
+
+/* Acha o dia mais recente da semana atual que já passou, não é descanso e
+   ainda não foi marcado como feito — é esse dia que o botão de justificar
+   (ao lado da contagem de 90 dias) vai abrir pra justificar. */
+function findJustifiableDay(){
+  const monday = mondayOfWeek(new Date());
+  const todayKey = dateKey(new Date());
+  for(let i = 6; i >= 0; i--){
+    const d = new Date(monday); d.setDate(monday.getDate() + i);
+    const key = dateKey(d);
+    if(key >= todayKey) continue; // só dias que já passaram
+    const dayInfo = getDayByDow(d.getDay());
+    if(!dayInfo || dayInfo.type === 'descanso') continue;
+    if(weekState[key] === 'done') continue;
+    return dayInfo;
+  }
+  return null;
+}
+
+function renderJustifyBtn(){
+  const btn = document.getElementById('justifyBtn');
+  if(!btn) return;
+  btn.classList.toggle('show', !!findJustifiableDay());
+}
+
+/* Clique no botão de justificar: primeiro mostra o aviso sobre o limite
+   semanal (1ª vez, última vez disponível, ou bloqueado se já usou as 2). Só
+   quando o usuário confirma que quer continuar é que a justificativa em si
+   é aberta — e só nesse momento a tentativa é contabilizada. */
+function onJustifyBtnClick(){
+  const day = findJustifiableDay();
+  if(!day) return;
+  ensureJustifyWeekFresh();
+  openJustifyIntroModal(day.id);
+}
+
+let justifyIntroDayId = null;
+function openJustifyIntroModal(dayId){
+  justifyIntroDayId = dayId;
+  ensureJustifyWeekFresh();
+  const sub = document.getElementById('justifyIntroSub');
+  const continueBtn = document.getElementById('justifyIntroContinueBtn');
+  const exitBtn = document.getElementById('justifyIntroExitBtn');
+  if(justifyWeekCount >= JUSTIFY_WEEKLY_LIMIT){
+    sub.textContent = 'Você já usou suas ' + JUSTIFY_WEEKLY_LIMIT + ' justificativas dessa semana. Volta semana que vem!';
+    continueBtn.style.display = 'none';
+    exitBtn.textContent = 'Entendi';
+    exitBtn.style.flex = '1';
+  } else if(justifyWeekCount === 0){
+    sub.textContent = 'Essa é sua primeira justificativa — você só tem mais uma essa semana.';
+    continueBtn.style.display = '';
+    exitBtn.textContent = 'Sair';
+    exitBtn.style.flex = '';
+  } else {
+    sub.textContent = 'Essa é sua última justificativa dessa semana.';
+    continueBtn.style.display = '';
+    exitBtn.textContent = 'Sair';
+    exitBtn.style.flex = '';
+  }
+  document.getElementById('justifyIntroModal').classList.add('show');
+}
+function closeJustifyIntroModal(){
+  document.getElementById('justifyIntroModal').classList.remove('show');
+  justifyIntroDayId = null;
+}
+/* Só chega aqui se o usuário apertou "Continuar" — é aqui que a tentativa
+   passa a contar pro limite semanal, mesmo que ele feche a justificativa
+   em seguida sem escolher nada. */
+async function confirmJustifyIntro(){
+  if(justifyWeekCount >= JUSTIFY_WEEKLY_LIMIT) return;
+  justifyWeekCount++;
+  await saveState();
+  const dayId = justifyIntroDayId;
+  closeJustifyIntroModal();
+  openJustifyModal(dayId);
 }
 
 /* =====================================================================
    JUSTIFICAR TREINO — para quando o usuário treinou mas esqueceu de marcar
 ===================================================================== */
 let justifyDayId = null;
+let selectedJustifyReason = null;
+
+function resetJustifyModalUI(){
+  selectedJustifyReason = null;
+  const stepChoose = document.getElementById('justifyStepChoose');
+  const stepResult = document.getElementById('justifyStepResult');
+  if(stepChoose) stepChoose.style.display = '';
+  if(stepResult) stepResult.style.display = 'none';
+  document.querySelectorAll('#justifyOptionsList .justify-option').forEach(el => el.classList.remove('jo-primary'));
+  const btn = document.getElementById('justifyConfirmBtn');
+  if(btn){ btn.disabled = true; btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none'; }
+}
 
 function openJustifyModal(dayId){
   const day = findAnyDay(dayId);
   if(!day) return;
   justifyDayId = dayId;
+  resetJustifyModalUI();
   document.getElementById('justifyModalTitle').textContent = 'Justificar ' + day.name;
   document.getElementById('justifyModal').classList.add('show');
 }
@@ -3259,14 +3392,31 @@ function openJustifyModal(dayId){
 function closeJustifyModal(){
   document.getElementById('justifyModal').classList.remove('show');
   justifyDayId = null;
+  resetJustifyModalUI();
+}
+
+/* Escolher uma opção só seleciona — nada é salvo ainda. É preciso apertar
+   "Confirmar" pra efetivar. */
+function selectJustifyOption(reason){
+  selectedJustifyReason = reason;
+  document.querySelectorAll('#justifyOptionsList .justify-option').forEach(el => {
+    el.classList.toggle('jo-primary', el.dataset.reason === reason);
+  });
+  const btn = document.getElementById('justifyConfirmBtn');
+  btn.disabled = false;
+  btn.style.opacity = '';
+  btn.style.pointerEvents = '';
 }
 
 /* Só o motivo 'done' marca o dia como treinado de fato. Os outros dois
    ('exercise' e 'cardio') apenas registram o motivo, sem contar o dia
-   como concluído no streak / histórico. */
-async function submitJustification(reason){
+   como concluído no streak / histórico. A escolha só é salva aqui, ao
+   apertar "Confirmar" — depois disso mostra a mensagem de resultado e um
+   botão "Fechar". */
+async function confirmJustification(){
+  if(!selectedJustifyReason) return;
+  const reason = selectedJustifyReason;
   const day = findAnyDay(justifyDayId);
-  closeJustifyModal();
   if(!day || day.dow === undefined) return;
   const key = dateKeyForDow(day.dow);
 
@@ -3281,10 +3431,8 @@ async function submitJustification(reason){
       const p = profiles.find(x => x.id === currentProfileId);
       if(p && startObjectiveCycleIfNeeded(p, key)) await saveProfiles();
     }
-    showToast('Treino de ' + day.name + ' marcado como feito');
   } else {
     dayJustifications[key] = reason;
-    showToast('Registrado. O dia continua sem treino marcado.');
   }
 
   await saveState();
@@ -3294,6 +3442,18 @@ async function submitJustification(reason){
   renderKmCard();
   renderPerfil();
   renderReportCountdown();
+
+  const resTitle = document.getElementById('justifyResultTitle');
+  const resSub = document.getElementById('justifyResultSub');
+  if(reason === 'done'){
+    resTitle.textContent = 'Sua sequência foi mantida';
+    resSub.textContent = 'Como foi um erro sistêmico e você treinou, você não vai perder sua sequência. Não esqueça de marcar da próxima vez!';
+  } else {
+    resTitle.textContent = 'Sua sequência foi perdida';
+    resSub.textContent = 'Infelizmente você perdeu sua sequência — o treino precisa ser feito completo pra contabilizar.';
+  }
+  document.getElementById('justifyStepChoose').style.display = 'none';
+  document.getElementById('justifyStepResult').style.display = '';
 }
 
 function renderWeekCal(){
@@ -4155,6 +4315,7 @@ function renderReportCountdown(){
   if(banner) banner.classList.toggle('show', status.state === 'due');
   const gate = document.getElementById('reportGateCard');
   if(gate) gate.classList.toggle('show', status.state === 'due');
+  renderJustifyBtn();
 }
 function onReportCountdownClick(){
   const p = profiles.find(x => x.id === currentProfileId);
@@ -4608,6 +4769,7 @@ function renderTrainingLog(){
 
   const today = new Date();
   today.setHours(0,0,0,0);
+  const todayKeyStr = dateKey(today);
   const maxWeeks = 52;
   const monday = mondayOfWeek(today);
 
@@ -4640,11 +4802,15 @@ function renderTrainingLog(){
     const dayInfo = getDayByDow(d.getDay());
     const isRest = !!dayInfo && dayInfo.type === 'descanso';
     const done = weekState[key] === 'done';
+    const isToday = key === todayKeyStr;
     const cls = ['sm-heat-cell'];
     if(isFuture) cls.push('future');
     else if(isRest) cls.push('rest'); // dia de descanso é sempre amarelo, mesmo antes do primeiro treino — nunca "conta" como falha
     else if(isBeforeFirstWorkout) cls.push('future');
     else if(done) cls.push('done');
+    // O dia de hoje fica neutro (cinza) enquanto ainda não virou: só vira
+    // vermelho (falha) depois que o dia passa sem ter sido marcado como feito.
+    else if(isToday) cls.push('future');
     html += `<div class="${cls.join(' ')}" title="${key}"></div>`;
   }
   grid.innerHTML = html;
