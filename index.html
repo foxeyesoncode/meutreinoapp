@@ -645,8 +645,8 @@
     font-family:'Montserrat', sans-serif; font-weight:700; font-size:13px; color: var(--ink-soft);
   }
   .medidas-side-btn.active{ background: var(--accent); color: var(--accent-ink); }
-  .medidas-body-wrap{ display:flex; justify-content:center; margin-bottom:4px; flex-shrink:0; }
-  .body-svg{ width:min(30vw, 140px); height:auto; }
+  .medidas-body-wrap{ display:flex; justify-content:center; margin-bottom:12px; flex-shrink:0; }
+  .body-svg{ width:min(58vw, 230px); height:auto; }
   .body-part{ fill: var(--card-soft); stroke: var(--line); stroke-width:0.6; transition: fill 0.2s ease; }
   .body-part.filled{ fill: var(--accent); stroke: var(--accent); }
   .medidas-hint{ text-align:center; font-size:11px; color: var(--ink-soft); font-weight:600; margin-bottom:10px; }
@@ -659,14 +659,26 @@
   .imc-box-info{ min-width:0; }
   .imc-box-lbl{ font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color: var(--ink-soft); margin-bottom:2px; }
   .imc-box-class{ font-size:12.5px; font-weight:700; color: var(--accent); }
-  .medidas-flank-row{ display:flex; align-items:center; gap:4px; }
-  .medidas-list{ flex:1; min-width:0; display:flex; flex-direction:column; gap:12px; }
-  .medidas-list-left{ align-items:flex-end; }
-  .medidas-list-right{ align-items:flex-start; }
-  .medida-row{ display:flex; flex-direction:column; gap:4px; align-items:center; width:100%; max-width:76px; }
+  .medidas-flank-row{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .medidas-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 16px; width:100%; }
+  .medida-row{ display:flex; flex-direction:row; align-items:center; justify-content:space-between; gap:8px; width:100%; }
+  .medida-row.locked{ opacity:0.55; }
+  .medida-row .medida-lbl{ text-align:left; flex:1; }
+  .med-lock-banner{ display:none; background: var(--card-soft); border-radius:var(--radius-sm); padding:10px 12px; font-size:12px; font-weight:600; color: var(--ink-soft); text-align:center; margin-bottom:10px; }
+  .med-lock-banner.show{ display:block; }
   .medida-lbl{ font-size:9.5px; font-weight:700; color: var(--ink-soft); text-transform:uppercase; letter-spacing:0.2px; line-height:1.15; text-align:center; }
-  .medida-inputs{ display:flex; gap:4px; width:100%; }
-  .medida-inputs .edit-input.small{ width:0; flex:1; text-align:center; padding:5px 0; font-size:11.5px; }
+  .medida-inputs{ display:flex; gap:4px; flex-shrink:0; width:auto; }
+  .medida-inputs .edit-input.small{ width:52px; flex:none; text-align:center; padding:5px 0; font-size:11.5px; }
+
+  #medidasBodyWrap .body-part{ cursor:pointer; }
+  #medidasBodyWrap .body-part:active{ opacity:0.75; }
+  .medida-modal-cols{ display:flex; gap:16px; justify-content:center; width:100%; margin-top:6px; flex-wrap:wrap; row-gap:16px; }
+  .medida-modal-single{ display:flex; justify-content:center; width:100%; margin-top:6px; }
+  .medida-modal-side{ display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .medida-modal-side-lbl{ font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color: var(--ink-soft); }
+  .medida-modal-field{ display:flex; flex-direction:column; align-items:center; gap:5px; }
+  .medida-modal-field-lbl{ font-size:10.5px; font-weight:600; color: var(--ink-soft); }
+  .medida-modal-field .edit-input{ width:64px; text-align:center; }
 
   .body-part.picker{ cursor:pointer; }
   .picker-side-toggle{ display:flex; gap:8px; background: var(--card-soft); border-radius:var(--radius-pill); padding:4px; margin-bottom:10px; }
@@ -933,6 +945,7 @@
   .medals-entry-info{ flex:1; }
   .medals-entry-title{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:14.5px; color: var(--ink); }
   .medals-entry-sub{ font-size:12px; color: var(--ink-soft); margin-top:2px; }
+  .im-entry-icon{ background: linear-gradient(135deg, #4FA8FF, #2E6FE0) !important; color: #FFFFFF !important; }
 
   .medal-tabs{ display:flex; gap:8px; margin-top:4px; }
   .medal-tab{
@@ -974,6 +987,26 @@
     box-shadow: 0 12px 30px rgba(var(--accent-rgb), 0.4);
   }
   .medal-unlock-name{ font-family:'Montserrat', sans-serif; font-weight:800; font-size:16px; color: var(--accent); margin: 4px 0 10px; }
+
+  .im-date{ text-align:center; font-size:12px; color: var(--ink-soft); font-weight:600; margin:2px 0 16px; }
+  .im-stats-row{ display:flex; background: var(--card-soft); border-radius:var(--radius-sm); margin-bottom:18px; }
+  .im-stat{ flex:1; text-align:center; padding:12px 4px; }
+  .im-stat + .im-stat{ border-left:1px solid var(--line); }
+  .im-stat .v{ font-family:'Montserrat', sans-serif; font-size:15px; font-weight:700; color: var(--ink); }
+  .im-stat .l{ font-size:10px; color: var(--ink-soft); margin-top:2px; text-transform:uppercase; letter-spacing:0.3px; }
+  .im-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; padding-bottom:12px; }
+  .im-card{
+    background: var(--card); border:1px solid var(--line); border-radius:var(--radius-lg);
+    padding:16px 10px; display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center;
+  }
+  .im-card-icon{
+    width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(135deg, #4FA8FF, #2E6FE0); color: #FFFFFF; flex-shrink:0;
+  }
+  .im-card-lbl{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:12px; color: var(--ink); }
+  .im-card-val{ font-family:'Montserrat', sans-serif; font-weight:800; font-size:15.5px; color: var(--ink); }
+  .im-card-sub{ font-size:10.5px; color: var(--ink-soft); line-height:1.4; }
+  .im-empty{ text-align:center; font-size:12.5px; color: var(--ink-soft); padding:50px 20px; line-height:1.7; }
 
   .edit-input{
     width:100%; border:1px solid var(--line); background: var(--card-soft); border-radius:10px;
@@ -1658,6 +1691,20 @@
     </div>
   </div>
 
+  <div class="pcm-overlay" id="medidaModal" onclick="if(event.target===this) closeMedidaModal()">
+    <div class="pcm-card">
+      <div class="pcm-top">
+        <div class="pcm-close" onclick="closeMedidaModal()" role="button" aria-label="Fechar" tabindex="0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="pcm-title" id="medidaModalTitle">—</div>
+      <div class="pcm-sub" id="medidaModalSub">Medida em cm</div>
+      <div id="medidaModalFields" style="width:100%;"></div>
+      <div class="med-lock-banner" id="medidaModalLock"></div>
+    </div>
+  </div>
+
   <!-- ===================== APP ===================== -->
   <div id="app">
 
@@ -1968,6 +2015,17 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9.3 5.3a1.4 1.4 0 010 2l-4.8 4.7 4.8 4.7a1.4 1.4 0 01-2 2L1.5 12.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor" opacity="0.5" transform="rotate(180 12 12)"/></svg>
         </div>
 
+        <div class="medals-entry-card" onclick="openInitialMeasuresScreen()" role="button" tabindex="0" aria-label="Ver medidas iniciais">
+          <div class="medals-entry-icon im-entry-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="9" width="18" height="6" rx="1.5" fill="currentColor" opacity="0.32"/><path d="M5 9v3M8.2 9v2M11.4 9v3M14.6 9v2M17.8 9v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </div>
+          <div class="medals-entry-info">
+            <div class="medals-entry-title">Medidas iniciais</div>
+            <div class="medals-entry-sub" id="initialMeasuresEntrySub">Ainda não enviadas</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9.3 5.3a1.4 1.4 0 010 2l-4.8 4.7 4.8 4.7a1.4 1.4 0 01-2 2L1.5 12.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor" opacity="0.5" transform="rotate(180 12 12)"/></svg>
+        </div>
+
         <div class="reports-section" id="reportsSection">
           <div class="sm-title disp">Relatórios Trimestrais</div>
           <div id="reportsList"></div>
@@ -1999,6 +2057,23 @@
         </div>
 
         <div class="medal-grid" id="medalGrid"></div>
+      </div>
+    </div>
+
+    <div class="view" id="view-medidas-iniciais">
+      <div class="wrap">
+        <div class="detail-head">
+          <div class="back-btn" onclick="goTo('perfil')" role="button" aria-label="Voltar" tabindex="0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14.7 5.3a1.4 1.4 0 010 2L9.9 12l4.8 4.7a1.4 1.4 0 01-2 2l-5.8-5.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor"/></svg>
+          </div>
+          <div style="flex:1;">
+            <h2 class="disp" style="margin-bottom:0;">Medidas iniciais</h2>
+          </div>
+        </div>
+
+        <div id="imEmptyState"></div>
+        <div id="imStatsRow"></div>
+        <div class="im-grid" id="imGrid"></div>
       </div>
     </div>
 
@@ -2038,11 +2113,11 @@
             <button class="medidas-side-btn" id="medidasBackBtn" onclick="toggleMedidasSide('back')">Costas</button>
           </div>
           <div class="medidas-flank-row">
-            <div class="medidas-list medidas-list-left" id="medidasListLeft"></div>
             <div class="medidas-body-wrap" id="medidasBodyWrap"></div>
-            <div class="medidas-list medidas-list-right" id="medidasListRight"></div>
           </div>
-          <div class="medidas-hint">D = direito · E = esquerdo</div>
+          <div class="med-lock-banner" id="medLockBanner"></div>
+          <div class="medidas-hint">Toque em uma parte do corpo pra registrar a medida</div>
+          <button class="today-cta" id="sendInitialReportBtn" style="display:none;" onclick="sendInitialReport()">Enviar relatório inicial</button>
         </div>
       </div>
     </div>
@@ -2309,6 +2384,28 @@ const BODY_GROUP_MAP = {
 };
 const MEDIDAS_GROUPS = Object.keys(BODY_GROUP_MAP);
 
+/* Agrupamento específico da tela de Medidas: a fita métrica dá uma volta só no
+   membro (pega bíceps+tríceps juntos, ou quadríceps+posterior+adutor+abdutor juntos),
+   então aqui juntamos isso em "Braço" e "Coxa". Não mexe no agrupamento de exercícios
+   acima (BODY_GROUP_MAP/MEDIDAS_GROUPS), que continua granular pra montar treino. */
+const MED_GROUP_MAP = {
+  'Peito':        { front:['CHEST'] },
+  'Costas':       { back:['UPPER_BACK'] },
+  'Glúteos':      { back:['GLUTEAL'] },
+  'Abdômen':      { front:['ABS','OBLIQUES'] },
+  'Braço':        { front:['BICEPS'], back:['TRICEPS'] },
+  'Coxa':         { front:['QUADRICEPS','ABDUCTORS'], back:['HAMSTRING','ABDUCTOR'] },
+  'Panturrilhas': { front:['CALVES'], back:['CALVES','LEFT_SOLEUS','RIGHT_SOLEUS'] },
+  'Antebraço':    { front:['FOREARM'], back:['FOREARM'] },
+};
+const MED_GROUPS = Object.keys(MED_GROUP_MAP);
+/* Só braço, antebraço, coxa e panturrilha fazem sentido medir dos dois lados (checar
+   assimetria); tronco (peito, ombro, costas etc.) é sempre uma medida única. */
+const MED_TWO_SIDED = ['Braço','Antebraço','Coxa','Panturrilhas'];
+/* Braço e coxa variam bastante de volume contraídos — pedem relaxado E flexionado.
+   Antebraço/panturrilha flexionam pouco, e o tronco não tem uma "flexão" comparável. */
+const MED_FLEX_GROUPS = ['Braço','Coxa'];
+
 /* 'Populares' é uma vitrine com exercícios de vários grupos musculares diferentes —
    não é, ela mesma, um grupo do boneco (por isso não existe em BODY_GROUP_MAP).
    Pra o boneco do treino guiado não sumir quando o exercício foi escolhido por essa
@@ -2445,6 +2542,8 @@ let statsRecalcV2 = false; // true depois que a correção retroativa da minutag
 let dailyKm = {}; // { 'YYYY-MM-DD': km feitos naquele dia }
 let bodyMeasurements = {}; // { 'Peito': {d:number|null, e:number|null}, ... }
 let medidasSide = 'front';
+let medEditRounds = 0; // 0=nunca editado, 1=preenchimento já usado, 2=correção já usada (trava até o próximo ciclo)
+let medLastEditDate = null; // 'YYYY-MM-DD' da última edição — editar no mesmo dia não consome a correção
 let workoutLog = []; // ['YYYY-MM-DD', ...] uma entrada por treino concluído, usado nos relatórios trimestrais
 let cardioLog = []; // [{date:'YYYY-MM-DD', km:Number, minutes:Number}, ...] uma entrada por atividade de cardio concluída
 let reportsHistory = []; // relatórios trimestrais já gerados para o perfil atual
@@ -2466,22 +2565,30 @@ let medalsBackfillV1 = false; // true depois que o crédito retroativo (históri
 
 function emptyMeasurements(){
   const m = {};
-  MEDIDAS_GROUPS.forEach(g => m[g] = {d:null, e:null});
+  MED_GROUPS.forEach(g => {
+    m[g] = MED_FLEX_GROUPS.includes(g)
+      ? { d:{relaxado:null, flexionado:null}, e:{relaxado:null, flexionado:null} }
+      : { d:null, e:null };
+  });
   return m;
 }
 
 async function loadMeasurements(){
   bodyMeasurements = emptyMeasurements();
+  medEditRounds = 0; medLastEditDate = null;
   try{
     const r = await window.storage.get('meu-treino-medidas:' + currentProfileId, false);
     if(r && r.value){
       const saved = JSON.parse(r.value);
-      Object.keys(saved).forEach(g => { if(bodyMeasurements[g]) bodyMeasurements[g] = saved[g]; });
+      const data = saved.data || saved; // compatível com o formato antigo (sem editRounds)
+      Object.keys(data).forEach(g => { if(bodyMeasurements[g]) bodyMeasurements[g] = data[g]; });
+      medEditRounds = saved.editRounds || 0;
+      medLastEditDate = saved.lastEditDate || null;
     }
   }catch(e){ /* sem medidas salvas ainda */ }
 }
 async function saveMeasurements(){
-  try{ await window.storage.set('meu-treino-medidas:' + currentProfileId, JSON.stringify(bodyMeasurements), false); }catch(e){ showSaveError('as medidas'); }
+  try{ await window.storage.set('meu-treino-medidas:' + currentProfileId, JSON.stringify({data: bodyMeasurements, editRounds: medEditRounds, lastEditDate: medLastEditDate}), false); }catch(e){ showSaveError('as medidas'); }
 }
 
 async function loadState(){
@@ -3514,6 +3621,7 @@ async function submitSignup(){
     objectiveCycleStart: null,
     objectiveChangeCount: (suData.objectives[0] || suData.objectiveCustom.trim()) ? 1 : 0,
     reportBaseline: null,
+    initialMeasurements: null,
     pin: suData.pin,
     code: generateProfileCode(),
     initials: initials(suData.name),
@@ -4924,9 +5032,9 @@ function snapshotBody(dateStr, profile){
   const h = parseFloat((profile.height || '').toString().replace(',', '.'));
   const imc = (w > 0 && h > 0) ? +(w / (h * h)).toFixed(1) : null;
   const measurements = {};
-  MEDIDAS_GROUPS.forEach(g => {
+  MED_GROUPS.forEach(g => {
     const v = bodyMeasurements[g] || {d:null, e:null};
-    measurements[g] = {d: v.d, e: v.e};
+    measurements[g] = JSON.parse(JSON.stringify(v));
   });
   return { date: dateStr, weight: profile.weight || '', height: profile.height || '', imc, measurements };
 }
@@ -5032,13 +5140,20 @@ function buildBodyComparison(startSnap, endSnap){
   const hEnd = parseFloat((endSnap.height || '').toString().replace(',', '.'));
   rows.push({ label:'Altura', unit:'m', start: isNaN(hStart) ? null : hStart, end: isNaN(hEnd) ? null : hEnd, decimals:2 });
   rows.push({ label:'IMC', unit:'', start: startSnap.imc, end: endSnap.imc });
-  MEDIDAS_GROUPS.forEach(g => {
-    const sD = startSnap.measurements[g] && startSnap.measurements[g].d;
-    const eD = endSnap.measurements[g] && endSnap.measurements[g].d;
-    const sE = startSnap.measurements[g] && startSnap.measurements[g].e;
-    const eE = endSnap.measurements[g] && endSnap.measurements[g].e;
-    if(sD != null || eD != null) rows.push({ label: g + ' (D)', unit:'cm', start: sD, end: eD });
-    if(sE != null || eE != null) rows.push({ label: g + ' (E)', unit:'cm', start: sE, end: eE });
+  MED_GROUPS.forEach(g => {
+    const modes = MED_FLEX_GROUPS.includes(g) ? ['relaxado','flexionado'] : [null];
+    modes.forEach(mode => {
+      const pick = (snap, side) => {
+        const raw = snap.measurements[g] && snap.measurements[g][side];
+        if(raw == null) return null;
+        return mode ? (raw[mode] ?? null) : raw;
+      };
+      const sD = pick(startSnap,'d'), eD = pick(endSnap,'d');
+      const sE = pick(startSnap,'e'), eE = pick(endSnap,'e');
+      const lbl = g + (mode ? ' · ' + mode : '');
+      if(sD != null || eD != null) rows.push({ label: lbl + ' (D)', unit:'cm', start: sD, end: eD });
+      if(sE != null || eE != null) rows.push({ label: lbl + ' (E)', unit:'cm', start: sE, end: eE });
+    });
   });
   return rows;
 }
@@ -5076,9 +5191,16 @@ async function startReportGeneration(){
   if(!w || !h){ showToast('Preencha peso e altura antes de gerar o relatório'); return; }
 
   const today = dateKey(new Date());
-  const startSnap = p.reportBaseline || snapshotBody(p.objectiveCycleStart, p);
+  const cycleStartDate = p.objectiveCycleStart || today;
+  // No 1º relatório do perfil, se ele já tiver enviado as Medidas iniciais, usamos esse
+  // snapshot como base de comparação. A partir do 2º relatório em diante, a base passa a
+  // ser sempre o relatório anterior (reportBaseline, atualizado ao final de cada ciclo).
+  const isFirstReport = reportsHistory.length === 0;
+  const startSnap = (isFirstReport && p.initialMeasurements)
+    ? p.initialMeasurements
+    : (p.reportBaseline || snapshotBody(cycleStartDate, p));
   const endSnap = snapshotBody(today, p);
-  const stats = computeCycleStats(startSnap.date, today);
+  const stats = computeCycleStats(cycleStartDate, today);
   const bodyRows = buildBodyComparison(startSnap, endSnap);
   const objectivesList = (p.objectives && p.objectives.length) ? p.objectives : (p.mainObjective ? [p.mainObjective] : []);
   const objectives = objectivesList.map(name => {
@@ -5139,6 +5261,8 @@ async function finalizeReport(){
   p.objectiveChangeCount = 0;
   p.reportBaseline = snapshotBody(today, p);
   await saveProfiles();
+  medEditRounds = 0; medLastEditDate = null;
+  await saveMeasurements();
 
   const finished = pendingReportDraft;
   pendingReportDraft = null;
@@ -5304,17 +5428,19 @@ function closeObjectiveModal(){
 ===================================================================== */
 function hasMeasurement(group){
   const v = bodyMeasurements[group];
-  return !!(v && (v.d || v.e));
+  if(!v) return false;
+  const filled = x => x != null && (typeof x === 'object' ? (x.relaxado != null || x.flexionado != null) : true);
+  return filled(v.d) || filled(v.e);
 }
 
 function bodySvgMarkup(side){
   let shapes = '';
-  MEDIDAS_GROUPS.forEach(group => {
-    const keys = (BODY_GROUP_MAP[group][side] || []);
+  MED_GROUPS.forEach(group => {
+    const keys = (MED_GROUP_MAP[group][side] || []);
     const filled = hasMeasurement(group);
     keys.forEach(k => {
       (BODY_POLYGONS[side][k] || []).forEach(poly => {
-        shapes += `<polygon points="${poly}" class="body-part${filled ? ' filled' : ''}" data-group="${group}"></polygon>`;
+        shapes += `<polygon points="${poly}" class="body-part${filled ? ' filled' : ''}" data-group="${group}" onclick="openMedidaModal('${group}')"></polygon>`;
       });
     });
   });
@@ -5326,12 +5452,94 @@ function toggleMedidasSide(side){
   renderMedidas();
 }
 
-function updateMeasurement(group, side, value){
+/* Trava: libera sempre no 1º preenchimento e numa correção depois (em outro dia);
+   da 3ª rodada em diante, só destrava de novo quando o ciclo de 90 dias completar. */
+function measurementsLocked(){
+  const p = profiles.find(x => x.id === currentProfileId);
+  if(reportCycleStatus(p).state === 'due') return false;
+  return medEditRounds >= 2;
+}
+function measLockMessage(){
+  const p = profiles.find(x => x.id === currentProfileId);
+  const fmt = formatReportCountdown(reportCycleStatus(p));
+  return 'Medidas registradas. Você poderá atualizá-las de novo em ' + fmt.num + ' ' + fmt.lbl + '.';
+}
+function updateMeasurement(group, side, mode, value){
+  if(measurementsLocked()){ closeMedidaModal(); renderMedidas(); showToast(measLockMessage()); return; }
   const num = parseFloat((value || '').replace(',', '.'));
-  bodyMeasurements[group][side] = (isNaN(num) || num <= 0) ? null : num;
+  const val = (isNaN(num) || num <= 0) ? null : num;
+  if(mode){
+    if(!bodyMeasurements[group][side] || typeof bodyMeasurements[group][side] !== 'object'){
+      bodyMeasurements[group][side] = {relaxado:null, flexionado:null};
+    }
+    bodyMeasurements[group][side][mode] = val;
+  } else {
+    bodyMeasurements[group][side] = val;
+  }
+  const today = dateKey(new Date());
+  if(medLastEditDate !== today){ medEditRounds++; medLastEditDate = today; }
   saveMeasurements();
   const wrap = document.getElementById('medidasBodyWrap');
   if(wrap) wrap.innerHTML = bodySvgMarkup(medidasSide);
+  if(currentMedidaGroup === group){
+    document.getElementById('medidaModalFields').innerHTML = medidaModalFieldsHtml(group);
+  }
+  const p = profiles.find(x => x.id === currentProfileId);
+  const sendBtn = document.getElementById('sendInitialReportBtn');
+  if(sendBtn) sendBtn.style.display = canSendInitialReport(p) ? 'flex' : 'none';
+}
+
+/* Grupo cujo modal de preenchimento está aberto no momento (null se nenhum) */
+let currentMedidaGroup = null;
+
+function medidaFieldInput(group, side, mode){
+  const v = bodyMeasurements[group] || {};
+  const raw = v[side];
+  const n = mode ? (raw && raw[mode]) : raw;
+  const val = n ?? '';
+  const locked = measurementsLocked();
+  const dis = locked ? 'disabled' : '';
+  const onchg = `updateMeasurement('${group}','${side}',${mode ? `'${mode}'` : 'null'},this.value)`;
+  const lbl = mode === 'relaxado' ? 'Relaxado' : mode === 'flexionado' ? 'Flexionado' : 'cm';
+  return `<div class="medida-modal-field">
+    <div class="medida-modal-field-lbl">${lbl}</div>
+    <input class="edit-input" type="number" step="0.1" min="0" inputmode="decimal" placeholder="cm" value="${val}" ${dis} onchange="${onchg}">
+  </div>`;
+}
+
+function medidaModalFieldsHtml(group){
+  const twoSided = MED_TWO_SIDED.includes(group);
+  const flex = MED_FLEX_GROUPS.includes(group);
+  const sideBlock = (side, label) => {
+    const fields = flex
+      ? medidaFieldInput(group, side, 'relaxado') + medidaFieldInput(group, side, 'flexionado')
+      : medidaFieldInput(group, side, null);
+    return `<div class="medida-modal-side">
+      <div class="medida-modal-side-lbl">${label}</div>
+      <div style="display:flex; gap:10px;">${fields}</div>
+    </div>`;
+  };
+  if(twoSided){
+    return `<div class="medida-modal-cols">${sideBlock('d','Direito')}${sideBlock('e','Esquerdo')}</div>`;
+  }
+  return `<div class="medida-modal-single">${medidaFieldInput(group, 'd', null)}</div>`;
+}
+
+function openMedidaModal(group){
+  currentMedidaGroup = group;
+  const locked = measurementsLocked();
+  document.getElementById('medidaModalTitle').textContent = group;
+  document.getElementById('medidaModalSub').textContent = locked ? '' : 'Meça com a fita métrica e registre em cm';
+  document.getElementById('medidaModalFields').innerHTML = medidaModalFieldsHtml(group);
+  const lockEl = document.getElementById('medidaModalLock');
+  lockEl.classList.toggle('show', locked);
+  lockEl.textContent = locked ? measLockMessage() : '';
+  document.getElementById('medidaModal').classList.add('show');
+}
+function closeMedidaModal(){
+  document.getElementById('medidaModal').classList.remove('show');
+  currentMedidaGroup = null;
+  renderMedidas();
 }
 
 function renderMedidasPersonal(){
@@ -5393,6 +5601,105 @@ function renderIMC(){
   box.style.display = 'flex';
 }
 
+/* Verifica se TODAS as medidas do boneco foram preenchidas (todos os lados/modos aplicáveis
+   a cada grupo), pra saber se já dá pra oferecer o envio da base do relatório de 90 dias. */
+function hasAllMeasurements(){
+  return MED_GROUPS.every(group => {
+    const v = bodyMeasurements[group] || {};
+    const sides = MED_TWO_SIDED.includes(group) ? ['d','e'] : ['d'];
+    const modes = MED_FLEX_GROUPS.includes(group) ? ['relaxado','flexionado'] : [null];
+    return sides.every(side => modes.every(mode => {
+      const raw = v[side];
+      const val = mode ? (raw && raw[mode]) : raw;
+      return val != null;
+    }));
+  });
+}
+/* O botão "Enviar relatório inicial" só depende de as medidas estarem 100% preenchidas —
+   não tem relação com o 1º treino nem com o relatório trimestral (ciclo de 90 dias).
+   Ele salva um snapshot próprio (profile.initialMeasurements), mostrado em Perfil. */
+function canSendInitialReport(profile){
+  if(!profile) return false;
+  return hasAllMeasurements();
+}
+function sendInitialReport(){
+  const p = profiles.find(x => x.id === currentProfileId);
+  if(!p || !canSendInitialReport(p)) return;
+  p.initialMeasurements = snapshotBody(dateKey(new Date()), p);
+  saveProfiles();
+  showToast('Medidas iniciais enviadas! Confira em Perfil.');
+  renderMedidas();
+  renderInitialMeasuresEntry();
+}
+
+/* Monta os "quadrinhos" (cards) de um snapshot de medidas salvo, um por ponto medido. */
+const IM_CARD_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="9" width="18" height="6" rx="1.5" fill="currentColor" opacity="0.32"/><path d="M5 9v3M8.2 9v2M11.4 9v3M14.6 9v2M17.8 9v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+function formatMeasurementSnapshotCards(snap){
+  const cards = [];
+  MED_GROUPS.forEach(g => {
+    const flex = MED_FLEX_GROUPS.includes(g);
+    const twoSided = MED_TWO_SIDED.includes(g);
+    const sides = twoSided ? ['d','e'] : ['d'];
+    sides.forEach(side => {
+      const raw = (snap.measurements[g] || {})[side];
+      let val = null, sub = '';
+      if(flex){
+        const r = (raw && raw.relaxado != null) ? raw.relaxado.toString().replace('.', ',') : null;
+        const f = (raw && raw.flexionado != null) ? raw.flexionado.toString().replace('.', ',') : null;
+        if(r == null && f == null) return;
+        val = (r ?? '—') + ' / ' + (f ?? '—') + ' cm';
+        sub = 'Relaxado / Flexionado';
+      } else {
+        if(raw == null) return;
+        val = raw.toString().replace('.', ',') + ' cm';
+      }
+      const lbl = g + (twoSided ? (side === 'd' ? ' (D)' : ' (E)') : '');
+      cards.push({ label: lbl, val, sub });
+    });
+  });
+  return cards;
+}
+function renderInitialMeasuresEntry(){
+  const p = profiles.find(x => x.id === currentProfileId);
+  const sub = document.getElementById('initialMeasuresEntrySub');
+  if(!sub || !p) return;
+  sub.textContent = p.initialMeasurements ? ('Registradas em ' + formatBrDate(p.initialMeasurements.date)) : 'Ainda não enviadas';
+}
+function openInitialMeasuresScreen(){
+  goTo('medidas-iniciais');
+  renderInitialMeasuresScreen();
+}
+function renderInitialMeasuresScreen(){
+  const p = profiles.find(x => x.id === currentProfileId);
+  const emptyEl = document.getElementById('imEmptyState');
+  const statsEl = document.getElementById('imStatsRow');
+  const gridEl = document.getElementById('imGrid');
+  if(!emptyEl || !statsEl || !gridEl || !p) return;
+  const snap = p.initialMeasurements;
+  if(!snap){
+    emptyEl.innerHTML = '<div class="im-empty">Você ainda não enviou suas medidas iniciais.<br>Preencha todas as medidas na aba Medidas e toque em "Enviar relatório inicial" pra registrar seu ponto de partida.</div>';
+    statsEl.innerHTML = '';
+    gridEl.innerHTML = '';
+    return;
+  }
+  emptyEl.innerHTML = '<div class="im-date">Registradas em ' + formatBrDate(snap.date) + '</div>';
+  const w = parseFloat((snap.weight || '').toString().replace(',', '.'));
+  const h = parseFloat((snap.height || '').toString().replace(',', '.'));
+  statsEl.innerHTML = `<div class="im-stats-row">
+    <div class="im-stat"><div class="v">${!isNaN(w) && w > 0 ? w.toString().replace('.', ',') : '—'}</div><div class="l">Peso (kg)</div></div>
+    <div class="im-stat"><div class="v">${!isNaN(h) && h > 0 ? h.toString().replace('.', ',') : '—'}</div><div class="l">Altura (m)</div></div>
+    <div class="im-stat"><div class="v">${snap.imc != null ? snap.imc.toString().replace('.', ',') : '—'}</div><div class="l">IMC</div></div>
+  </div>`;
+  const cards = formatMeasurementSnapshotCards(snap);
+  gridEl.innerHTML = cards.length ? cards.map(c => `
+    <div class="im-card">
+      <div class="im-card-icon">${IM_CARD_ICON}</div>
+      <div class="im-card-lbl">${c.label}</div>
+      <div class="im-card-val">${c.val}</div>
+      ${c.sub ? `<div class="im-card-sub">${c.sub}</div>` : ''}
+    </div>`).join('') : '<div class="im-empty" style="grid-column:1 / -1;">Só peso, altura e IMC foram registrados — nenhuma medida do corpo em cm.</div>';
+}
+
 function renderMedidas(){
   const btnF = document.getElementById('medidasFrontBtn');
   const btnB = document.getElementById('medidasBackBtn');
@@ -5402,26 +5709,20 @@ function renderMedidas(){
   btnB.classList.toggle('active', medidasSide === 'back');
   document.getElementById('medidasBodyWrap').innerHTML = bodySvgMarkup(medidasSide);
 
-  const rowHtml = g => {
-    const v = bodyMeasurements[g];
-    return `<div class="medida-row">
-      <div class="medida-lbl">${g}</div>
-      <div class="medida-inputs">
-        <input class="edit-input small" type="number" step="0.1" min="0" inputmode="decimal" placeholder="D" value="${v.d ?? ''}" onchange="updateMeasurement('${g}','d',this.value)">
-        <input class="edit-input small" type="number" step="0.1" min="0" inputmode="decimal" placeholder="E" value="${v.e ?? ''}" onchange="updateMeasurement('${g}','e',this.value)">
-      </div>
-    </div>`;
-  };
-  const left = document.getElementById('medidasListLeft');
-  const right = document.getElementById('medidasListRight');
-  left.innerHTML = MEDIDAS_GROUPS.filter((g, i) => i % 2 === 0).map(rowHtml).join('');
-  right.innerHTML = MEDIDAS_GROUPS.filter((g, i) => i % 2 === 1).map(rowHtml).join('');
+  const locked = measurementsLocked();
+  const banner = document.getElementById('medLockBanner');
+  if(banner){ banner.classList.toggle('show', locked); banner.textContent = locked ? measLockMessage() : ''; }
+
+  const p = profiles.find(x => x.id === currentProfileId);
+  const sendBtn = document.getElementById('sendInitialReportBtn');
+  if(sendBtn) sendBtn.style.display = canSendInitialReport(p) ? 'flex' : 'none';
 }
 
 function renderPerfil(){
   renderTrainingLog();
   renderPrCard();
   renderReportsList();
+  renderInitialMeasuresEntry();
 }
 
 const MONTH_NAMES_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
