@@ -900,7 +900,7 @@
 
   .profile-info{ padding: 16px 20px 0; text-align:center; }
   .profile-name-line{ display:flex; align-items:center; justify-content:center; gap:8px; }
-  .profile-name{ font-family:'Montserrat', sans-serif; font-size:19px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; }
+  .profile-name{ font-family:'Montserrat', sans-serif; font-size:19px; font-weight:800; letter-spacing:0.2px; }
   .profile-status{ font-size:11.5px; font-weight:700; color:#2ea043; display:flex; align-items:center; gap:5px; }
   .profile-status-dot{ width:7px; height:7px; border-radius:50%; background:#2ea043; flex-shrink:0; }
   .profile-email{ font-size:12.5px; color: var(--ink-soft); margin-top:5px; letter-spacing:0.3px; }
@@ -2017,7 +2017,6 @@
             <div id="profileViewBlock">
               <div class="profile-name-line">
                 <span class="profile-name" id="profileNameView">Perfil</span>
-                <span class="profile-status"><span class="profile-status-dot"></span>Ativo</span>
               </div>
               <div class="profile-email" id="profileCodeView">#000</div>
             </div>
@@ -3142,7 +3141,9 @@ function toggleTheme(){
   const mode = nowDark ? 'dark' : 'light';
   html.setAttribute('data-theme', mode);
   currentThemeMode = mode;
-  try{ window.storage.set('meu-treino-theme-mode', mode, false).then(() => { try{ renderProfileList(); }catch(e){} }).catch(() => showSaveError('o modo claro/escuro')); }catch(e){ showSaveError('o modo claro/escuro'); }
+  if(currentProfileId){
+    try{ window.storage.set('meu-treino-theme-mode:' + currentProfileId, mode, false).then(() => { try{ renderProfileList(); }catch(e){} }).catch(() => showSaveError('o modo claro/escuro')); }catch(e){ showSaveError('o modo claro/escuro'); }
+  }
   document.getElementById('themeKnob').innerHTML = nowDark ? iconMoon() : iconSun();
   const t = ACCENT_THEMES[currentAccentTheme];
   if(t) applyAccentBackground(t);
@@ -3154,19 +3155,31 @@ function toggleTheme(){
 document.getElementById('themeKnob').innerHTML =
   document.documentElement.getAttribute('data-theme') === 'dark' ? iconMoon() : iconSun();
 
-/* Único sistema de tema claro/escuro do app — global, não é por perfil.
-   Roda uma vez, no boot, antes da tela de perfis aparecer. Padrão é "light";
-   só abre em "dark" se o usuário já tiver trocado para escuro antes. */
-async function loadGlobalThemeMode(){
+/* Tela de seleção de perfil (antes do login): sempre abre no claro, é neutra
+   e não pertence a nenhum perfil específico. */
+function loadGlobalThemeMode(){
+  currentThemeMode = 'light';
+  document.documentElement.setAttribute('data-theme', 'light');
+  const knob = document.getElementById('themeKnob');
+  if(knob) knob.innerHTML = iconSun();
+}
+/* Claro/escuro agora é salvo por PERFIL (não mais um único valor global).
+   Assim, trocar o tema no aparelho/perfil de uma pessoa não muda o de outra —
+   cada perfil guarda sua própria preferência, chamada logo após o login (enterApp). */
+async function loadProfileThemeMode(){
   let mode = 'light';
-  try{
-    const r = await window.storage.get('meu-treino-theme-mode', false);
-    if(r && r.value && (r.value === 'dark' || r.value === 'light')) mode = r.value;
-  }catch(e){}
+  if(currentProfileId){
+    try{
+      const r = await window.storage.get('meu-treino-theme-mode:' + currentProfileId, false);
+      if(r && r.value && (r.value === 'dark' || r.value === 'light')) mode = r.value;
+    }catch(e){}
+  }
   currentThemeMode = mode;
   document.documentElement.setAttribute('data-theme', mode);
   const knob = document.getElementById('themeKnob');
   if(knob) knob.innerHTML = mode === 'dark' ? iconMoon() : iconSun();
+  const t = ACCENT_THEMES[currentAccentTheme];
+  if(t) applyAccentBackground(t);
 }
 
 /* =====================================================================
@@ -3774,6 +3787,7 @@ function enterApp(){
   setTimeout(() => {
     gate.classList.remove('show', 'hide');
     welcome.classList.add('show');
+    loadProfileThemeMode();
     loadState();
     setTimeout(() => {
       welcome.classList.remove('show');
@@ -3797,6 +3811,7 @@ function logoutProfile(){
   weekState = {}; streak = 0; record = 0; totalSessions = 0; totalKm = 0; totalMinutes = 0; dailyKm = {};
   customWorkouts = [];
   WEEK_DATA = [];
+  loadGlobalThemeMode();
   randomizeGateLook();
   renderProfileList();
   goTo('home');
@@ -6661,7 +6676,7 @@ function renderAll(){
   renderMedalsEntry();
 }
 (async function initApp(){
-  await loadGlobalThemeMode();
+  loadGlobalThemeMode();
   applyAccentTheme('bw');
   await loadProfiles();
 })();
