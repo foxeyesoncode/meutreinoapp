@@ -590,6 +590,36 @@
     background: linear-gradient(90deg, var(--accent), var(--accent-2));
   }
 
+  /* ===================== WIDGET DE HIDRATAÇÃO ===================== */
+  .water-card{
+    background: var(--card); border:1px solid var(--line); border-radius:var(--radius-xl);
+    padding:18px; margin-bottom:20px;
+  }
+  .wc-top{ display:flex; align-items:center; gap:12px; }
+  .wc-icon{
+    flex-shrink:0; width:44px; height:44px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background: radial-gradient(circle, rgba(62,166,224,0.20), transparent 72%);
+  }
+  .wc-top-text{ flex:1; min-width:0; }
+  .wc-num{ font-family:'Montserrat', sans-serif; font-size:19px; font-weight:800; color: var(--ink); margin-top:1px; }
+  .wc-num .wc-unit{ font-size:13px; font-weight:700; color: var(--ink-soft); }
+  .wc-pct{ font-family:'Montserrat', sans-serif; font-size:14px; font-weight:800; color:#3EA6E0; flex-shrink:0; display:flex; align-items:center; }
+  .water-card.done .wc-pct{ color:#2ecc71; font-size:12.5px; }
+  .water-card.done .wc-num{ color:#2ecc71; }
+  .water-card.done #waterBarFill{ background: linear-gradient(90deg, #4FDB86, #2ecc71) !important; }
+  .wc-actions{ display:flex; align-items:center; gap:8px; margin-top:14px; }
+  .wc-add-btn{
+    flex:1; padding:10px 0; border-radius:var(--radius-md); border:1px solid var(--line);
+    background: var(--card-soft); color: var(--ink); font-size:12.5px; font-weight:700; cursor:pointer;
+  }
+  .wc-add-btn:active{ transform: scale(0.96); }
+  .wc-undo-btn{
+    flex-shrink:0; width:36px; height:36px; border-radius:50%; border:1px solid var(--line);
+    background: var(--card-soft); color: var(--ink-soft); display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .wc-undo-btn:active{ transform: scale(0.94); }
+
   .km-big-row{ display:flex; align-items:flex-end; justify-content:space-between; margin-top:10px; }
   .km-big{ font-family:'Montserrat', sans-serif; font-weight:800; font-size:26px; color: var(--ink); display:flex; align-items:baseline; gap:4px; }
   .km-big .km-unit{ font-size:14px; font-weight:700; color: var(--ink-soft); }
@@ -848,31 +878,32 @@
   .run-box b{ color: var(--accent); }
 
   /* ===================== PERFIL ===================== */
-  .profile-card{ position:relative; background: var(--card); border:1px solid var(--line); border-radius:var(--radius-2xl); padding:0 0 20px; margin-bottom:16px; overflow:hidden; }
-  .profile-cover{
-    height:96px; position:relative; overflow:hidden;
-    background: linear-gradient(135deg, var(--today-card) 0%, var(--ink-soft) 160%);
+  .profile-card{ position:relative; padding:6px 0 22px; margin-bottom:16px; }
+  .profile-actions{ display:flex; gap:8px; }
+  .edit-pencil-btn{
+    width:34px; height:34px; border-radius:50%; background: var(--card); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; color: var(--ink);
   }
-  .profile-cover::before, .profile-cover::after{ content:''; position:absolute; border-radius:50%; background: rgba(255,255,255,0.10); }
-  .profile-cover::before{ width:130px; height:130px; top:-60px; right:-26px; }
-  .profile-cover::after{ width:80px; height:80px; bottom:-46px; left:18px; }
+  .edit-pencil-btn:active{ transform: scale(0.92); }
+  .edit-pencil-btn.cancel{ color: var(--danger); }
 
-  .profile-avatar-wrap{ display:flex; justify-content:center; margin-top:-40px; position:relative; z-index:2; }
+  .profile-avatar-wrap{ display:flex; justify-content:center; position:relative; z-index:2; }
   .profile-avatar{
-    width:80px; height:80px; border-radius: 46% 46% 50% 50% / 52% 52% 44% 44%;
-    border:4px solid var(--card);
+    width:88px; height:88px; border-radius:50%;
+    border:3px solid var(--bg-1);
+    box-shadow: 0 0 0 2px var(--line);
     background: var(--accent);
     display:flex; align-items:center; justify-content:center;
     position:relative; overflow:hidden; flex-shrink:0;
   }
   .profile-avatar svg{ width:60%; height:auto; }
 
-  .profile-info{ padding: 14px 20px 0; text-align:center; }
+  .profile-info{ padding: 16px 20px 0; text-align:center; }
   .profile-name-line{ display:flex; align-items:center; justify-content:center; gap:8px; }
-  .profile-name{ font-family:'Montserrat', sans-serif; font-size:18px; font-weight:700; }
+  .profile-name{ font-family:'Montserrat', sans-serif; font-size:19px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; }
   .profile-status{ font-size:11.5px; font-weight:700; color:#2ea043; display:flex; align-items:center; gap:5px; }
   .profile-status-dot{ width:7px; height:7px; border-radius:50%; background:#2ea043; flex-shrink:0; }
-  .profile-email{ font-size:12.5px; color: var(--ink-soft); margin-top:4px; }
+  .profile-email{ font-size:12.5px; color: var(--ink-soft); margin-top:5px; letter-spacing:0.3px; }
 
   .profile-stats{ display:flex; background: var(--card-soft); border-radius:var(--radius-sm); margin:16px 0 0; }
   .profile-stat{ flex:1; text-align:center; padding:12px 4px; }
@@ -954,6 +985,15 @@
   .medals-entry-title{ font-family:'Montserrat', sans-serif; font-weight:700; font-size:14.5px; color: var(--ink); }
   .medals-entry-sub{ font-size:12px; color: var(--ink-soft); margin-top:2px; }
   .im-entry-icon{ background: linear-gradient(135deg, #4FA8FF, #2E6FE0) !important; color: #FFFFFF !important; }
+
+  .entry-cards-row{ display:flex; gap:10px; margin-bottom:16px; }
+  .entry-cards-row .medals-entry-card.half{
+    flex:1; margin-bottom:0; padding:14px 12px; gap:10px; flex-direction:column; align-items:flex-start;
+  }
+  .entry-cards-row .medals-entry-card.half .medals-entry-icon{ width:38px; height:38px; border-radius:12px; }
+  .entry-cards-row .medals-entry-card.half .medals-entry-title{ font-size:13.5px; }
+  .entry-cards-row .medals-entry-card.half .medals-entry-sub{ font-size:11px; }
+  .water-entry-icon{ background: linear-gradient(135deg, #6FC6F2, #2E86D8) !important; color: #FFFFFF !important; }
 
   .medal-tabs{ display:flex; gap:8px; margin-top:4px; }
   .medal-tab{
@@ -1772,6 +1812,28 @@
 
         <div class="today-card" id="todayCard"></div>
 
+        <div class="water-card" id="waterCard">
+          <div class="wc-top">
+            <div class="wc-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2.5c3 4 6.5 8.4 6.5 12.2A6.5 6.5 0 015.5 14.7c0-3.8 3.5-8.2 6.5-12.2z" fill="#3EA6E0"/></svg>
+            </div>
+            <div class="wc-top-text">
+              <div class="sk-label">Hidratação</div>
+              <div class="wc-num"><span id="waterNum">0</span><span class="wc-unit"> / <span id="waterGoalNum">0</span> ml</span></div>
+            </div>
+            <div class="wc-pct" id="waterPct">0%</div>
+          </div>
+          <div class="km-bar"><div class="km-bar-fill" id="waterBarFill" style="background: linear-gradient(90deg, #6FC6F2, #3EA6E0);"></div></div>
+          <div class="wc-actions">
+            <button class="wc-add-btn" onclick="addWater(200)">+200ml</button>
+            <button class="wc-add-btn" onclick="addWater(300)">+300ml</button>
+            <button class="wc-add-btn" onclick="addWater(500)">+500ml</button>
+            <button class="wc-undo-btn" onclick="undoWater()" aria-label="Desfazer último registro">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M8 7L4 11l4 4M4 11h10a5 5 0 010 10h-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+
         <div class="streak-card" id="streakCard">
           <div class="sk-top">
             <div class="sk-flame-wrap">
@@ -1933,10 +1995,20 @@
       <div class="wrap">
         <div class="top-bar" style="display:flex; align-items:center; justify-content:space-between;">
           <h2 class="disp" style="margin-bottom:0;">Perfil</h2>
+          <div class="profile-actions">
+            <button class="edit-pencil-btn" id="profileEditSaveBtn" onclick="toggleProfileEdit()" aria-label="Editar perfil">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 17.5V21h3.5L17.6 9.9l-3.5-3.5L3 17.5z" fill="currentColor" opacity="0.32"/><path d="M20.7 7a1 1 0 000-1.4L18.4 3.3a1 1 0 00-1.4 0l-1.9 1.9 3.5 3.5L20.7 7z" fill="currentColor"/></svg>
+            </button>
+            <button class="edit-pencil-btn cancel" id="profileEditCancelBtn" style="display:none;" onclick="cancelProfileEdit()" aria-label="Cancelar edição">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </button>
+            <button class="edit-pencil-btn" onclick="openPinChangeModal()" aria-label="Alterar PIN">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="5" y="10.5" width="14" height="9.5" rx="2.2" fill="currentColor" opacity="0.32"/><path d="M8 10.5V7.5a4 4 0 018 0v3" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round"/></svg>
+            </button>
+          </div>
         </div>
 
         <div class="profile-card" id="profileCard">
-          <div class="profile-cover"></div>
           <div class="profile-avatar-wrap">
             <div class="profile-avatar su-clickable" id="profileAvatar" onclick="cycleProfileAccent()" role="button" aria-label="Trocar de tema"><svg viewBox="0 0 100 100" fill="none"><path d="M22.29,26 Q50,10 56.93,14 L77.71,26 Q84.64,30 84.64,38 L84.64,62 Q84.64,70 77.71,74 L56.93,86 Q50,90 43.07,86 L22.29,74 Q15.36,70 15.36,62 L15.36,38 Q15.36,30 22.29,26 Z" fill="#141414"/><ellipse cx="38" cy="50" rx="10" ry="12" fill="#fff"/><ellipse cx="62" cy="50" rx="10" ry="12" fill="#fff"/><circle cx="35" cy="52" r="5" fill="#141414"/><circle cx="59" cy="52" r="5" fill="#141414"/><circle cx="33.5" cy="50" r="1.5" fill="#fff"/><circle cx="57.5" cy="50" r="1.5" fill="#fff"/></svg></div>
           </div>
@@ -1947,7 +2019,7 @@
                 <span class="profile-name" id="profileNameView">Perfil</span>
                 <span class="profile-status"><span class="profile-status-dot"></span>Ativo</span>
               </div>
-              <div class="profile-email" id="profileCodeView">Código #000</div>
+              <div class="profile-email" id="profileCodeView">#000</div>
             </div>
 
             <div class="profile-edit-fields" id="profileEditFields" style="display:none;">
@@ -1955,18 +2027,27 @@
               <div class="su-wheel-lbl" style="margin-top:14px; text-align:left;">Cor do tema</div>
               <div class="theme-dots" id="profileThemeDots" style="justify-content:flex-start;"></div>
             </div>
+          </div>
+        </div>
 
-
-            <div style="display:flex; gap:10px; margin:18px 0 0;">
-              <button class="detail-start-btn" id="profileEditSaveBtn" style="flex:1; margin:0;" onclick="toggleProfileEdit()">Editar</button>
-              <button class="btn-outline" id="profileEditCancelBtn" style="display:none; flex:0 0 auto; padding:16px 20px;" onclick="cancelProfileEdit()">Cancelar</button>
+        <div class="entry-cards-row">
+          <div class="medals-entry-card half" onclick="openMedalsScreen()" role="button" tabindex="0" aria-label="Ver medalhas">
+            <div class="medals-entry-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="14" r="7" fill="currentColor" opacity="0.35"/><path d="M12 9.5l1.4 2.9 3.2.5-2.3 2.2.5 3.2L12 16.7l-2.8 1.6.5-3.2-2.3-2.2 3.2-.5L12 9.5z" fill="currentColor"/><path d="M8.5 2.5L6 8l3.5 2M15.5 2.5L18 8l-3.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/></svg>
             </div>
+            <div class="medals-entry-info">
+              <div class="medals-entry-title">Medalhas</div>
+              <div class="medals-entry-sub" id="medalsEntrySub">0 medalhas conquistadas</div>
+            </div>
+          </div>
 
-            <div class="profile-settings" style="margin-top:6px;">
-              <div class="settings-row" onclick="openPinChangeModal()" role="button" tabindex="0" aria-label="Alterar PIN">
-                <span class="t">Alterar PIN</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9.3 5.3a1.4 1.4 0 010 2l-4.8 4.7 4.8 4.7a1.4 1.4 0 01-2 2L1.5 12.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor" opacity="0.5" transform="rotate(180 12 12)"/></svg>
-              </div>
+          <div class="medals-entry-card half" onclick="openWaterHistoryScreen()" role="button" tabindex="0" aria-label="Ver histórico de hidratação">
+            <div class="medals-entry-icon water-entry-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2.5c3 4 6.5 8.4 6.5 12.2A6.5 6.5 0 015.5 14.7c0-3.8 3.5-8.2 6.5-12.2z" fill="currentColor"/></svg>
+            </div>
+            <div class="medals-entry-info">
+              <div class="medals-entry-title">Hidratação</div>
+              <div class="medals-entry-sub" id="waterEntrySub">0 dias na meta</div>
             </div>
           </div>
         </div>
@@ -2015,22 +2096,26 @@
           <div id="prList"></div>
         </div>
 
-        <div class="medals-entry-card" onclick="openMedalsScreen()" role="button" tabindex="0" aria-label="Ver medalhas">
-          <div class="medals-entry-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="14" r="7" fill="currentColor" opacity="0.35"/><path d="M12 9.5l1.4 2.9 3.2.5-2.3 2.2.5 3.2L12 16.7l-2.8 1.6.5-3.2-2.3-2.2 3.2-.5L12 9.5z" fill="currentColor"/><path d="M8.5 2.5L6 8l3.5 2M15.5 2.5L18 8l-3.5 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/></svg>
-          </div>
-          <div class="medals-entry-info">
-            <div class="medals-entry-title">Medalhas</div>
-            <div class="medals-entry-sub" id="medalsEntrySub">0 medalhas conquistadas</div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9.3 5.3a1.4 1.4 0 010 2l-4.8 4.7 4.8 4.7a1.4 1.4 0 01-2 2L1.5 12.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor" opacity="0.5" transform="rotate(180 12 12)"/></svg>
-        </div>
-
         <div class="reports-section" id="reportsSection">
           <div class="sm-title disp">Relatórios Trimestrais</div>
           <div id="reportsList"></div>
         </div>
 
+      </div>
+    </div>
+
+    <div class="view" id="view-hidratacao">
+      <div class="wrap">
+        <div class="detail-head">
+          <div class="back-btn" onclick="goTo('perfil')" role="button" aria-label="Voltar" tabindex="0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14.7 5.3a1.4 1.4 0 010 2L9.9 12l4.8 4.7a1.4 1.4 0 01-2 2l-5.8-5.7a1.4 1.4 0 010-2l5.8-5.7a1.4 1.4 0 012 0z" fill="currentColor"/></svg>
+          </div>
+          <div style="flex:1;">
+            <h2 class="disp" style="margin-bottom:0;">Hidratação</h2>
+            <div class="sub">Seu histórico dia a dia</div>
+          </div>
+        </div>
+        <div id="waterHistoryList"></div>
       </div>
     </div>
 
@@ -4153,6 +4238,7 @@ async function confirmJustification(){
   renderToday();
   renderWeekCal();
   renderStreakCard();
+  renderWaterCard();
   renderKmCard();
   renderPerfil();
   renderReportCountdown();
@@ -4266,6 +4352,108 @@ function renderStreakCard(){
     `);
   }
   document.getElementById('streakDays').innerHTML = daysHtml.join('');
+}
+
+/* ===================== HIDRATAÇÃO ===================== */
+/* Meta diária calculada a partir do peso do perfil: 35ml por kg,
+   + 400ml de bônus em dias que o treino já foi concluído. */
+function waterGoal(p){
+  const w = parseFloat((p && p.weight || '').toString().replace(',', '.'));
+  let goal = (!w || w <= 0) ? 2000 : Math.round(w * 35);
+  const trainedToday = weekState[dateKey(new Date())] === 'done';
+  if(trainedToday) goal += 400;
+  return goal;
+}
+/* Garante o registro do dia atual, resetando automaticamente quando muda o dia. */
+function waterState(p){
+  const todayKey = dateKey(new Date());
+  if(!p.water || p.water.date !== todayKey){
+    p.water = { date: todayKey, ml: 0, log: [] };
+  }
+  return p.water;
+}
+/* Grava o total do dia no histórico (p.waterLog), pra alimentar a tela de Hidratação em Perfil. */
+function syncWaterLog(p){
+  if(!p.waterLog) p.waterLog = {};
+  const w = waterState(p);
+  const goal = waterGoal(p);
+  p.waterLog[w.date] = { ml: w.ml, goal: goal };
+}
+function addWater(amount){
+  const p = profiles.find(x => x.id === currentProfileId);
+  if(!p) return;
+  const w = waterState(p);
+  w.ml += amount;
+  w.log.push(amount);
+  syncWaterLog(p);
+  saveProfiles();
+  renderWaterCard();
+}
+function undoWater(){
+  const p = profiles.find(x => x.id === currentProfileId);
+  if(!p) return;
+  const w = waterState(p);
+  if(!w.log.length){ showToast('Nada pra desfazer hoje.'); return; }
+  const last = w.log.pop();
+  w.ml = Math.max(0, w.ml - last);
+  syncWaterLog(p);
+  saveProfiles();
+  renderWaterCard();
+}
+function renderWaterCard(){
+  const p = profiles.find(x => x.id === currentProfileId);
+  const card = document.getElementById('waterCard');
+  if(!p || !card) return;
+  const w = waterState(p);
+  const goal = waterGoal(p);
+  const done = goal > 0 && w.ml >= goal;
+  const pct = done ? 100 : (goal > 0 ? Math.round((w.ml / goal) * 100) : 0);
+  document.getElementById('waterNum').textContent = w.ml;
+  document.getElementById('waterGoalNum').textContent = goal;
+  document.getElementById('waterPct').innerHTML = done
+    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px; margin-right:2px;"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Concluído'
+    : pct + '%';
+  document.getElementById('waterBarFill').style.width = pct + '%';
+  card.classList.toggle('done', done);
+  syncWaterLog(p);
+  renderWaterEntrySub();
+}
+/* Resumo no card pequeno da aba Perfil: quantos dias já bateram a meta. */
+function renderWaterEntrySub(){
+  const el = document.getElementById('waterEntrySub');
+  if(!el) return;
+  const p = profiles.find(x => x.id === currentProfileId);
+  const log = (p && p.waterLog) || {};
+  const daysHit = Object.values(log).filter(d => d.goal > 0 && d.ml >= d.goal).length;
+  el.textContent = daysHit + (daysHit === 1 ? ' dia na meta' : ' dias na meta');
+}
+function openWaterHistoryScreen(){
+  goTo('hidratacao');
+  renderWaterHistoryList();
+}
+function renderWaterHistoryList(){
+  const wrap = document.getElementById('waterHistoryList');
+  if(!wrap) return;
+  const p = profiles.find(x => x.id === currentProfileId);
+  const log = (p && p.waterLog) || {};
+  const keys = Object.keys(log).sort().reverse();
+  if(!keys.length){
+    wrap.innerHTML = '<div class="reports-empty">Seu histórico de hidratação vai aparecer aqui assim que você começar a registrar.</div>';
+    return;
+  }
+  wrap.innerHTML = keys.map(key => {
+    const d = log[key];
+    const done = d.goal > 0 && d.ml >= d.goal;
+    return `
+    <div class="report-item">
+      <div class="ri-icon" style="background: linear-gradient(135deg, #6FC6F2, #2E86D8); color:#fff;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2.5c3 4 6.5 8.4 6.5 12.2A6.5 6.5 0 015.5 14.7c0-3.8 3.5-8.2 6.5-12.2z" fill="currentColor"/></svg></div>
+      <div>
+        <div class="ri-title">${formatBrDate(key)}</div>
+        <div class="ri-sub">${d.ml}ml de ${d.goal}ml${done ? ' · meta batida' : ''}</div>
+      </div>
+      ${done ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="color:#2ecc71; flex-shrink:0;"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
+    </div>`;
+  }).join('');
 }
 
 function renderKmCard(){
@@ -5642,6 +5830,7 @@ function updatePersonalField(field, value){
   p[field] = value;
   saveProfiles();
   renderIMC();
+  if(field === 'weight') renderWaterCard();
 }
 
 function imcClassification(imc){
@@ -5871,6 +6060,7 @@ function renderPerfil(){
   renderTrainingLog();
   renderPrCard();
   renderReportsList();
+  renderWaterEntrySub();
 }
 
 const MONTH_NAMES_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -6064,7 +6254,10 @@ function toggleProfileEdit(){
 
   document.getElementById('profileViewBlock').style.display = profileEditMode ? 'none' : '';
   document.getElementById('profileEditFields').style.display = profileEditMode ? '' : 'none';
-  btn.textContent = profileEditMode ? 'Salvar' : 'Editar';
+  btn.innerHTML = profileEditMode
+    ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 17.5V21h3.5L17.6 9.9l-3.5-3.5L3 17.5z" fill="currentColor" opacity="0.32"/><path d="M20.7 7a1 1 0 000-1.4L18.4 3.3a1 1 0 00-1.4 0l-1.9 1.9 3.5 3.5L20.7 7z" fill="currentColor"/></svg>';
+  btn.setAttribute('aria-label', profileEditMode ? 'Salvar perfil' : 'Editar perfil');
   if(cancelBtn) cancelBtn.style.display = profileEditMode ? '' : 'none';
 
   if(profileEditMode){
@@ -6095,7 +6288,9 @@ function cancelProfileEdit(){
   profileEditMode = false;
   document.getElementById('profileViewBlock').style.display = '';
   document.getElementById('profileEditFields').style.display = 'none';
-  document.getElementById('profileEditSaveBtn').textContent = 'Editar';
+  const btn = document.getElementById('profileEditSaveBtn');
+  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 17.5V21h3.5L17.6 9.9l-3.5-3.5L3 17.5z" fill="currentColor" opacity="0.32"/><path d="M20.7 7a1 1 0 000-1.4L18.4 3.3a1 1 0 00-1.4 0l-1.9 1.9 3.5 3.5L20.7 7z" fill="currentColor"/></svg>';
+  btn.setAttribute('aria-label', 'Editar perfil');
   const cancelBtn = document.getElementById('profileEditCancelBtn');
   if(cancelBtn) cancelBtn.style.display = 'none';
 }
@@ -6111,7 +6306,7 @@ function loadProfileData(){
   const p = profiles.find(x => x.id === currentProfileId);
   if(!p) return;
   document.getElementById('profileNameView').textContent = p.name;
-  document.getElementById('profileCodeView').textContent = 'Código #' + (p.code || '000');
+  document.getElementById('profileCodeView').textContent = '#' + (p.code || '000');
 }
 
 /* =====================================================================
@@ -6454,6 +6649,7 @@ function renderAll(){
   renderToday();
   renderWeekCal();
   renderStreakCard();
+  renderWaterCard();
   renderKmCard();
   renderFilters();
   renderTreinos();
